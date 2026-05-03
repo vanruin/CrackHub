@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBO Max Cookie Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 750px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo svg {
+            width: 70px;
+            height: 70px;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .main-box {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            transition: transform 0.3s;
+        }
+
+        .main-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .generate-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #8b5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+            animation: slideUp 0.4s ease-out;
+            border: 2px solid #8b5cf6;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .success-icon svg {
+            width: 35px;
+            height: 35px;
+            fill: white;
+        }
+
+        .success-header h3 {
+            color: #8b5cf6;
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        .cookie-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        .field {
+            margin-bottom: 15px;
+        }
+
+        .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .value-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+        }
+
+        .value {
+            flex: 1;
+            font-family: monospace;
+            font-size: 11px;
+            color: #8b5cf6;
+            word-break: break-all;
+            line-height: 1.5;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .copy-btn, .download-btn {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover, .download-btn:hover {
+            background: #6d28d9;
+        }
+
+        .copy-btn.copied, .download-btn.copied {
+            background: #28a745;
+        }
+
+        .download-btn {
+            background: #28a745;
+            margin-top: 10px;
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .download-btn:hover {
+            background: #1e7e34;
+        }
+
+        .extension-method {
+            background: #fff3e0;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #ff6b35;
+        }
+
+        .extension-method h4 {
+            color: #ff6b35;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .extension-method p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .extension-method code {
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 11px;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: #ede9fe;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #6d28d9;
+            text-align: center;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .error-box.show {
+            display: block;
+        }
+
+        .error-message {
+            color: #721c24;
+            font-size: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-section">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="white">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+                </svg>
+            </div>
+            <div class="logo-text">HBO MAX</div>
+            <div class="subtitle">Cookie Generator & Download Tool</div>
+        </div>
+
+        <div class="main-box">
+            <button class="generate-btn" id="generateBtn">
+                🍪 Generate & Download Cookie
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">Generating cookie file...</div>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                <div class="success-header">
+                    <div class="success-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                    </div>
+                    <h3>Cookie File Ready!</h3>
+                </div>
+
+                <div class="extension-method">
+                    <h4>📥 How to use your downloaded cookie file:</h4>
+                    <p><strong>Method 1 (Easy):</strong> Use "Cookie-Editor" Chrome extension:</p>
+                    <ol style="margin-left: 20px; font-size: 12px; color: #666;">
+                        <li>Install <strong>"Cookie-Editor"</strong> from Chrome Web Store</li>
+                        <li>Go to <strong>hbomax.com</strong></li>
+                        <li>Click extension icon → <strong>Import</strong></li>
+                        <li>Paste the JSON format below</li>
+                        <li>Click <strong>Import</strong> and refresh</li>
+                    </ol>
+                    <p style="margin-top: 10px;"><strong>Method 2:</strong> Download the .txt file and use with browser extensions that support Netscape format.</p>
+                </div>
+
+                <div class="cookie-section">
+                    <div class="field">
+                        <span class="label">📦 JSON Format (For Cookie-Editor Extension)</span>
+                        <div class="value-container">
+                            <div class="value" id="cookieJson" style="font-size: 10px;">---</div>
+                            <button class="copy-btn" id="copyJson">Copy JSON</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="download-btn" id="downloadBtn">
+                    💾 Download Cookie File (.txt)
+                </button>
+
+                <div class="stats" id="stats">
+                    Ready to generate HBO cookie
+                </div>
+            </div>
+
+            <div class="error-box" id="errorBox">
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            🍪 HBO Max Cookie Generator | Downloads Netscape Format .txt File
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const resultBox = document.getElementById('resultBox');
+        const errorBox = document.getElementById('errorBox');
+        const cookieJsonSpan = document.getElementById('cookieJson');
+        const statsText = document.getElementById('stats');
+        const copyJson = document.getElementById('copyJson');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let currentCookieData = null;
+
+        generateBtn.addEventListener('click', async () => {
+            generateBtn.disabled = true;
+            loading.classList.add('show');
+            resultBox.classList.remove('show');
+            errorBox.classList.remove('show');
+            
+            try {
+                const response = await fetch('/api/get-random-hbo-cookie', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentCookieData = data.data;
+                    cookieJsonSpan.textContent = JSON.stringify(data.data.cookieJson, null, 2);
+                    statsText.innerHTML = `✅ Cookie ready | ${data.data.cookieCount} cookies | ${data.cookiesRemaining} sets remaining`;
+                    resultBox.classList.add('show');
+                    
+                    // Reset copy button
+                    copyJson.textContent = 'Copy JSON';
+                    copyJson.classList.remove('copied');
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (err) {
+                errorBox.classList.add('show');
+                document.getElementById('errorMessage').innerHTML = `❌ ${err.message}<br><small>Make sure server is running and hbo.txt has cookies in Netscape or semicolon format</small>`;
+            } finally {
+                generateBtn.disabled = false;
+                loading.classList.remove('show');
+            }
+        });
+
+        copyJson.addEventListener('click', async () => {
+            const text = cookieJsonSpan.textContent;
+            if (text && text !== '---') {
+                await navigator.clipboard.writeText(text);
+                copyJson.textContent = 'Copied!';
+                copyJson.classList.add('copied');
+                setTimeout(() => {
+                    copyJson.textContent = 'Copy JSON';
+                    copyJson.classList.remove('copied');
+                }, 2000);
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!currentCookieData) {
+                alert('Please generate a cookie first!');
+                return;
+            }
+
+            // Create Netscape format cookie file content
+            let netscapeContent = '# Netscape HTTP Cookie File\n';
+            netscapeContent += '# https://curl.se/docs/http-cookies.html\n';
+            netscapeContent += '# This file was generated by HBO Max Cookie Generator\n\n';
+            
+            for (const cookie of currentCookieData.cookies) {
+                // domain flag path secure expiration name value
+                const domain = cookie.domain || '.hbomax.com';
+                const flag = cookie.flag === 'TRUE' || cookie.secure === true ? 'TRUE' : 'FALSE';
+                const path = cookie.path || '/';
+                const secure = cookie.secure === true || cookie.secure === 'TRUE' ? 'TRUE' : 'FALSE';
+                const expiration = cookie.expiration || Math.floor(Date.now() / 1000) + 31536000;
+                const name = cookie.name;
+                const value = cookie.value;
+                
+                netscapeContent += `${domain}\t${flag}\t${path}\t${secure}\t${expiration}\t${name}\t${value}\n`;
+            }
+            
+            // Create download
+            const blob = new Blob([netscapeContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hbomax_cookies_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show success feedback
+            const originalText = downloadBtn.textContent;
+            downloadBtn.textContent = '✅ Downloaded!';
+            downloadBtn.classList.add('copied');
+            setTimeout(() => {
+                downloadBtn.textContent = originalText;
+                downloadBtn.classList.remove('copied');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

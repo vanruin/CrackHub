@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix - Account Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #E50914 0%, #B20710 100%);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo svg {
+            width: 70px;
+            height: 70px;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .main-box {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        .method-selector {
+            margin-bottom: 25px;
+        }
+
+        .method-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .method-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        .method-select:hover {
+            border-color: #E50914;
+        }
+
+        .method-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #E50914 0%, #B20710 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #E50914;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+            border: 2px solid #28a745;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .success-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background: #28a745;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .success-icon svg {
+            width: 35px;
+            height: 35px;
+            fill: white;
+        }
+
+        .success-header h3 {
+            color: #28a745;
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        .login-url-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .url-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+        }
+
+        .login-url {
+            flex: 1;
+            font-family: monospace;
+            font-size: 12px;
+            color: #007bff;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #0056b3;
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #E50914 0%, #B20710 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e7f3ff;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #004085;
+            text-align: center;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .error-box.show {
+            display: block;
+        }
+
+        .error-message {
+            color: #721c24;
+            font-size: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-section">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="white">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+                </svg>
+            </div>
+            <div class="logo-text">NETFLIX</div>
+            <div class="subtitle">Account Generator with Smart Selection</div>
+        </div>
+
+        <div class="main-box">
+            <div class="method-selector">
+                <label class="method-label">🎲 Random Selection Method:</label>
+                <select id="selectionMethod" class="method-select">
+                    <option value="smart">🧠 Smart Random - Test until working account found (Recommended)</option>
+                    <option value="pure">🎯 Pure Random - Pick one random account (Fastest)</option>
+                    <option value="sequential">🔄 Sequential - Random start, then sequential order</option>
+                    <option value="weighted">⚖️ Weighted - Fully shuffled random order</option>
+                </select>
+                <div class="method-hint">
+                    💡 Smart: Best success rate | Pure: Fastest | Sequential: Ordered | Weighted: True random
+                </div>
+            </div>
+
+            <button class="generate-btn" id="generateBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+                Generate Netflix Account
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">Testing available accounts...</div>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                <div class="success-header">
+                    <div class="success-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                    </div>
+                    <h3>Success! Account Generated</h3>
+                </div>
+
+                <div class="login-url-section">
+                    <span class="label">🔗 Your Netflix Login URL</span>
+                    <div class="url-container">
+                        <div class="login-url" id="loginUrl">https://netflix.com/...</div>
+                        <button class="copy-btn" id="copyBtn">Copy</button>
+                    </div>
+                </div>
+
+                <a href="#" id="directLoginBtn" class="login-btn" target="_blank">
+                    Open Netflix Directly
+                </a>
+
+                <div class="stats" id="stats">
+                    <span id="statsText">Ready</span>
+                </div>
+            </div>
+
+            <div class="error-box" id="errorBox">
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            ⚡ Instant Account Generation | Multiple Selection Methods
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const resultBox = document.getElementById('resultBox');
+        const errorBox = document.getElementById('errorBox');
+        const loginUrlSpan = document.getElementById('loginUrl');
+        const copyBtn = document.getElementById('copyBtn');
+        const directLoginBtn = document.getElementById('directLoginBtn');
+        const statsText = document.getElementById('statsText');
+        const selectionMethod = document.getElementById('selectionMethod');
+
+        generateBtn.addEventListener('click', async () => {
+            // Disable button and show loading
+            generateBtn.disabled = true;
+            loading.classList.add('show');
+            resultBox.classList.remove('show');
+            errorBox.classList.remove('show');
+            
+            const method = selectionMethod.value;
+            const methodNames = {
+                'smart': 'Smart Random',
+                'pure': 'Pure Random',
+                'sequential': 'Sequential',
+                'weighted': 'Weighted'
+            };
+            
+            try {
+                const response = await fetch('/api/get-random-netflix-cookie', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ method: method })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Display results
+                    loginUrlSpan.textContent = data.data.loginUrl;
+                    directLoginBtn.href = data.data.loginUrl;
+                    
+                    // Show detailed stats
+                    statsText.innerHTML = `
+                        ✅ Found working account after ${data.attempts} attempts<br>
+                        📊 Total accounts available: ${data.totalAccounts}<br>
+                        🎲 Selection method: ${methodNames[data.selectionMethod] || method}
+                    `;
+                    
+                    resultBox.classList.add('show');
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.classList.remove('copied');
+                } else {
+                    throw new Error(data.error || 'Failed to generate account');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                errorBox.classList.add('show');
+                document.getElementById('errorMessage').innerHTML = `
+                    ❌ ${err.message}<br>
+                    <small>Please try again later or try a different selection method</small>
+                `;
+            } finally {
+                generateBtn.disabled = false;
+                loading.classList.remove('show');
+            }
+        });
+
+        // Copy URL functionality
+        copyBtn.addEventListener('click', async () => {
+            const url = loginUrlSpan.textContent;
+            try {
+                await navigator.clipboard.writeText(url);
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                alert('Failed to copy URL. Please manually copy the link.');
+            }
+        });
+    </script>
+</body>
+</html>
