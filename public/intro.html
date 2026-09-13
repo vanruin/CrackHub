@@ -3,234 +3,708 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>VAULT</title>
+    <title>CrackHub · Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-1: #07080f;
+            --panel-bg: rgba(14, 18, 30, 0.7);
+            --panel-border: rgba(120, 140, 220, 0.12);
+            --text-1: #f5f7fc;
+            --text-2: #a8b1c7;
+            --text-3: #6c7385;
+            --accent: #e50914;
+            --accent-glow: rgba(229, 9, 20, 0.4);
+            --green: #22ff88;
+            --violet: #7a00ff;
+            --cyan: #00c8ff;
+            --pink: #ff0055;
+            --radius-lg: 1.25rem;
+            --radius-md: 0.9rem;
+            --radius-sm: 0.6rem;
+            --radius-pill: 999px;
         }
 
-        /* DARK THEME — deep space, minimal, independent cards */
+        html, body { height: 100%; }
+
         body {
-            background: #0a0c12;
+            background: var(--bg-1);
             min-height: 100vh;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-            padding: 2rem 1.5rem;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-1);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            font-feature-settings: 'cv11', 'ss01';
+            padding: 0 0 4rem;
         }
 
-        /* subtle background glow */
+        /* Cosmic backdrop */
         body::before {
             content: '';
             position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 10% 20%, rgba(30, 40, 70, 0.4), #0a0c12 80%);
-            pointer-events: none;
-            z-index: 0;
+            inset: -15%;
+            background:
+                radial-gradient(circle at 12% 15%, rgba(80, 100, 220, 0.28), transparent 42%),
+                radial-gradient(circle at 88% 8%, rgba(200, 30, 110, 0.18), transparent 46%),
+                radial-gradient(circle at 55% 105%, rgba(0, 200, 255, 0.14), transparent 52%),
+                linear-gradient(180deg, #04050a 0%, #07080f 100%);
+            z-index: -3;
+            animation: bg-drift 22s ease-in-out infinite alternate;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 2;
+        @keyframes bg-drift {
+            0%   { transform: translate3d(0, 0, 0) scale(1); }
+            100% { transform: translate3d(-2.5%, -2%, 0) scale(1.08); }
         }
 
-        /* header minimal */
-        .page-header {
-            margin-bottom: 2.5rem;
-            text-align: center;
+        /* ===================== ADMIN TOP BAR ===================== */
+        .admin-bar {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0 2rem;
+            background: rgba(10, 13, 22, 0.75);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border-bottom: 1px solid var(--panel-border);
         }
 
-        .page-header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #ffffff, #9ca3af);
+        .admin-bar .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .admin-bar .brand img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(229, 9, 20, 0.5));
+        }
+
+        .admin-bar .brand .name {
+            font-weight: 900;
+            font-size: 0.98rem;
+            letter-spacing: -0.3px;
+            background: linear-gradient(120deg, #fff 0%, #b8c0d8 60%, #ff5f6d 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+        }
+
+        .admin-bar .crumb {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-size: 0.78rem;
+            color: var(--text-3);
+            padding-left: 1rem;
+            border-left: 1px solid rgba(255,255,255,0.06);
+            margin-left: 0.5rem;
+        }
+
+        .admin-bar .crumb .current {
+            color: var(--text-1);
+            font-weight: 600;
+        }
+
+        .admin-bar .right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .admin-bar .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-pill);
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(34,255,136,0.25);
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #b9ffd6;
+        }
+
+        .admin-bar .status-chip .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse-dot 1.8s ease-in-out infinite;
+        }
+
+        .admin-bar .admin-card {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.35rem 0.7rem 0.35rem 0.35rem;
+            border-radius: var(--radius-pill);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .admin-bar .admin-card .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--pink), var(--violet));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(229,9,20,0.4);
+        }
+
+        .admin-bar .admin-card .info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .admin-bar .admin-card .who {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-1);
+        }
+
+        .admin-bar .admin-card .role {
+            font-size: 0.56rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-top: 1px;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.5; transform: scale(0.75); }
+        }
+
+        /* ===================== CONTAINER ===================== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 0;
+        }
+
+        /* ---------- MINI STATS ROW ---------- */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.9rem;
+            margin-bottom: 1.6rem;
+        }
+
+        .stat-card {
+            position: relative;
+            padding: 1rem 1.15rem;
+            border-radius: var(--radius-md);
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(16px) saturate(150%);
+            -webkit-backdrop-filter: blur(16px) saturate(150%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .stat-card .accent-line {
+            position: absolute;
+            left: 0;
+            top: 22%;
+            bottom: 22%;
+            width: 3px;
+            border-radius: 3px;
+            background: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .stat-card.violet .accent-line { background: var(--violet); box-shadow: 0 0 12px rgba(122,0,255,0.5); }
+        .stat-card.cyan   .accent-line { background: var(--cyan);   box-shadow: 0 0 12px rgba(0,200,255,0.5); }
+        .stat-card.green  .accent-line { background: var(--green);  box-shadow: 0 0 12px rgba(34,255,136,0.5); }
+
+        .stat-card .label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-3);
+        }
+
+        .stat-card .value {
+            font-size: 1.4rem;
+            font-weight: 800;
             letter-spacing: -0.5px;
+            color: var(--text-1);
+            line-height: 1;
         }
 
-        .page-header p {
-            color: #6b7280;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
+        .stat-card .value .unit {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-3);
+            margin-left: 4px;
         }
 
-        /* GRID — each card is totally independent */
+        /* ---------- SECTION HEADER ---------- */
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .section-head .title-block {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .section-head .title-block .eyebrow {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--text-3);
+        }
+
+        .section-head .title-block h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-1);
+        }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-2);
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            padding: 0.5rem 0.9rem;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-1);
+            border-color: rgba(229,9,20,0.4);
+        }
+
+        /* ===================== GRID ===================== */
         .services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.8rem;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.3rem;
             margin-bottom: 2rem;
         }
 
-        /* INDEPENDENT CARD: logo + select button only, no netflix box wrapping */
+        /* ===================== RGB BORDER CARD ===================== */
+        @property --rgb-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
         .service-card {
-            background: rgba(18, 22, 35, 0.85);
-            backdrop-filter: blur(8px);
-            border-radius: 2rem;
-            padding: 1.8rem 1.2rem 1.5rem;
-            transition: all 0.25s ease;
-            border: 1px solid rgba(66, 85, 130, 0.3);
+            position: relative;
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px) saturate(150%);
+            -webkit-backdrop-filter: blur(16px) saturate(150%);
+            border-radius: var(--radius-lg);
+            padding: 1.6rem 1.15rem 1.25rem;
+            transition: transform 0.4s cubic-bezier(.2,.8,.2,1), box-shadow 0.4s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.4);
+            box-shadow:
+                0 20px 40px -22px rgba(0, 0, 0, 0.8),
+                0 0 20px -8px rgba(255, 0, 85, 0.22),
+                0 0 40px -12px rgba(0, 200, 255, 0.15);
+            isolation: isolate;
+            overflow: hidden;
+            min-height: 220px;
+            justify-content: space-between;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background: conic-gradient(
+                from var(--rgb-angle, 0deg),
+                #ff0055, #ff7a00, #ffee00, #00ff88, #00c8ff, #7a00ff, #ff0055
+            );
+            z-index: -2;
+            animation: rgb-spin 5s linear infinite;
+            filter: blur(2.5px) saturate(150%);
+            opacity: 0.9;
+        }
+
+        .service-card::after {
+            content: '';
+            position: absolute;
+            inset: 1.5px;
+            border-radius: calc(var(--radius-lg) - 1.5px);
+            background:
+                radial-gradient(circle at 50% 0%, rgba(30, 40, 70, 0.4), transparent 60%),
+                linear-gradient(180deg, rgba(18, 22, 36, 0.95), rgba(10, 13, 22, 0.97));
+            backdrop-filter: blur(16px);
+            z-index: -1;
+            transition: background 0.35s ease;
+        }
+
+        @keyframes rgb-spin { to { --rgb-angle: 360deg; } }
+
+        @supports not (background: conic-gradient(from var(--rgb-angle, 0deg), red, blue)) {
+            .service-card::before { animation: rgb-rotate 5s linear infinite; }
+            @keyframes rgb-rotate { to { transform: rotate(360deg); } }
         }
 
         .service-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(229, 9, 20, 0.6);
-            background: rgba(22, 27, 45, 0.9);
-            box-shadow: 0 25px 40px -15px rgba(0, 0, 0, 0.6);
+            transform: translateY(-6px);
+            box-shadow:
+                0 32px 60px -22px rgba(0, 0, 0, 0.85),
+                0 0 28px -2px rgba(255, 0, 85, 0.55),
+                0 0 60px -8px rgba(0, 200, 255, 0.45),
+                0 0 100px -16px rgba(122, 0, 255, 0.4);
         }
 
-        /* logo wrapper — each card holds its own brand icon */
+        .service-card .shine {
+            position: absolute;
+            top: 0;
+            left: 15%;
+            right: 15%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            z-index: 1;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Small LIVE pill in top-right */
+        .service-card .status {
+            position: absolute;
+            top: 0.7rem;
+            right: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: rgba(34,255,136,0.9);
+            z-index: 2;
+        }
+
+        .service-card .status .d {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse-dot 1.8s ease-in-out infinite;
+        }
+
         .card-logo {
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 1.5rem;
-            min-height: 85px;
+            margin-bottom: 1.3rem;
+            min-height: 78px;
+            position: relative;
+            z-index: 1;
         }
 
         .card-logo img {
-            max-width: 160px;
-            max-height: 70px;
+            max-width: 140px;
+            max-height: 62px;
             object-fit: contain;
-            filter: brightness(0) invert(1);
-            transition: transform 0.2s;
+            filter: brightness(0) invert(1) drop-shadow(0 4px 14px rgba(0,0,0,0.6));
+            transition: transform 0.4s cubic-bezier(.2,.8,.2,1), filter 0.4s ease;
+            opacity: 0.96;
         }
 
-        /* specific logo adjustments for some brands */
-        .card-logo .custom-logo-svg, 
+        /* ============ KEEP-COLOR OVERRIDE ============ */
+        /* Any img with data-keep-color="true" keeps its ORIGINAL colors */
+        .card-logo img[data-keep-color="true"] {
+            filter: drop-shadow(0 4px 14px rgba(0,0,0,0.6)) !important;
+            opacity: 1 !important;
+        }
+
+        .service-card:hover .card-logo img {
+            transform: scale(1.08);
+            filter: brightness(0) invert(1) drop-shadow(0 0 18px rgba(255,255,255,0.45));
+        }
+
+        .service-card:hover .card-logo img[data-keep-color="true"] {
+            filter: drop-shadow(0 0 18px rgba(255,255,255,0.35)) !important;
+        }
+
         .card-logo .emoji-logo {
-            font-size: 3rem;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            font-size: 2.7rem;
+            filter: drop-shadow(0 4px 14px rgba(0,0,0,0.65));
+            transition: transform 0.4s cubic-bezier(.2,.8,.2,1);
+        }
+
+        .service-card:hover .card-logo .emoji-logo {
+            transform: scale(1.14) rotate(-4deg);
         }
 
         .card-logo .text-logo {
-            color: white;
-            font-weight: 800;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-            background: linear-gradient(145deg, #fff, #cbd5e1);
+            font-weight: 900;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            background: linear-gradient(145deg, #ffffff, #cbd5e1);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
 
-        /* SELECT BUTTON — each card has its own */
         .select-button {
-            background: #0f111a;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 3rem;
-            padding: 0.8rem 1.5rem;
+            background: rgba(8, 10, 18, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-pill);
+            padding: 0.78rem 1.15rem;
             width: 100%;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.78rem;
             font-family: inherit;
-            color: #f0f3fa;
+            letter-spacing: 0.03em;
+            color: var(--text-1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 0.5rem;
-            backdrop-filter: blur(4px);
+            transition: all 0.3s cubic-bezier(.2,.8,.2,1);
+            margin-top: 0.4rem;
+            backdrop-filter: blur(8px);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
         }
+
+        .select-button::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%);
+            transform: translateX(-140%);
+            transition: transform 0.8s ease;
+        }
+
+        .select-button:hover::after { transform: translateX(140%); }
 
         .select-button:hover {
-            background: #e50914;
-            border-color: #e50914;
-            color: white;
-            transform: scale(1.01);
-            box-shadow: 0 6px 14px rgba(229, 9, 20, 0.3);
+            background: linear-gradient(135deg, #e50914, #b0060f);
+            border-color: rgba(255, 100, 110, 0.6);
+            color: #fff;
+            box-shadow:
+                0 14px 30px -8px var(--accent-glow),
+                0 0 0 1px rgba(255,255,255,0.08) inset;
+            transform: translateY(-2px);
         }
 
-        .select-button:active {
-            transform: scale(0.97);
-        }
+        .select-button:active { transform: scale(0.97); }
 
-        /* toast-like dynamic status for each card (tiny popup feedback) */
         .card-feedback {
-            margin-top: 0.9rem;
-            font-size: 0.7rem;
-            color: #9ca3af;
-            background: rgba(0, 0, 0, 0.4);
+            margin-top: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            color: var(--text-2);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.06);
             padding: 0.3rem 0.8rem;
-            border-radius: 30px;
+            border-radius: var(--radius-pill);
             width: 100%;
-            transition: all 0.1s;
+            text-align: center;
+            transition: all 0.2s ease;
             pointer-events: none;
+            position: relative;
+            z-index: 1;
         }
 
-        /* overall footer */
+        /* ---------- FOOTER ---------- */
         .global-footer {
             text-align: center;
-            margin-top: 2.5rem;
-            font-size: 0.7rem;
-            color: #4b5563;
+            margin-top: 1rem;
+            padding-top: 1.4rem;
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--text-3);
             border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 1.8rem;
+            position: relative;
         }
 
+        .global-footer::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), transparent);
+        }
+
+        /* ===================== RESPONSIVE ===================== */
         @media (max-width: 640px) {
-            body {
-                padding: 1rem;
-            }
+            body { padding: 0 0 3rem; }
+            .admin-bar { padding: 0 1rem; height: 58px; }
+            .admin-bar .crumb { display: none; }
+            .admin-bar .status-chip { display: none; }
+            .container { padding: 1.4rem 1rem 0; }
             .services-grid {
                 gap: 1rem;
                 grid-template-columns: 1fr;
             }
             .service-card {
-                padding: 1.4rem;
+                padding: 1.4rem 1.05rem 1.1rem;
+                min-height: 200px;
             }
-            .card-logo img {
-                max-height: 55px;
-            }
+            .card-logo img { max-height: 50px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .service-card::before { animation: none; }
+            body::before { animation: none; }
+            .service-card .status .d,
+            .admin-bar .status-chip .dot { animation: none; }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="page-header">
-        <h1>⚡ ACCOUNT GENERATOR VAULT</h1>
-        <p>Made by Love : Jovan Reguya</p>
+
+<!-- ===================== ADMIN TOP BAR ===================== -->
+<header class="admin-bar">
+    <div class="brand">
+        <img src="/logos/logo.png" alt="CrackHub" onerror="this.style.display='none';">
+        <span class="name">CrackHub</span>
     </div>
 
+    <div class="crumb">
+        <span>Admin</span>
+        <span style="opacity:.5;">/</span>
+        <span class="current">Dashboard</span>
+    </div>
+
+    <div class="right">
+        <span class="status-chip"><span class="dot"></span> Online</span>
+        <div class="admin-card">
+            <div class="avatar">B</div>
+            <div class="info">
+                <span class="who">Bon Marabe</span>
+                <span class="role">Super Admin</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <!-- ---------- MINI STATS ---------- -->
+    <section class="stats">
+        <div class="stat-card">
+            <div class="accent-line"></div>
+            <span class="label">Services</span>
+            <span class="value">13</span>
+        </div>
+        <div class="stat-card violet">
+            <div class="accent-line"></div>
+            <span class="label">Generated</span>
+            <span class="value">1,284</span>
+        </div>
+        <div class="stat-card cyan">
+            <div class="accent-line"></div>
+            <span class="label">Sessions</span>
+            <span class="value">42<span class="unit">live</span></span>
+        </div>
+        <div class="stat-card green">
+            <div class="accent-line"></div>
+            <span class="label">Uptime</span>
+            <span class="value">99.8<span class="unit">%</span></span>
+        </div>
+    </section>
+
+    <!-- ---------- SECTION HEADER ---------- -->
+    <div class="section-head">
+        <div class="title-block">
+            <span class="eyebrow">Module</span>
+            <h3>Service Manager</h3>
+        </div>
+        <button class="btn-ghost">🔄 Refresh</button>
+    </div>
+
+    <!-- ---------- SERVICES GRID ---------- -->
     <div class="services-grid" id="servicesGrid">
         <!-- 1. Netflix -->
         <div class="service-card" data-service="Netflix">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix">
+                <img src="https://images.ctfassets.net/y2ske730sjqp/4aEQ1zAUZF5pLSDtfviWjb/ba04f8d5bd01428f6e3803cc6effaf30/Netflix_N.png?w=300" alt="Netflix">
             </div>
             <button class="select-button" onclick="window.location.href='netflix.html'">🎬 SELECT NETFLIX →</button>
         </div>
 
-        <!-- 2. Steam -->
+        <!-- 2. Steam (KEEPS REAL COLORS) -->
         <div class="service-card" data-service="Steam">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg" alt="Steam" style="filter: brightness(0) invert(1); width: 50px;">
+                <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg" 
+                    alt="Steam" 
+                    data-keep-color="true"
+                    style="width: 62px; height: 62px;"
+                >
             </div>
             <button class="select-button" onclick="window.location.href='steam.html'">🎮 SELECT STEAM →</button>
         </div>
 
         <!-- 3. Crunchyroll -->
         <div class="service-card" data-service="Crunchyroll">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/f/f6/Crunchyroll_Logo.svg" alt="Crunchyroll" style="max-width: 130px;">
             </div>
-              <button class="select-button" onclick="window.location.href='crunchyroll.html'">🍣 SELECT CRUNCHYROLL →</button>
+            <button class="select-button" onclick="window.location.href='crunchyroll.html'">🍣 SELECT CRUNCHYROLL →</button>
         </div>
 
         <!-- 4. HBO Max -->
         <div class="service-card" data-service="HBO Max">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/HBO_Max_Logo.svg" alt="HBO Max" style="max-width: 115px;">
             </div>
@@ -239,6 +713,8 @@
 
         <!-- 5. Paramount+ -->
         <div class="service-card" data-service="Paramount+">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/9/9f/Paramount_Network.svg" alt="Paramount+" style="max-width: 120px;">
             </div>
@@ -247,85 +723,131 @@
 
         <!-- 6. Disney+ -->
         <div class="service-card" data-service="Disney+">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+" style="max-width: 110px;">
             </div>
             <button class="select-button" onclick="window.location.href='disney.html'">🌠 SELECT DISNEY+ →</button>
         </div>
 
-        <!-- 7. CODM (Call of Duty Mobile) -->
-        <div class="service-card" data-service="Call of Duty: Mobile">
-            <div class="card-logo">
-                <div class="emoji-logo" style="font-size: 3.2rem;">🔫🎯</div>
-            </div>
-            <button class="select-button" onclick="window.location.href='garena.html'">🌠 SELECT GARENA+ →</button>
-        </div>
+        <!-- 7. CODM -->
+        <!-- 7. CODM (Call of Duty: Mobile) -->
+<div class="service-card" data-service="Call of Duty: Mobile">
+    <div class="shine"></div>
+    <div class="status"><span class="d"></span>LIVE</div>
+    <div class="card-logo">
+        <img 
+            src="https://i.pinimg.com/736x/a0/b7/5a/a0b75a84d61f6ee9a369415e99e1c853.jpg" 
+            alt="Call of Duty: Mobile" 
+            data-keep-color="true"
+            style="width: 62px; height: 62px; object-fit: contain; border-radius: 12px;"
+        >
+    </div>
+    <button class="select-button" onclick="window.location.href='garena.html'">🌠 SELECT GARENA+ →</button>
+</div>
 
+        <!-- 8. MLBB -->
         <!-- 8. MLBB (Mobile Legends) -->
-        <div class="service-card" data-service="Mobile Legends">
-            <div class="card-logo">
-                <div class="emoji-logo" style="font-size: 3.2rem;">🏆⚔️</div>
-            </div>
-            <button class="select-button" onclick="window.location.href='moonton.html'">🌠 SELECT MOONTON →</button>
-        </div>
+<div class="service-card" data-service="Mobile Legends">
+    <div class="shine"></div>
+    <div class="status"><span class="d"></span>LIVE</div>
+    <div class="card-logo">
+        <img 
+            src="https://i.pinimg.com/1200x/85/ce/f5/85cef5aaf89054952dd0c1cb350d7061.jpg" 
+            alt="Mobile Legends" 
+            data-keep-color="true"
+            style="width: 62px; height: 62px; object-fit: contain; border-radius: 12px;"
+        >
+    </div>
+    <button class="select-button" onclick="window.location.href='moonton.html'">🌠 SELECT MOONTON →</button>
+</div>
 
         <!-- 9. ExpressVPN -->
-        <div class="service-card" data-service="ExpressVPN">
-            <div class="card-logo">
-                <div class="text-logo" style="font-size: 1.6rem; font-weight:800;">EXPRESSVPN</div>
-            </div>
-            <button class="select-button">🔒 SELECT EXPRESSVPN →</button>
-            <div class="card-feedback">⚡ ready</div>
-        </div>
+        <!-- 9. ExpressVPN -->
+<div class="service-card" data-service="ExpressVPN">
+    <div class="shine"></div>
+    <div class="status"><span class="d"></span>LIVE</div>
+    <div class="card-logo">
+        <img 
+            src="https://i.pinimg.com/736x/c3/7b/57/c37b5794793e8a8daeb284055ea9d201.jpg" 
+            alt="ExpressVPN" 
+            data-keep-color="true"
+            style="width: 62px; height: 62px; object-fit: contain; border-radius: 12px;"
+        >
+    </div>
+    <button class="select-button">🔒 SELECT EXPRESSVPN →</button>
+    <div class="card-feedback">⚡ ready</div>
+</div>
 
         <!-- 10. Spotify -->
         <div class="service-card" data-service="Spotify">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" alt="Spotify" style="width: 55px;">
             </div>
             <button class="select-button">🎧 SELECT SPOTIFY →</button>
-            <div class="card-feedback">⚡ ready</div>
+            <div class="card-feedback"> </div>
         </div>
 
-        <!-- 11. Xbox -->
+        <!-- 11. Xbox (KEEPS REAL COLORS) -->
         <div class="service-card" data-service="Xbox Game Pass">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Xbox_logo.svg" alt="Xbox" style="width: 55px; filter: brightness(0) invert(1);">
+                <img 
+                    src="https://i.pinimg.com/1200x/69/af/1b/69af1b021e6fe4d37383f80cdaf0cc26.jpg" 
+                    alt="Xbox" 
+                    data-keep-color="true"
+                    style="width: 55px;"
+                >
             </div>
             <button class="select-button" onclick="window.location.href='xbox.html'">🌠 SELECT XBOX →</button>
         </div>
 
-        <!-- 12. PS4 (PlayStation) -->
+        <!-- 12. PS4 (KEEPS REAL COLORS) -->
         <div class="service-card" data-service="PlayStation Network">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/PlayStation_logo.svg" alt="PS4" style="width: 60px; filter: brightness(0) invert(1);">
+                <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/2/2a/PlayStation_logo.svg" 
+                    alt="PS4" 
+                    data-keep-color="true"
+                    style="width: 60px;"
+                >
             </div>
             <button class="select-button">🎮 SELECT PS4 →</button>
-            <div class="card-feedback">⚡ ready</div>
+            <div class="card-feedback"></div>
         </div>
 
         <!-- 13. CapCut -->
         <div class="service-card" data-service="CapCut">
+            <div class="shine"></div>
+            <div class="status"><span class="d"></span>LIVE</div>
             <div class="card-logo">
-                <div class="emoji-logo" style="font-size: 3rem;">✂️🎬</div>
+                <img 
+    src="https://i.pinimg.com/736x/c4/10/c7/c410c7c8c7bb31013500d214a7da8a8b.jpg" 
+    alt="CapCut" 
+    data-keep-color="true"
+    style="width: 62px; height: 62px; object-fit: contain; border-radius: 12px; background: rgba(255,255,255,0.04); padding: 4px;"
+>
             </div>
             <button class="select-button" onclick="window.location.href='capcut.html'">🌠 SELECT CAPCUT →</button>
         </div>
     </div>
+
     <div class="global-footer">
-       
+        CrackHub · PREMIUM ACCESS
     </div>
 </div>
 
 <script>
     // ==============================================================
-    // BRO, NO NETFLIX BOX WRAPPING. EACH CARD HAS ITS OWN LOGO & SELECT BUTTON
-    // FIXED DARK THEME, ALL SERVICES: Netflix, Steam, Crunchyroll, HBO, Paramount+,
-    // Disney+, CODM, MLBB, ExpressVPN, Spotify, Xbox, PS4, CapCut.
-    // GENERATES RANDOM ACCOUNT CREDENTIALS + AUTO COPY TO CLIPBOARD
+    // credential generator + clipboard + feedback
     // ==============================================================
 
-    // utility random functions
     function randomString(len = 8) {
         const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
         let out = '';
@@ -337,7 +859,6 @@
         return Math.floor(Math.random() * Math.pow(10, len)).toString().padStart(len, '0');
     }
 
-    // credential generator per service (rich & realistic)
     function generateCredsForService(service) {
         const domains = ['@vault.gg', '@streamer.pro', '@blackcard.io', '@primehub.net', '@shadowcodes.com'];
         const domain = domains[Math.floor(Math.random() * domains.length)];
@@ -374,7 +895,6 @@
         }
     }
 
-    // display feedback inside specific card and show toast
     async function updateCardFeedback(cardElement, successMsg, isError = false) {
         const feedbackDiv = cardElement.querySelector('.card-feedback');
         if (feedbackDiv) {
@@ -383,13 +903,12 @@
             setTimeout(() => {
                 if (feedbackDiv) {
                     feedbackDiv.style.color = '#9ca3af';
-                    feedbackDiv.textContent = '⚡ ready';
+                    feedbackDiv.textContent = '';
                 }
             }, 2800);
         }
     }
 
-    // copy to clipboard with full details
     async function copyToClipboard(service, email, password, extraInfo) {
         const credentialText = `🎬 SERVICE: ${service}\n📧 Email/Login: ${email}\n🔑 Password: ${password}\n✨ Extra: ${extraInfo}`;
         try {
@@ -402,39 +921,31 @@
         }
     }
 
-    // generate + copy + update specific card ui
     async function generateAndServe(cardElement, serviceName) {
-        // disable button temporarily to avoid spam
         const btn = cardElement.querySelector('.select-button');
         const originalBtnText = btn.innerHTML;
         btn.innerHTML = '⏳ GENERATING ...';
         btn.disabled = true;
         
         try {
-            // generate fresh account
             const creds = generateCredsForService(serviceName);
-            // update feedback with generating visual
             const feedbackDiv = cardElement.querySelector('.card-feedback');
             if (feedbackDiv) feedbackDiv.textContent = `✨ ${serviceName} generated! copying...`;
             
-            // copy to clipboard
             const copied = await copyToClipboard(serviceName, creds.email, creds.pwd, creds.extra);
             if (copied) {
                 await updateCardFeedback(cardElement, `✅ ${serviceName} account copied! 📋`, false);
-                // show small preview inside feedback (optional extra)
-                const preview = `${creds.email} / ${creds.pwd}`;
                 if (feedbackDiv) {
                     feedbackDiv.innerHTML = `✅ ${serviceName} · ${creds.email.substring(0, 18)}... copied`;
                     setTimeout(() => {
                         if (feedbackDiv && !feedbackDiv.innerHTML.includes('ready')) {
-                            feedbackDiv.innerHTML = `⚡ ready · ${serviceName}`;
+                            feedbackDiv.innerHTML = `· ${serviceName}`;
                             setTimeout(() => {
-                                if (feedbackDiv) feedbackDiv.innerHTML = '⚡ ready';
+                                if (feedbackDiv) feedbackDiv.innerHTML = '';
                             }, 1800);
                         }
                     }, 2500);
                 }
-                // also show a browser notification? optional lightweight
                 if ("Notification" in window && Notification.permission === "granted") {
                     new Notification(`🎉 ${serviceName}`, { body: `Account: ${creds.email}\nPassword copied to clipboard` });
                 }
@@ -450,7 +961,6 @@
         }
     }
 
-    // collect all cards and bind events
     const allCards = document.querySelectorAll('.service-card');
     allCards.forEach(card => {
         const serviceAttr = card.getAttribute('data-service');
@@ -462,11 +972,9 @@
                 await generateAndServe(card, serviceAttr);
             });
         }
-        // optional: double-click on card? no needed only button, but respect design
         card.style.cursor = 'default';
     });
 
-    // request notification permission on first click any button (graceful)
     let notificationAsked = false;
     document.querySelectorAll('.select-button').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -477,17 +985,16 @@
         });
     });
 
-    // small additional fix: for images that might not load due to network, fallback emoji but it's fine
-    // ensure that all logos are visible under dark theme
+    // Apply white filter ONLY to logos that DON'T have data-keep-color="true"
     const allImages = document.querySelectorAll('.card-logo img');
     allImages.forEach(img => {
-        img.style.filter = 'brightness(0) invert(1)';
+        if (img.getAttribute('data-keep-color') !== 'true') {
+            img.style.filter = 'brightness(0) invert(1)';
+        }
         img.style.opacity = '0.95';
     });
-    // Manual exceptions for images that already have filter, avoid double invert on Steam etc (already invert)
-    // but anyway it's consistent
 
-    console.log("Dark theme grid | 13 independent cards | each has LOGO + SELECT button | Netflix, Steam, Crunchyroll, HBO, Paramount+, Disney+, CODM, MLBB, ExpressVPN, Spotify, Xbox, PS4, CapCut");
+    console.log("CrackHub Admin | 13 services | RGB borders | Dashboard ready");
 </script>
 </body>
 </html>

@@ -4,328 +4,498 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Steam Account Generator</title>
+    <link rel="icon" type="image/jpeg" href="https://i.pinimg.com/736x/a7/b1/94/a7b1949fb3ff84878bcdd2dbc3f273a7.jpg">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --steam-bg-1: #1b2838;
+            --steam-bg-2: #171a21;
+            --steam-bg-3: #2a475e;
+            --steam-accent: #66c0f4;
+            --steam-accent-2: #1a9fff;
+            --steam-green: #a4d007;
+            --steam-text: #c7d5e0;
+            --steam-text-dim: #8f98a0;
+            --steam-panel: #16202d;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1b2838 0%, #0d1b2a 100%);
+            font-family: "Motiva Sans", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0e1419;
+            background-image:
+                radial-gradient(ellipse at top, rgba(102, 192, 244, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at bottom, rgba(42, 71, 94, 0.4) 0%, transparent 60%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            color: var(--steam-text);
         }
 
-        .container {
-            max-width: 550px;
-            width: 100%;
-            animation: fadeIn 0.5s ease-out;
-        }
-
+        .container { max-width: 620px; width: 100%; animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .logo-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+        /* ---------- LOGO SECTION ---------- */
+        .logo-section { text-align: center; margin-bottom: 28px; position: relative; }
 
         .logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #1a9fff 0%, #0d6efd 100%);
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            animation: float 3s ease-in-out infinite;
+            width: 110px; height: 110px; margin: 0 auto 18px;
+            border-radius: 50%; padding: 4px;
+            background: linear-gradient(135deg, #66c0f4 0%, #1a9fff 50%, #2a475e 100%);
+            box-shadow:
+                0 0 30px rgba(102, 192, 244, 0.5),
+                0 0 60px rgba(102, 192, 244, 0.2),
+                inset 0 0 20px rgba(0,0,0,0.4);
+            animation: float 3.5s ease-in-out infinite;
+            position: relative;
         }
-
+        .logo::after {
+            content: '';
+            position: absolute;
+            inset: -8px; border-radius: 50%;
+            border: 1px solid rgba(102, 192, 244, 0.2);
+            animation: pulse 3s ease-in-out infinite;
+        }
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-8px); }
         }
-
-        .logo svg {
-            width: 70px;
-            height: 70px;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        .logo img {
+            width: 100%; height: 100%;
+            border-radius: 50%; object-fit: cover; display: block;
         }
 
         .logo-text {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, #a0c4e8 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
+            font-size: 32px; font-weight: 900; letter-spacing: 6px;
+            background: linear-gradient(135deg, #ffffff 0%, #66c0f4 50%, #1a9fff 100%);
+            -webkit-background-clip: text; background-clip: text;
             color: transparent;
-            letter-spacing: 2px;
+            text-shadow: 0 0 30px rgba(102, 192, 244, 0.3);
         }
 
         .subtitle {
-            color: rgba(255,255,255,0.8);
-            font-size: 14px;
-            margin-top: 10px;
+            color: var(--steam-text-dim); font-size: 12px;
+            margin-top: 8px; letter-spacing: 2px; text-transform: uppercase;
         }
 
+        /* ---------- MAIN BOX ---------- */
         .main-box {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            transition: transform 0.3s;
+            background: linear-gradient(135deg, rgba(23, 26, 33, 0.95) 0%, rgba(27, 40, 56, 0.95) 100%);
+            border-radius: 16px;
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(102, 192, 244, 0.1);
+            padding: 32px;
+            border: 1px solid rgba(102, 192, 244, 0.15);
+            backdrop-filter: blur(10px);
         }
 
-        .main-box:hover {
-            transform: translateY(-5px);
+        /* ---------- SEARCH ---------- */
+        .search-section { margin-bottom: 22px; }
+
+        .search-label {
+            font-size: 12px; font-weight: 600;
+            color: var(--steam-accent); margin-bottom: 10px;
+            display: block; text-transform: uppercase; letter-spacing: 1px;
         }
 
-        .generate-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #1a9fff 0%, #0d6efd 100%);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(26, 159, 255, 0.3);
+        .search-row { display: flex; gap: 10px; }
+
+        .search-input {
+            flex: 1; padding: 14px 18px;
+            border: 1px solid rgba(102, 192, 244, 0.2);
+            border-radius: 8px; font-size: 15px;
+            transition: all 0.3s; outline: none;
+            background: rgba(14, 20, 25, 0.8); color: #fff;
+        }
+        .search-input::placeholder { color: #55606d; }
+        .search-input:focus {
+            border-color: var(--steam-accent);
+            background: rgba(14, 20, 25, 1);
+            box-shadow: 0 0 0 3px rgba(102, 192, 244, 0.15);
         }
 
-        .generate-btn:hover:not(:disabled) {
+        .search-btn {
+            padding: 14px 22px;
+            background: linear-gradient(135deg, #66c0f4 0%, #1a9fff 100%);
+            color: #0e1419; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            transition: all 0.3s; white-space: nowrap;
+            display: flex; align-items: center; gap: 8px;
+            letter-spacing: 0.5px; text-transform: uppercase;
+        }
+        .search-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(26, 159, 255, 0.4);
+            box-shadow: 0 6px 20px rgba(102, 192, 244, 0.5);
+            filter: brightness(1.1);
+        }
+        .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ---------- SEARCH RESULTS ---------- */
+        .search-results {
+            margin-top: 14px; max-height: 320px; overflow-y: auto;
+            border-radius: 10px; display: none;
+            border: 1px solid rgba(102, 192, 244, 0.15);
+            background: rgba(14, 20, 25, 0.6);
+        }
+        .search-results.show { display: block; }
+        .search-results::-webkit-scrollbar { width: 8px; }
+        .search-results::-webkit-scrollbar-track { background: transparent; }
+        .search-results::-webkit-scrollbar-thumb {
+            background: rgba(102, 192, 244, 0.3); border-radius: 4px;
+        }
+        .search-results::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 192, 244, 0.5);
         }
 
-        .generate-btn:active:not(:disabled) {
-            transform: translateY(0);
+        .account-result {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 15px; cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(102, 192, 244, 0.08);
+        }
+        .account-result:last-child { border-bottom: none; }
+        .account-result:hover {
+            background: rgba(102, 192, 244, 0.08);
+            border-left: 3px solid var(--steam-accent);
+            padding-left: 12px;
         }
 
-        .generate-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .account-icon {
+            width: 40px; height: 40px; border-radius: 6px;
+            background: linear-gradient(135deg, #2a475e 0%, #1b2838 100%);
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; overflow: hidden;
+        }
+        .account-icon img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        .account-icon .fallback {
+            color: var(--steam-accent); font-weight: 700; font-size: 16px;
         }
 
-        .loading {
-            text-align: center;
-            padding: 30px;
-            display: none;
+        .account-info { flex: 1; min-width: 0; }
+
+        .account-username {
+            font-weight: 600; font-size: 14px; color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .loading.show {
-            display: block;
+        .account-games {
+            font-size: 11px; color: var(--steam-text-dim);
+            margin-top: 3px; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #1a9fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+        .no-results, .searching {
+            padding: 24px; text-align: center;
+            color: var(--steam-text-dim); font-size: 13px;
         }
-
+        .searching .mini-spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(102, 192, 244, 0.15);
+            border-top: 2px solid var(--steam-accent);
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        .loading-text {
-            color: #666;
-            font-size: 14px;
+        /* ---------- LOADING ---------- */
+        .loading { text-align: center; padding: 25px; }
+        .loading .spinner {
+            width: 45px; height: 45px;
+            border: 3px solid rgba(102, 192, 244, 0.1);
+            border-top: 3px solid var(--steam-accent);
+            border-radius: 50%; animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
+        .loading-text { color: var(--steam-text-dim); font-size: 13px; }
 
+        /* ---------- RESULT BOX ---------- */
         .result-box {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            padding: 25px;
+            background: linear-gradient(135deg, rgba(23, 26, 33, 0.95) 0%, rgba(27, 40, 56, 0.95) 100%);
+            border-radius: 12px; padding: 24px; display: none;
+            border: 1px solid rgba(102, 192, 244, 0.3);
             margin-top: 20px;
-            display: none;
-            animation: slideUp 0.4s ease-out;
-            border: 2px solid #28a745;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        .result-box.show { display: block; animation: fadeIn 0.4s ease-out; }
+
+        .result-header {
+            display: flex; align-items: center; gap: 16px;
+            margin-bottom: 20px; padding-bottom: 20px;
+            border-bottom: 1px solid rgba(102, 192, 244, 0.15);
         }
 
-        .result-box.show {
-            display: block;
+        .result-avatar {
+            width: 72px; height: 72px; border-radius: 10px;
+            background: linear-gradient(135deg, #2a475e 0%, #1b2838 100%);
+            border: 2px solid rgba(164, 208, 7, 0.5);
+            overflow: hidden; flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(164, 208, 7, 0.3);
+        }
+        .result-avatar img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .result-header-text { flex: 1; min-width: 0; }
+        .result-header-text h3 {
+            color: #a4d007; font-size: 18px; letter-spacing: 1px;
+            text-transform: uppercase; margin-bottom: 4px;
         }
-
-        .success-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .success-icon {
-            width: 60px;
-            height: 60px;
-            background: #28a745;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-
-        .success-icon svg {
-            width: 35px;
-            height: 35px;
-            fill: white;
-        }
-
-        .success-header h3 {
-            color: #28a745;
-            font-size: 24px;
-            margin-top: 10px;
+        .result-header-text p {
+            color: var(--steam-text-dim); font-size: 12px;
         }
 
         .account-section {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid #e0e0e0;
+            background: rgba(14, 20, 25, 0.6);
+            border-radius: 10px; padding: 20px; margin: 15px 0;
+            border: 1px solid rgba(102, 192, 244, 0.15);
         }
 
-        .field {
-            margin-bottom: 15px;
-        }
+        .field { margin-bottom: 16px; }
+        .field:last-child { margin-bottom: 0; }
 
         .label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-            display: block;
+            font-size: 11px; font-weight: 600;
+            color: var(--steam-accent); text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 6px; display: block;
         }
 
         .value-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
-            border: 1px solid #dee2e6;
+            display: flex; gap: 8px; align-items: center;
+            background: rgba(42, 71, 94, 0.3);
+            border-radius: 6px; padding: 12px 14px;
+            border: 1px solid rgba(102, 192, 244, 0.2);
         }
 
         .value {
-            flex: 1;
-            font-family: monospace;
-            font-size: 13px;
-            color: #1a9fff;
-            word-break: break-all;
-            line-height: 1.5;
+            flex: 1; font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px; color: #66c0f4;
+            word-break: break-all; line-height: 1.4;
         }
 
         .copy-btn {
-            background: #1a9fff;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: background 0.2s;
-            white-space: nowrap;
+            background: linear-gradient(135deg, #2a475e 0%, #1b2838 100%);
+            color: var(--steam-accent);
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            padding: 7px 14px; border-radius: 4px;
+            cursor: pointer; font-size: 11px; font-weight: 700;
+            transition: all 0.2s; white-space: nowrap;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
-
         .copy-btn:hover {
-            background: #0d6efd;
+            background: rgba(102, 192, 244, 0.15); color: #fff;
+        }
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #a4d007 0%, #6b9c00 100%);
+            color: #fff; border-color: transparent;
         }
 
-        .copy-btn.copied {
-            background: #28a745;
+        .games-tags {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            margin-top: 5px; max-height: 110px; overflow-y: auto;
         }
+
+        .game-tag {
+            padding: 4px 10px;
+            background: rgba(102, 192, 244, 0.12);
+            color: var(--steam-accent); border-radius: 4px;
+            font-size: 11px; font-weight: 600;
+            border: 1px solid rgba(102, 192, 244, 0.2);
+        }
+
+        .action-buttons { display: flex; gap: 10px; margin-top: 12px; }
 
         .login-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #1a9fff 0%, #0d6efd 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s;
-            margin-top: 10px;
-            border: none;
-            cursor: pointer;
+            flex: 1; padding: 13px;
+            background: linear-gradient(135deg, #66c0f4 0%, #1a9fff 100%);
+            color: #0e1419; text-decoration: none; border-radius: 6px;
+            font-weight: 700; font-size: 14px;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; transition: all 0.3s; border: none; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px;
         }
-
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(26, 159, 255, 0.4);
+            box-shadow: 0 6px 20px rgba(102, 192, 244, 0.5);
+            filter: brightness(1.1);
         }
 
         .stats {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e7f3ff;
-            border-radius: 10px;
-            font-size: 12px;
-            color: #004085;
-            text-align: center;
+            margin-top: 15px; padding: 10px;
+            background: rgba(102, 192, 244, 0.08);
+            border-radius: 6px; font-size: 12px;
+            color: var(--steam-accent); text-align: center;
+            border: 1px solid rgba(102, 192, 244, 0.15);
         }
 
         .error-box {
-            background: #f8d7da;
-            border: 2px solid #f5c6cb;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            display: none;
-            text-align: center;
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid rgba(220, 53, 69, 0.4);
+            border-radius: 10px; padding: 18px; margin-top: 15px;
+            display: none; text-align: center;
+        }
+        .error-box.show { display: block; animation: shake 0.4s; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
-        .error-box.show {
-            display: block;
-        }
-
-        .error-message {
-            color: #721c24;
-            font-size: 14px;
-        }
+        .error-message { color: #ff6b7a; font-size: 13px; }
 
         .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            color: rgba(255,255,255,0.7);
-            font-size: 12px;
+            text-align: center; margin-top: 25px; padding-top: 15px;
+            color: rgba(143, 152, 160, 0.6); font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        /* ---------- ADMIN PANEL ---------- */
+        .admin-toggle {
+            position: fixed; bottom: 24px; right: 24px;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(135deg, #66c0f4 0%, #1a9fff 100%);
+            color: #0e1419; border: none; cursor: pointer;
+            font-size: 22px; box-shadow: 0 4px 20px rgba(102, 192, 244, 0.5);
+            transition: all 0.3s; z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .admin-toggle:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 30px rgba(102, 192, 244, 0.7);
+        }
+
+        .admin-panel {
+            position: fixed; top: 0; right: -420px;
+            width: 400px; max-width: 100%; height: 100vh;
+            background: linear-gradient(180deg, #171a21 0%, #1b2838 100%);
+            box-shadow: -5px 0 40px rgba(0,0,0,0.6);
+            transition: right 0.3s ease-out; z-index: 999;
+            display: flex; flex-direction: column; overflow: hidden;
+            border-left: 1px solid rgba(102, 192, 244, 0.2);
+        }
+        .admin-panel.open { right: 0; }
+
+        .admin-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #2a475e 0%, #1b2838 100%);
+            border-bottom: 1px solid rgba(102, 192, 244, 0.2);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .admin-header h3 {
+            font-size: 15px; color: #fff;
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+        .admin-close {
+            background: none; border: none; color: var(--steam-accent);
+            font-size: 26px; cursor: pointer; line-height: 1; padding: 0 5px;
+            transition: color 0.2s;
+        }
+        .admin-close:hover { color: #fff; }
+
+        .admin-body { flex: 1; overflow-y: auto; padding: 15px; }
+        .admin-body::-webkit-scrollbar { width: 6px; }
+        .admin-body::-webkit-scrollbar-thumb {
+            background: rgba(102, 192, 244, 0.3); border-radius: 3px;
+        }
+
+        .admin-account {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px; background: rgba(42, 71, 94, 0.25);
+            border: 1px solid rgba(102, 192, 244, 0.12);
+            border-radius: 8px; margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        .admin-account:hover {
+            border-color: rgba(102, 192, 244, 0.4);
+            background: rgba(42, 71, 94, 0.4);
+        }
+
+        .admin-avatar {
+            width: 36px; height: 36px; border-radius: 6px;
+            overflow: hidden; flex-shrink: 0;
+            border: 1px solid rgba(102, 192, 244, 0.25);
+            background: #16202d;
+        }
+        .admin-avatar img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+
+        .admin-account-info { flex: 1; min-width: 0; }
+
+        .admin-account-email {
+            font-size: 12px; font-weight: 600; color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .admin-account-games {
+            font-size: 10px; color: var(--steam-text-dim);
+            margin-top: 3px; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .admin-remove {
+            background: rgba(220, 53, 69, 0.15); color: #ff6b7a;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            width: 30px; height: 30px; border-radius: 6px;
+            cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .admin-remove:hover {
+            background: #dc3545; color: #fff; border-color: #dc3545;
+        }
+
+        .admin-empty {
+            text-align: center; color: var(--steam-text-dim);
+            padding: 40px 20px; font-size: 13px;
+        }
+
+        .admin-add {
+            padding: 15px;
+            border-top: 1px solid rgba(102, 192, 244, 0.15);
+            background: rgba(14, 20, 25, 0.6);
+        }
+        .admin-add input {
+            width: 100%; padding: 11px 12px;
+            background: rgba(14, 20, 25, 0.8);
+            border: 1px solid rgba(102, 192, 244, 0.2);
+            border-radius: 6px; font-size: 12px;
+            margin-bottom: 8px; outline: none; color: #fff;
+            transition: border-color 0.2s;
+        }
+        .admin-add input::placeholder { color: #55606d; }
+        .admin-add input:focus {
+            border-color: var(--steam-accent);
+            box-shadow: 0 0 0 3px rgba(102, 192, 244, 0.1);
+        }
+        .admin-add button {
+            width: 100%; padding: 11px;
+            background: linear-gradient(135deg, #66c0f4 0%, #1a9fff 100%);
+            color: #0e1419; border: none; border-radius: 6px;
+            font-weight: 700; cursor: pointer; font-size: 12px;
+            letter-spacing: 1px; text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .admin-add button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 192, 244, 0.4);
+            filter: brightness(1.1);
         }
     </style>
 </head>
@@ -333,64 +503,75 @@
     <div class="container">
         <div class="logo-section">
             <div class="logo">
-                <svg viewBox="0 0 24 24" fill="white">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
-                </svg>
+                <img src="https://i.pinimg.com/736x/a7/b1/94/a7b1949fb3ff84878bcdd2dbc3f273a7.jpg" alt="Steam Logo">
             </div>
             <div class="logo-text">STEAM</div>
-            <div class="subtitle">Account Generator & Login Tool</div>
+            <div class="subtitle">Account Generator</div>
         </div>
 
         <div class="main-box">
-            <button class="generate-btn" id="generateBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                </svg>
-                Generate Steam Account
-            </button>
+            <div class="search-section">
+                <label class="search-label">🔍 Search for a game</label>
+                <div class="search-row">
+                    <input type="text" class="search-input" id="gameSearch"
+                           placeholder="e.g., Dota 2, CS2, Palworld..." autocomplete="off">
+                    <button class="search-btn" id="searchBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        Search
+                    </button>
+                </div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
 
-            <div class="loading" id="loading">
+            <div class="loading" id="loading" style="display:none;">
                 <div class="spinner"></div>
-                <div class="loading-text">Fetching Steam account...</div>
+                <div class="loading-text" id="loadingText">Loading...</div>
             </div>
 
             <div class="result-box" id="resultBox">
-                <div class="success-header">
-                    <div class="success-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                        </svg>
+                <div class="result-header">
+                    <div class="result-avatar" id="resultAvatar"></div>
+                    <div class="result-header-text">
+                        <h3>Account Found</h3>
+                        <p id="resultSubtitle">Ready to use</p>
                     </div>
-                    <h3>Account Generated!</h3>
                 </div>
 
                 <div class="account-section">
                     <div class="field">
-                        <span class="label">📧 Email / Username</span>
+                        <span class="label">👤 Username</span>
                         <div class="value-container">
-                            <div class="value" id="email">loading...</div>
-                            <button class="copy-btn" data-field="email">Copy</button>
+                            <div class="value" id="username">—</div>
+                            <button class="copy-btn" data-field="username">Copy</button>
                         </div>
                     </div>
-
                     <div class="field">
                         <span class="label">🔑 Password</span>
                         <div class="value-container">
-                            <div class="value" id="password">loading...</div>
+                            <div class="value" id="password">—</div>
                             <button class="copy-btn" data-field="password">Copy</button>
                         </div>
                     </div>
+                    <div class="field" id="gamesField" style="display:none;">
+                        <span class="label">🎮 Games on this account</span>
+                        <div class="games-tags" id="gamesTags"></div>
+                    </div>
                 </div>
 
-                <a href="#" id="directLoginBtn" class="login-btn" target="_blank">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-                        <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/>
-                    </svg>
-                    Open Steam Login
-                </a>
+                <div class="action-buttons">
+                    <a href="https://store.steampowered.com/login/" class="login-btn"
+                       target="_blank" rel="noopener">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/>
+                        </svg>
+                        Open Steam Login
+                    </a>
+                </div>
 
-                <div class="stats" id="stats">
-                    <span id="statsText">Ready to generate</span>
+                <div class="stats">
+                    <span id="statsText"></span>
                 </div>
             </div>
 
@@ -399,90 +580,720 @@
             </div>
         </div>
 
-        <div class="footer">
-            🎮 Steam Account Generator | Secure & Fast
+        <div class="footer">🎮 STEAM ACCOUNT GENERATOR</div>
+    </div>
+
+    <button class="admin-toggle" id="adminToggle" title="Manage accounts">⚙</button>
+
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h3>⚙ Manage Accounts</h3>
+            <button class="admin-close" id="adminClose">×</button>
+        </div>
+        <div class="admin-body" id="adminBody">
+            <div class="admin-empty">Loading accounts…</div>
+        </div>
+        <div class="admin-add">
+            <input type="text" id="newUsername" placeholder="Username">
+            <input type="text" id="newPassword" placeholder="Password">
+            <input type="text" id="newGames" placeholder="Games (comma separated, optional)">
+            <button id="addAccountBtn">+ Add Account</button>
         </div>
     </div>
 
     <script>
-        const generateBtn = document.getElementById('generateBtn');
-        const loading = document.getElementById('loading');
-        const resultBox = document.getElementById('resultBox');
-        const errorBox = document.getElementById('errorBox');
-        const emailSpan = document.getElementById('email');
-        const passwordSpan = document.getElementById('password');
-        const directLoginBtn = document.getElementById('directLoginBtn');
-        const statsText = document.getElementById('statsText');
+    // ---------- ANIME PFP POOL ----------
+    
+    const ANIME_PFPS = [
+        "https://cdn.animeprofile.com/16635275c12f0402c9322b4c63913828_1.png",
+        "https://cdn.animeprofile.com/184c7a189a8609cd46673fac29917fa3_1.png",
+        "https://cdn.animeprofile.com/1fd7d822de58ca3d6522ce6212ede64a_1.png",
+        "https://cdn.animeprofile.com/23db0bb83563130983b3dcf94ad5ee31_1.png",
+        "https://cdn.animeprofile.com/29062257d53f8df94abdbc5ebcf53e9f_1.png",
+        "https://cdn.animeprofile.com/02ff45cf649ca3159d5b65caf3ab1aee_1.png",
+        "https://cdn.animeprofile.com/184ec65797b824f90038e15a5795e3e9_1.png",
+        "https://cdn.animeprofile.com/296569f1d09e77c61af1b99fd1e0932e_1.png",
+        "https://cdn.animeprofile.com/1882a04e4c306bc5a13b324e09a7d7c8_1.png",
+        "https://cdn.animeprofile.com/442594b8d9710b095f934b8739218b7c_1.png",
+        "https://cdn.animeprofile.com/4db1723213517dbcbb647ffd52d2bcaa_1.png",
+        "https://cdn.animeprofile.com/4c14300b5ce3ef7ed20f4347f4850f52_1.png",
+        "https://cdn.animeprofile.com/54dacb74d54cfb89a7e0670ea3b50ccb_1.png",
+        "https://cdn.animeprofile.com/6b2886fc4f7384afcde2ebf4ebc68035_1.png",
+        "https://cdn.animeprofile.com/627a56d3d720bd9778b152c9d2b53c71_1.png",
+        "https://cdn.animeprofile.com/6d0754cccada94ce0153bf52617828f9_1.png",
+        "https://cdn.animeprofile.com/61811e8194cccc464de764fc9c4b225d_1.png",
+        "https://cdn.animeprofile.com/605c6ccd5d04d3978435b39b7425d62c_1.png",
+        "https://cdn.animeprofile.com/5085bfdf7fef4ac37e2d3b663da91bc5_1.png",
+        "https://cdn.animeprofile.com/87a6b91dce3a81ccf650cb6dd36c87bc_1.png",
+        "https://cdn.animeprofile.com/81083902363ff983f58a1da6d674123d_1.png",
+        "https://cdn.animeprofile.com/a1167df2ffb3ba750ca281a570a92144_1.png",
+        "https://cdn.animeprofile.com/9f4bb4de8d6c4de116ee6a1d7b191943_1.png",
+        "https://cdn.animeprofile.com/ab4f8a1e07b6c8b087822262fa247726_1.png",
+        "https://cdn.animeprofile.com/cb33f4b71d75ba6a8e2bda987fca7a7a_1.png",
+        "https://cdn.animeprofile.com/d001984ff103430c19462363d022b81c_1.png",
+        "https://cdn.animeprofile.com/d1154bcc90214ca6a90227c150c6c34d_1.png",
+        "https://cdn.animeprofile.com/cee47e11277ba7667de973688247b9d7_1.png",
+        "https://cdn.animeprofile.com/ed67215d93d356815422525061a22f7c_1.png",
+        "https://cdn.animeprofile.com/ee78cde906dd029d9c9f76446baa5546_1.png",
+        "https://cdn.animeprofile.com/f155f1e09a99d308a749ec540d551145_1.png",
+        "https://cdn.animeprofile.com/f4c6f11d8db73285c555921d7e1f57d7_1.png",
+        "https://cdn.animeprofile.com/f5da16fd359af69bcb4e72ad2d3b0c3d_1.png",
+        "https://cdn.animeprofile.com/1461956f1002a47366114e9794e62bc2_1.png",
+        "https://cdn.animeprofile.com/1c3f14948fd6cb9233f414ee390fcae0_1.png",
+        "https://cdn.animeprofile.com/17b9a86e66be69a07ede6893237944d8_1.png",
+        "https://cdn.animeprofile.com/41268ef5d009f9db6182b4f3e0a4f1bd_1.png",
+        "https://cdn.animeprofile.com/4abbc69307bdbc8882a40676bcc9b5d1_1.png",
+        "https://cdn.animeprofile.com/3e391c377c09137695deb889552ca116_1.png",
+        "https://cdn.animeprofile.com/53f1fb0390c0e01da7c3b97d71809d6b_1.png",
+        "https://cdn.animeprofile.com/78ad249391269f73238eb847dc1ddc0b_1.png",
+        "https://cdn.animeprofile.com/65636af7562b81b8cf7e90602c73c4c8_1.png",
+        "https://cdn.animeprofile.com/8b2df93f5d1895b41ce73028ed7827a9_1.png",
+        "https://cdn.animeprofile.com/8dfeb5018094fc601b979cdda1de8a13_1.png",
+        "https://cdn.animeprofile.com/952da9f89f3f825082947a09dfa11f90_1.png",
+        "https://cdn.animeprofile.com/a214032398e1a34bf440c254e9904fd4_1.png",
+        "https://cdn.animeprofile.com/b21a482a1c867cc0570e1d1fb214d69f_1.png",
+        "https://cdn.animeprofile.com/c23cb16e7d7f55ffb00589e66795afee_1.png",
+        "https://cdn.animeprofile.com/c351f4812fce2873d0a101948182559a_1.png",
+        "https://cdn.animeprofile.com/cb1b3c9dffd6324441a7c7e0a5e137ea_1.png",
+        "https://cdn.animeprofile.com/dafdc9fe245a15ab9e3d89333bb961d3_1.png",
+        "https://cdn.animeprofile.com/deb90d82215c3b22f2c2481020bc3a54_1.png",
+        "https://cdn.animeprofile.com/19529084c064b34cf9e0b54bb3a51406_1.png",
+        "https://cdn.animeprofile.com/084fb6cd0aeef623546f2b70265856ae_1.png",
+        "https://cdn.animeprofile.com/36ed4dcadbc5d3c488fd23756ae4fb2e_1.png",
+        "https://cdn.animeprofile.com/3e83e3b5e49f024cdf4acdea8748f0a7_1.png",
+        "https://cdn.animeprofile.com/265e03a5ec74a3d0256afe6d5963d4a5_1.png",
+        "https://cdn.animeprofile.com/58e155a182713355a680ac23bb74b206_1.png",
+        "https://cdn.animeprofile.com/40a717670ad7a34394ff13355a6b04e7_1.png",
+        "https://cdn.animeprofile.com/5b5d9ab7079928b35b0ec277055e40f9_1.png",
+        "https://cdn.animeprofile.com/4c70dff0cbb41eb7be5394e5c8a1c5c8_1.png",
+        "https://cdn.animeprofile.com/7ce275f2f4339f2ab793b615492a67d9_1.png",
+        "https://cdn.animeprofile.com/758cb98da818491d0188b80ad5da5151_1.png",
+        "https://cdn.animeprofile.com/666e4b6a5cc24221c8ebeab9438acf94_1.png",
+        "https://cdn.animeprofile.com/93cb9c44903c43ca9f289b6acc28ab7e_1.png",
+        "https://cdn.animeprofile.com/928b395f77140a24e77e4bb18afc1149_1.png",
+        "https://cdn.animeprofile.com/8feb9331328a6f7ae5b19108d253146c_1.png",
+        "https://cdn.animeprofile.com/b6f3e4ca0769cadf6c5e2127c7b5996b_1.png",
+        "https://cdn.animeprofile.com/bb4d53414861f2029306c36e289eef1d_1.png",
+        "https://cdn.animeprofile.com/b398944cb0074c83c85a018846af1c17_1.png",
+        "https://cdn.animeprofile.com/cceb214bfd50e2a67540803ec583d545_1.png",
+        "https://cdn.animeprofile.com/a9af898db1cc036b8c27aeb4f7d4b40a_1.png",
+        "https://cdn.animeprofile.com/ee368b7dd44f144123e5c03418253871_1.png",
+        "https://cdn.animeprofile.com/f8cd0ac4f9a550432b959cc0069f5769_1.png",
+        "https://cdn.animeprofile.com/ec18ddd459fc0c25e8c782bcf7e6cbb6_1.png",
+        "https://cdn.animeprofile.com/ed165439a22238296ce852eccfc7de39_1.png",
+        "https://cdn.animeprofile.com/17efebf9ecb042896f51b6a631a96678_1.png",
+        "https://cdn.animeprofile.com/24af75d0b7e556ba8fc11a84c759d012_1.png",
+        "https://cdn.animeprofile.com/7b8da957c132cfae5a7da280006b028b_1.png",
+        "https://cdn.animeprofile.com/6fe467c96da4ae3d801c96d919d49677_1.png",
+        "https://cdn.animeprofile.com/eb37a3471ef7667d340e58e3aef99bb7_1.png",
+        "https://cdn.animeprofile.com/dab2f6a64a59c76816687d05264b5ded_1.png",
+        "https://cdn.animeprofile.com/0525a463b113663c6a6932c3fe61b6d3_1.png",
+        "https://cdn.animeprofile.com/00899e9413f638d08b964ed80a351140_1.png",
+        "https://cdn.animeprofile.com/001aa9eb5a17b8046f5caf90d29729fb_1.png",
+        "https://cdn.animeprofile.com/0963af8632503d45f7df334714e9bc8c_1.png",
+        "https://cdn.animeprofile.com/00b440548ffbdca6d8a471b4aa1930e8_1.png",
+        "https://cdn.animeprofile.com/014d74fb4ab98b2112d20d9b6f9bbe2b_1.png",
+        "https://cdn.animeprofile.com/0351be990763f65e9784f8fc9d77558f_1.png",
+        "https://cdn.animeprofile.com/04aeff969324afd5837bd2f9ae257c7f_2.png",
+        "https://cdn.animeprofile.com/07b0055a71d0d92fe611dee63070d627_1.png",
+        "https://cdn.animeprofile.com/057dfd47c52b8ec6249edff9f2c45e0e_1.png",
+        "https://cdn.animeprofile.com/0899c882ee692f0e794aeae4ea3e2982_1.png",
+        "https://cdn.animeprofile.com/055a6c386d72536e2eacb31dd34edc87_1.png",
+        "https://cdn.animeprofile.com/0aa7c0524eb943a2934b6482c26a122e_1.png",
+        "https://cdn.animeprofile.com/0ac8686dfb002f739b559fb6eb5e5541_1.png",
+        "https://cdn.animeprofile.com/0ad69aaf1f0acb56f7f9ac0d9bbc9430_1.png",
+        "https://cdn.animeprofile.com/07f5cc2cebc71f8c162b0401f8eb0a33_2.png",
+        "https://cdn.animeprofile.com/0791532e27f13a18634d94fadd12bb24_1.png",
+        "https://cdn.animeprofile.com/0f991c2e7859e0983975b076a03b5295_1.png",
+        "https://cdn.animeprofile.com/0fc073a9b500fb833089d5e4ba5fb12d_1.png",
+        "https://cdn.animeprofile.com/0f33517b1eecb033cf6b9251cc9e8772_1.png",
+        "https://cdn.animeprofile.com/11abe014dba88ec09a92c0de34060e07_1.png",
+        "https://cdn.animeprofile.com/1230fcfbeafe3415e9548f5da127a778_1.png",
+        "https://cdn.animeprofile.com/104ff45f8572e3274291f0036a6d3c80_1.png",
+        "https://cdn.animeprofile.com/109cde6ce35387442d3062d5508f135b_1.png",
+        "https://cdn.animeprofile.com/26ad8b98c02f4ca5172f107276ee92a2_1.png",
+        "https://cdn.animeprofile.com/28943d5e1cfdc6c5a43cac8b47909d77_1.png",
+        "https://cdn.animeprofile.com/12dee6d0e02d7abf97149c078d676673_1.png",
+        "https://cdn.animeprofile.com/14c7146a110754c57ee0748a458e7d6e_1.png",
+        "https://cdn.animeprofile.com/15ac5bc3b86dabcc4d1cb0ebca7120c3_1.png",
+        "https://cdn.animeprofile.com/16c05cef9711954a098c7ee37d847dd8_1.png",
+        "https://cdn.animeprofile.com/173bf710f774ca95af4bbc9ba6a93f41_1.png",
+        "https://cdn.animeprofile.com/173bf710f774ca95af4bbc9ba6a93f41_2.png",
+        "https://cdn.animeprofile.com/1849890cd19c052951f1252ced695700_1.png",
+        "https://cdn.animeprofile.com/18552ad2b3f3c35a0e5b664edb236d49_1.png",
+        "https://cdn.animeprofile.com/190024f3282fb372ac6d92966b2dd673_1.png",
+        "https://cdn.animeprofile.com/1b7ea2a7f2383ae3054d21db316c186d_1.png",
+        "https://cdn.animeprofile.com/1ba745021388462ce5d2f2bac35abc14_1.png",
+        "https://cdn.animeprofile.com/1d941088c2698767ee1930e7364a4a22_1.png",
+        "https://cdn.animeprofile.com/1e781ab1b8fe3ee95b89113cb586dfb5_1.png",
+        "https://cdn.animeprofile.com/1e7fb46db96891413031c78585c007ac_1.png",
+        "https://cdn.animeprofile.com/2008e286958e68de32086ac8bd1d7b90_1.png",
+        "https://cdn.animeprofile.com/204e44532ae28f456d0ed1c76a44a992_1.png",
+        "https://cdn.animeprofile.com/209240cf52bd3cd481f6ede3a7b443a2_1.png",
+        "https://cdn.animeprofile.com/21d4da1e86610c1e4a40e12635fef49b_1.png",
+        "https://cdn.animeprofile.com/22729366e0615da98a46ec614d7fcacd_1.png",
+        "https://cdn.animeprofile.com/239b373c1116a5728d9fedeef5cf4acb_1.png",
+        "https://cdn.animeprofile.com/239ba5f09a6741ecd096725e533b6959_1.png",
+        "https://cdn.animeprofile.com/240698ed8bf24f2264dec102c1f1b1c7_1.png",
+        "https://cdn.animeprofile.com/2428608cbcc502ed0cf23fa9644fd443_1.png",
+        "https://cdn.animeprofile.com/30c7d01c8fcb7cc12483d389f96e59d9_1.png",
+        "https://cdn.animeprofile.com/2eb1a60f206423d09af47e5d2eb0d204_1.png",
+        "https://cdn.animeprofile.com/28f66d554033ad21af2fda313af2b56e_1.png",
+        "https://cdn.animeprofile.com/2a15fa322e22a1af24dcc53ad963c342_1.png",
+        "https://cdn.animeprofile.com/2ab4d5bc12a5e42ee29b33a98bf467ba_1.png",
+        "https://cdn.animeprofile.com/2d3887197bfe7feab261f1b213759ba3_1.png",
+        "https://cdn.animeprofile.com/2d86215316a05d1e0e1fa0e74d199e2b_1.png",
+        "https://cdn.animeprofile.com/2eb1a60f206423d09af47e5d2eb0d204_2.png",
+        "https://cdn.animeprofile.com/2f341c8126d2497c09a79dac315c6f85_1.png",
+        "https://cdn.animeprofile.com/0e7bf7eb74ce86c4ee47e69d4b0239db_1.png",
+        "https://cdn.animeprofile.com/32f9841238bd0861806186d31dca1202_1.png",
+        "https://cdn.animeprofile.com/3342e74ee7b8404078664acd4771fba4_1.png",
+        "https://cdn.animeprofile.com/343a561a463bb8f45cd0cbc08f36a95d_1.png",
+        "https://cdn.animeprofile.com/0eb9fc773bcd20fa85704c338f3b96cb_1.png",
+        "https://cdn.animeprofile.com/0ef466cdaa60dc5e9ba7a1843d9ced73_1.png",
+        "https://cdn.animeprofile.com/328090b03043ccacfa1b5a984432adf4_1.png",
+        "https://cdn.animeprofile.com/503b61bd16160caba57bf038c6d4a1a0_1.png",
+        "https://cdn.animeprofile.com/495700baa66813c0d0a4f82547afac05_1.png",
+        "https://cdn.animeprofile.com/34a0937115e4017e4fc8fde23d091c85_1.png",
+        "https://cdn.animeprofile.com/34d50df05adc961482bc0964b9b95ea7_1.png",
+        "https://cdn.animeprofile.com/350dd877cdaa5ed75a69b74c835d4a7a_1.png",
+        "https://cdn.animeprofile.com/3f9c4458d5b430724fb212cd916e3781_1.png",
+        "https://cdn.animeprofile.com/40e5efee13f9086b07261510423f666f_1.png",
+        "https://cdn.animeprofile.com/44d26a7304eb941f540c4785246ce311_1.png",
+        "https://cdn.animeprofile.com/389dd7e5abfd53c9d5f5879d7c31cc8f_1.png",
+        "https://cdn.animeprofile.com/38a1d737d4b5b66df317fd076e5ad81a_1.png",
+        "https://cdn.animeprofile.com/38b44cb5b2a7986a36d7b41ce0d3a9b6_1.png",
+        "https://cdn.animeprofile.com/3a0ab73af0e6155c164da3ce06a862bd_1.png",
+        "https://cdn.animeprofile.com/3a61cd5c28615222e628fd00d1dced92_1.png",
+        "https://cdn.animeprofile.com/3b87b8ed1be94d2409d83fd8d5e64f3d_1.png",
+        "https://cdn.animeprofile.com/3b9dc6a9e596ede5cae4fb3aae74bc07_1.png",
+        "https://cdn.animeprofile.com/3c4a7e48e3b82b419a915f9570643f3b_1.png",
+        "https://cdn.animeprofile.com/3cfe4619f12877fd638129f063c8014c_1.png",
+        "https://cdn.animeprofile.com/3d4393564481607a50f4639f33a9ca7b_1.png",
+        "https://cdn.animeprofile.com/3dd3086765f3c4a7d90de2fa177df401_1.png",
+        "https://cdn.animeprofile.com/4ef13d7e85d1bd131fb060de983ea1a6_1.png",
+        "https://cdn.animeprofile.com/41b1f7bc082c85f652df366a8b602464_1.png",
+        "https://cdn.animeprofile.com/438413424d08f573a0d66b9988fefc61_1.png",
+        "https://cdn.animeprofile.com/44307b77a912b3724554c12d5d41fe4f_1.png",
+        "https://cdn.animeprofile.com/52089b9bfd10e2c406ffd026e8d44d86_1.png",
+        "https://cdn.animeprofile.com/5603af707eb69ab7d109c695a833887a_1.png",
+        "https://cdn.animeprofile.com/457e6f40fc28193d4a17747ddf1c8e02_1.png",
+        "https://cdn.animeprofile.com/46064af7346392436f9fac2472612ec1_1.png",
+        "https://cdn.animeprofile.com/37041c2c325086e873208650cbdaf917_1.png",
+        "https://cdn.animeprofile.com/485cfee36247412754897dc21805c000_1.png",
+        "https://cdn.animeprofile.com/49d6d2ac7dc8411cb864c865f76a4f73_1.png",
+        "https://cdn.animeprofile.com/4d58239e41a27c580f2c05848fad8424_1.png",
+        "https://cdn.animeprofile.com/34736a11cf49fa09e24311a60426ad50_1.png",
+        "https://cdn.animeprofile.com/50bde8c41084bda78ce0d9c90fb5dd36_1.png",
+        "https://cdn.animeprofile.com/5147386f26033d9afd1f89d8f86843f4_1.png",
+        "https://cdn.animeprofile.com/5175a62771194f069ec41195bf8b0510_1.png",
+        "https://cdn.animeprofile.com/594c034be9d3ae56b4ce42d78590dab3_1.png",
+        "https://cdn.animeprofile.com/5cc1cb27530308790cd5ad8d1cf6c01b_1.png",
+        "https://cdn.animeprofile.com/5685e09edf80e31d8ca910f8f9d9a6c2_1.png",
+        "https://cdn.animeprofile.com/473e4d4cea98da0bb84f3f570ba72d79_1.png",
+        "https://cdn.animeprofile.com/379186c4327b48674e43f492becada92_1.png",
+        "https://cdn.animeprofile.com/5cc1cb27530308790cd5ad8d1cf6c01b_2.png",
+        "https://cdn.animeprofile.com/5cc1cb27530308790cd5ad8d1cf6c01b_4.png",
+        "https://cdn.animeprofile.com/35202088579177dcf5562b149295dc38_1.png",
+        "https://cdn.animeprofile.com/36ef08d46a7c46d997a044579623e79c_1.png",
+        "https://cdn.animeprofile.com/44c0f44ea435a1c90becffe1ed8c74c3_1.png",
+        "https://cdn.animeprofile.com/5e9fd468118b5fccc5f36039630e5457_1.png",
+        "https://cdn.animeprofile.com/5ed223b548ca68e7997de4dce6f3ea82_1.png",
+        "https://cdn.animeprofile.com/5efb06e25032ec8e9f6fac169f8cee7a_1.png",
+        "https://cdn.animeprofile.com/5fc0072c857ca0373addef416abc3e14_1.png",
+        "https://cdn.animeprofile.com/607aba502b1c207dfc1fab07e800a775_1.png",
+        "https://cdn.animeprofile.com/610be9a02ac06b38ba99d9430436b521_1.png",
+        "https://cdn.animeprofile.com/616ea950542e4a4e09d337d644e5addf_1.png",
+        "https://cdn.animeprofile.com/62c79ec6c4b15d11f0934f47699dd2dd_1.png",
+        "https://cdn.animeprofile.com/63bf74feb1724e5145b8f59597bfb2ac_1.png",
+        "https://cdn.animeprofile.com/642a7eee2de8a5a4e6566b02d4b7ebf8_1.png",
+        "https://cdn.animeprofile.com/646e6ace5439a20415d9c09d7eb27634_1.png",
+        "https://cdn.animeprofile.com/64b9560b4c9e159ecd2b5baee0729724_1.png",
+        "https://cdn.animeprofile.com/656d2eb41bb3ec1ec508e52594b1465f_1.png",
+        "https://cdn.animeprofile.com/669693fdd0f9e7299546c6d97fb20bfb_1.png",
+        "https://cdn.animeprofile.com/676e7072607509d390eb7ad21fc5a0fc_1.png",
+        "https://cdn.animeprofile.com/678a9e12cbb633fb4fac327bd050782b_1.png",
+        "https://cdn.animeprofile.com/690efce364d58f565cdc06b61763efbe_1.png",
+        "https://cdn.animeprofile.com/72af1dd4e7808390a9cc27cefe1705ed_1.png",
+        "https://cdn.animeprofile.com/72c815e07db789227c6f03a686ca96d8_1.png",
+        "https://cdn.animeprofile.com/6a5233bd9534e240df777a4af4c285c1_2.png",
+        "https://cdn.animeprofile.com/6a7ec89d4f95f98745cc71cee2ace5ea_1.png",
+        "https://cdn.animeprofile.com/6a9da3b7c13c1ae4952f4827141be967_1.png",
+        "https://cdn.animeprofile.com/6aa1e04a4202d00cf5c960e21ef9ddc2_1.png",
+        "https://cdn.animeprofile.com/6ab662d1e9c7a976f25a35a7c8f738fe_1.png",
+        "https://cdn.animeprofile.com/6af17ef7393ae791513e0f60bfc46206_1.png",
+        "https://cdn.animeprofile.com/6af4bcb8d7029cdb92aed82cd9d5f8e1_1.png",
+        "https://cdn.animeprofile.com/6e18d2ad88bbe308ba692f4f9bfa5ebc_1.png",
+        "https://cdn.animeprofile.com/6ecff1f8809ea229619328c42cbb2ac1_1.png",
+        "https://cdn.animeprofile.com/7117257ad3f7ac92223f7fc470c0115e_1.png",
+        "https://cdn.animeprofile.com/711bab2871f32df9c68501cfc4d0efd6_1.png",
+        "https://cdn.animeprofile.com/720725e0503c07ef4c78863ac9b08981_1.png",
+        "https://cdn.animeprofile.com/722f12f7465e62d1c3593689c8659cf7_1.png",
+        "https://cdn.animeprofile.com/762976a5a18ede552db7c51ef54bbe44_1.png",
+        "https://cdn.animeprofile.com/764e9f3377a11d21fcea193ef2e1de6b_1.png",
+        "https://cdn.animeprofile.com/76139387c6097aaa739d191782794c85_1.png",
+        "https://cdn.animeprofile.com/74646f1bbc34790910a4f0d495e3b254_1.png",
+        "https://cdn.animeprofile.com/74c571c67a174a22d6839a6464365c87_1.png",
+        "https://cdn.animeprofile.com/7595ff3fea0c33115b1a0af986a5f6af_1.png",
+        "https://cdn.animeprofile.com/5d94283e185ca8eeb683771ced7c857e_1.png",
+        "https://cdn.animeprofile.com/6984a703da4e15f6ede084819f6efb43_1.png",
+        "https://cdn.animeprofile.com/6a5233bd9534e240df777a4af4c285c1_1.png",
+        "https://cdn.animeprofile.com/76bf20a4ebb8c5c6f050cdb0b9be447d_1.png",
+        "https://cdn.animeprofile.com/7729294fb880576fe484e3b77d362403_1.png",
+        "https://cdn.animeprofile.com/77dccbb6def078a6a40f096d88acf77d_1.png",
+        "https://cdn.animeprofile.com/7811fc9145a014b4e9fd4816b73ab23a_1.png",
+        "https://cdn.animeprofile.com/72433a0c5758c0b259ae4a7e96d04bd8_1.png",
+        "https://cdn.animeprofile.com/75d3f12f5cd28ef0cd177e5de527549a_1.png",
+        "https://cdn.animeprofile.com/8bf7f60f0fa4f37f73a5d69a3afda126_1.png",
+        "https://cdn.animeprofile.com/85cb5b2d1d368e5d125b8b9b07620253_1.png",
+        "https://cdn.animeprofile.com/78d84a5e9430c41ebd8423faa48cd928_1.png",
+        "https://cdn.animeprofile.com/7b12f70c7843fe1a9ebb9851dd72cb57_1.png",
+        "https://cdn.animeprofile.com/7bd3585ab7c611bf17023ed161aa7656_1.png",
+        "https://cdn.animeprofile.com/7c1781e1e0a69360e855d930758336ad_1.png",
+        "https://cdn.animeprofile.com/7d89239c9b7a2fbe956842f0563704d8_1.png",
+        "https://cdn.animeprofile.com/7f200ca396ffa6a0facc787a3658fbb7_1.png",
+        "https://cdn.animeprofile.com/807edbe24f7eff3076858532841a35c9_1.png",
+        "https://cdn.animeprofile.com/813ea60cadda9512ee088e23656165ea_1.png",
+        "https://cdn.animeprofile.com/9ae4b90b75f96fa80ec15454d514f57a_1.png",
+        "https://cdn.animeprofile.com/9b1c94f9284efa1f34697cc2c192bda4_1.png",
+        "https://cdn.animeprofile.com/785b1d590fcd799a5dae734e62c0d16a_1.png",
+        "https://cdn.animeprofile.com/8705876626b6e3e481c17bf467f641ba_1.png",
+        "https://cdn.animeprofile.com/88069908b78dbd1e7e958131c5f20ed4_1.png",
+        "https://cdn.animeprofile.com/8850aa9d38ca9828d17928499360c1df_1.png",
+        "https://cdn.animeprofile.com/88f1ef10393b1caa6b6d29ff473873cf_1.png",
+        "https://cdn.animeprofile.com/9632d0d4895c77ca28f14fb80ec9d61b_1.png",
+        "https://cdn.animeprofile.com/96712c01a0840460db867e040b79c6a8_1.png",
+        "https://cdn.animeprofile.com/8dc8d1cb5d951698cea8b91d071a0f82_1.png",
+        "https://cdn.animeprofile.com/8df49c55ee480ca32f94c793fcec38e1_1.png",
+        "https://cdn.animeprofile.com/8e98fbc21966eb99027b01fce55890a1_1.png",
+        "https://cdn.animeprofile.com/8f5f67fc0175afb1850896f17b6c9b56_1.png",
+        "https://cdn.animeprofile.com/8fe9c3e8f64f16563012bedf0b36f0d8_1.png",
+        "https://cdn.animeprofile.com/9076c8ec7b72d6422fbff792730b28cf_1.png",
+        "https://cdn.animeprofile.com/937eab19a0e1156b63a64f12963a3855_1.png",
+        "https://cdn.animeprofile.com/947665cc8a6dc10c1c7324c0029623cd_1.png",
+        "https://cdn.animeprofile.com/9479e41b5bf9c93e23238308bec562f3_1.png",
+        "https://cdn.animeprofile.com/9504d2540d02ebf0e970a868906a8387_1.png",
+        "https://cdn.animeprofile.com/9b740412b8166b5c009880f0f9896485_1.png",
+        "https://cdn.animeprofile.com/9d7a6d6fbdfc816310ce2ea3088ae7cc_1.png",
+        "https://cdn.animeprofile.com/9885c9613fe87753c90d9b735989b68d_1.png",
+        "https://cdn.animeprofile.com/9a573bae262c21c797e087a8184cde28_1.png",
+        "https://cdn.animeprofile.com/83e00188dd839913c1d1ca135ab6c91f_1.png",
+        "https://cdn.animeprofile.com/9b704238d1c135b6c99ebe398b3aa69e_1.png",
+        "https://cdn.animeprofile.com/a2120fa88f92d993cd1a94b19ae0e7aa_1.png",
+        "https://cdn.animeprofile.com/a218d88a65d91fe4d197e7bde09f21bc_1.png",
+        "https://cdn.animeprofile.com/9db72792f3727468d2bdb532198f5a6f_1.png",
+        "https://cdn.animeprofile.com/9ebfbe7e1343494c2a136e080db87b7f_1.png",
+        "https://cdn.animeprofile.com/9f15c436e8ca09267ec43b67b19eb5ee_1.png",
+        "https://cdn.animeprofile.com/a1d533644869a40359ea4968e6dc4f88_1.png",
+        "https://cdn.animeprofile.com/8360cb7c763e382b4184efe3f0f92e0e_1.png",
+        "https://cdn.animeprofile.com/83a4d2e76f018a5e7e9ba05ce17c3ce7_1.png",
+        "https://cdn.animeprofile.com/a29ae7a0bd52890fc310f3dd5282bade_1.png",
+        "https://cdn.animeprofile.com/a2b11623d3247e9ebc373e7330088939_1.png",
+        "https://cdn.animeprofile.com/a2ecfa7dc3720796ed7abd2962b35b84_1.png",
+        "https://cdn.animeprofile.com/8d09abdd9df8f32fcbc0655bf51788d0_1.png",
+        "https://cdn.animeprofile.com/a936343f3a590f0fdd2ea016209526bf_1.png",
+        "https://cdn.animeprofile.com/a3e3093bef523e28a0b624bfea3590d4_1.png",
+        "https://cdn.animeprofile.com/a72667a36be77baeee76697ca3dab0f8_1.png",
+        "https://cdn.animeprofile.com/a7f2545ae38cdba712e9b9e9ae7e98b9_1.png",
+        "https://cdn.animeprofile.com/a9175828d390c0fcdd82dc571e4847f1_1.png",
+        "https://cdn.animeprofile.com/b477938c8c5063820a3a2e84b318bf85_1.png",
+        "https://cdn.animeprofile.com/b95440a86256690307e3ca11ea6bd3a2_1.png",
+        "https://cdn.animeprofile.com/ac1532c1efae587e4da0772a30da346a_1.png",
+        "https://cdn.animeprofile.com/ac770cf368e22b2646ed24bac9874a8c_1.png",
+        "https://cdn.animeprofile.com/ad47f6595825cb41f2fa1ced8788ca21_1.png",
+        "https://cdn.animeprofile.com/b18f56f9cd9c619ae44c3b1d07228445_1.png",
+        "https://cdn.animeprofile.com/b3627ed44e320b12257269c7922cc30a_1.png",
+        "https://cdn.animeprofile.com/b39b6535a676ce8c33a3944d46d25a1c_1.png",
+        "https://cdn.animeprofile.com/b4da2c6d8d6b114d1f1698cc012b76c6_1.png",
+        "https://cdn.animeprofile.com/b571b97a48f53318d3777e058d6a6b96_1.png",
+        "https://cdn.animeprofile.com/bb6b6967363f31865027345b50b2523f_1.png",
+        "https://cdn.animeprofile.com/b5a37f3a4bb5ad6c390bd2553ec5c23a_1.png",
+        "https://cdn.animeprofile.com/b6980acdb4172e5f91d1bedcd47a4dcb_1.png",
+        "https://cdn.animeprofile.com/b6e5babfe4cfeb9c1f770f5b0ce70d4b_1.png",
+        "https://cdn.animeprofile.com/b847bc5853801c48db83e7a0f54e88c7_1.png",
+        "https://cdn.animeprofile.com/b8daa419954bab50bbe810b04998f1d4_1.png",
+        "https://cdn.animeprofile.com/b94addc9a5bce079344969d6c503ae7e_1.png",
+        "https://cdn.animeprofile.com/c3997ee21643e7e66228b0679242ac30_1.png",
+        "https://cdn.animeprofile.com/c47141ca5b3e2c7493bef61d5d99be19_1.png",
+        "https://cdn.animeprofile.com/bb6d2f2f42e840fb2bf687ae866ac931_1.png",
+        "https://cdn.animeprofile.com/bc840cd3448e2a2afcf86e82a4afc8c9_1.png",
+        "https://cdn.animeprofile.com/be9be79f7afcbcfed870d764d34e9e90_1.png",
+        "https://cdn.animeprofile.com/c1555e8881215633e3fdc89b2f3bb7b6_1.png",
+        "https://cdn.animeprofile.com/c1f036a941e5932885a4b09767d44c13_1.png",
+        "https://cdn.animeprofile.com/a2ecfa7dc3720796ed7abd2962b35b84_2.png",
+        "https://cdn.animeprofile.com/c4c9dde4071d4d73cc8cf21e1b8de6d8_1.png",
+        "https://cdn.animeprofile.com/c4f8d79d6aac0cb2638d92bf1d565ca4_1.png",
+        "https://cdn.animeprofile.com/c5da813e3cbd3a2fcadd0b82b08513d7_1.png",
+        "https://cdn.animeprofile.com/c641476ddd65e0708649f7d2b993b141_1.png",
+        "https://cdn.animeprofile.com/c6c1f23d61e32a76c0cd7f3e5200bd37_1.png",
+        "https://cdn.animeprofile.com/c986f8a19138f0a10552b871768ee99d_1.png",
+        "https://cdn.animeprofile.com/ca4704020e52ea32ef7f89f2de39b8f7_1.png",
+        "https://cdn.animeprofile.com/ca5a11378e1ccb8bf5653feccf5f984e_1.png",
+        "https://cdn.animeprofile.com/ca6cd5bb25fdd5820f71358fdb80b4fa_1.png",
+        "https://cdn.animeprofile.com/caba2ee3bde2ade9bf7f88a8d6e5cd95_1.png",
+        "https://cdn.animeprofile.com/cabdd241de70724a888d54a78d2c9861_1.png",
+        "https://cdn.animeprofile.com/cbdf6681a502e463787dec830a7bdc78_1.png",
+        "https://cdn.animeprofile.com/cc40458c12c80b47ccd019beb57d3597_1.png",
+        "https://cdn.animeprofile.com/cd89da481255084578b8b71575a39949_1.png",
+        "https://cdn.animeprofile.com/ce6a83fac1c7cf6a6f396e479d30d799_1.png",
+        "https://cdn.animeprofile.com/aa98258ef60c32ba65040d1a8c98161f_1.png",
+        "https://cdn.animeprofile.com/eabf9272bd09f7ba8941d92209057e52_1.png",
+        "https://cdn.animeprofile.com/e5007c066524258e0d52d0fd494a4b41_1.png",
+        "https://cdn.animeprofile.com/d365d9042a49bcd96e60fc0ef5a8524e_1.png",
+        "https://cdn.animeprofile.com/dcb1e2683eb16838ac2435c67f22fc94_1.png",
+        "https://cdn.animeprofile.com/d4abfddee07428a6993f055d9db1e268_1.png",
+        "https://cdn.animeprofile.com/d56c6ad91f760066b0f5ea46ff8f6803_1.png",
+        "https://cdn.animeprofile.com/d2e3687df2e87095762757a7257c5bfc_2.png",
+        "https://cdn.animeprofile.com/ebc49285ed215c497f7a313fc20d0aab_1.png",
+        "https://cdn.animeprofile.com/e3a8899ab7078df6a841fa4b64adeec7_1.png",
+        "https://cdn.animeprofile.com/d71a8f8b0a7dafcc4d5f99109267bcf3_1.png",
+        "https://cdn.animeprofile.com/d7c2e4904736f1fcd608481fbbc87fb0_1.png",
+        "https://cdn.animeprofile.com/d86cf0f10429494682c9f3b4e479c0fc_1.png",
+        "https://cdn.animeprofile.com/d8b4a9239112429315e4d88f897e24cd_1.png",
+        "https://cdn.animeprofile.com/d90a3099c628de4db7dcacc62215fab2_1.png",
+        "https://cdn.animeprofile.com/d90f5f907c4cd7507cfedfa9785ac8cf_1.png",
+        "https://cdn.animeprofile.com/d970c09eae22d8c952a07974ff9ddfeb_1.png",
+        "https://cdn.animeprofile.com/dc093ee8d95a9e4325359c412548c534_1.png",
+        "https://cdn.animeprofile.com/dc7512d0f87ec3806791c52566750426_1.png",
+        "https://cdn.animeprofile.com/de8fc509e7436d5ad4429c2bdab1897a_1.png",
+        "https://cdn.animeprofile.com/df46f651352887f34e1f57f4084e8ff5_1.png",
+        "https://cdn.animeprofile.com/ce7ed60f0a9b3f1b01994f256bc2b485_1.png",
+        "https://cdn.animeprofile.com/e8a38f0492e544f90cfbff6b1366d2de_1.png",
+        "https://cdn.animeprofile.com/ea027b4343bd5b86b5756a96e6b64bc6_1.png",
+        "https://cdn.animeprofile.com/e783d519381034b02c77485acc8ecfee_1.png",
+        "https://cdn.animeprofile.com/e7f08f8eaa55fb518e072823dde489b0_1.png",
+        "https://cdn.animeprofile.com/edc127af30e0ead9177500a489dff2e1_1.png",
+        "https://cdn.animeprofile.com/d2e3687df2e87095762757a7257c5bfc_1.png",
+        "https://cdn.animeprofile.com/e4a4c95fc8a1ef7d0d65f78330afeee8_1.png",
+        "https://cdn.animeprofile.com/ebc5302f66a55d3b8edc695c34251bc3_1.png",
+        "https://cdn.animeprofile.com/eee020b9ee8cec9c0c8221369f715060_1.png",
+        "https://cdn.animeprofile.com/ef41c31353a3d3c4e39b7f841889b2ef_1.png",
+        "https://cdn.animeprofile.com/f0800c6d845300d4c294f2e8c0468b75_1.png",
+        "https://cdn.animeprofile.com/f0ea8bf5d1e7c80d528f1271ecde7b5d_1.png",
+        "https://cdn.animeprofile.com/f1630bcedafef865ac0cc175d4a2510c_1.png",
+        "https://cdn.animeprofile.com/f184d9dce5d5801633e41236ca558d95_1.png",
+        "https://cdn.animeprofile.com/f1b05376a362519b7788cf8f848e7b41_1.png",
+        "https://cdn.animeprofile.com/f537c017ab0d6b04f75ff1e9dd0eb9cf_1.png",
+        "https://cdn.animeprofile.com/f70aed2dfd3d8079a743ce702af1a8bc_1.png",
+        "https://cdn.animeprofile.com/f70aed2dfd3d8079a743ce702af1a8bc_10.png",
+        "https://cdn.animeprofile.com/f70aed2dfd3d8079a743ce702af1a8bc_3.png",
+        "https://cdn.animeprofile.com/f70aed2dfd3d8079a743ce702af1a8bc_4.png",
+        "https://cdn.animeprofile.com/cee4bd3778784711b2e0ca0180586779_1.png",
+        "https://cdn.animeprofile.com/d16dc65a3abe447b7e8aef241f8b84f3_1.png",
+        "https://cdn.animeprofile.com/fa254ac728d563ba37a00fce5e29477d_1.png",
+        "https://cdn.animeprofile.com/fc59fc311be1157c0779d7f1368b1577_1.png",
+        "https://cdn.animeprofile.com/f70aed2dfd3d8079a743ce702af1a8bc_6.png",
+        "https://cdn.animeprofile.com/f70aed2dfd3d8079a743ce702af1a8bc_9.png",
+        "https://cdn.animeprofile.com/f9391093fefdf155978c3d4b751b5725_1.png",
+        "https://cdn.animeprofile.com/f94b4374a0bfd71c8d4e388312cdbe9f_1.png",
+        "https://cdn.animeprofile.com/f70aed2dfd3d8079a743ce702af1a8bc_8.png",
+        "https://cdn.animeprofile.com/f97057f224527fba027306b995364611_1.png",
+        "https://cdn.animeprofile.com/fc2124d2d89b0a4a4436223b4d750f69_1.png",
+        "https://cdn.animeprofile.com/ff474bed9d646e5083f4ba7c82bd679e_1.png",
+        "https://cdn.animeprofile.com/ff474bed9d646e5083f4ba7c82bd679e_2.png",
+        "https://cdn.animeprofile.com/fa0fc22bc2eeeeffb0fa6d63657a4a86_1.png",
+        "https://cdn.animeprofile.com/f70aed2dfd3d8079a743ce702af1a8bc_5.png",
+        "https://cdn.animeprofile.com/fc000ff475bd8c728cebb1ca58cb3edb_1.png",
+        "https://cdn.animeprofile.com/fe6ddc552cc4601b9223727de5942b23_1.png",
+        "https://cdn.animeprofile.com/f716cbf568088ff903313428fee6b62f_1.png",
+        "https://cdn.animeprofile.com/ea91922a43bff87136322b2e21b1d174_1.png",
+        "https://cdn.animeprofile.com/fce06a12237870050ed326ae6de9a692_1.png",
+        "https://cdn.animeprofile.com/0c1145d5bb064292a8ef053b11ce7fd2_1.png",
+        "https://cdn.animeprofile.com/fcc46c373dff7f95a144e2be72a0c887_1.png",
+        "https://cdn.animeprofile.com/feb2308fe128260dde583b8247985069_1.png",
+        "https://cdn.animeprofile.com/f07a5f83bb0f4d46e1bbd0632fab494f_1.png",
+        "https://cdn.animeprofile.com/3f9c1cfbb1f440c377cd1ccf7179e0bc_1.png",
+        "https://cdn.animeprofile.com/49334132d7a2a27a0fb34ef7a39fafc2_1.png",
+        "https://cdn.animeprofile.com/5106680ea0695fe27120a94f98bc30a6_1.png",
+        "https://cdn.animeprofile.com/6f85a30936cf56f1d4f6e7d3d1aa5c95_1.png",
+        "https://cdn.animeprofile.com/708f38f7a44b873999287c25b145bcf0_1.png",
+        "https://cdn.animeprofile.com/89253eaa889e4def2b8acdd9b97bf729_1.png",
+        "https://cdn.animeprofile.com/a838177eb75798b2c7e5e6d90b63d08e_1.png",
+        "https://cdn.animeprofile.com/e67c98b0926b3c3d1d5b5ff86ed4f2e6_1.png",
+        "https://cdn.animeprofile.com/ea2601f2cee21d98de7b5760f4b8e167_1.png",
+        "https://cdn.animeprofile.com/eb1c4423d74bed6fc790683de700ecf6_1.png",
+        "https://cdn.animeprofile.com/f1be1e06f53d77d6c275ac1ec483a0c3_1.png",
+        "https://cdn.animeprofile.com/25f161ff1c0f230cb6a04b1ed7490071_1.png",
+        "https://cdn.animeprofile.com/9ac148cd46458fd183c389f810fd8584_1.png",
+        "https://cdn.animeprofile.com/4877b8553e84ad2a7440a8cc6d15daaa_1.png",
+        "https://cdn.animeprofile.com/00a3bd4b6607b4cbe3f3f1af7720594f_1.png",
+        "https://cdn.animeprofile.com/49eb57e2a40f2d0a17ac1ade63171003_1.png",
+        "https://cdn.animeprofile.com/acdca52f62e10b4629dc11556cbcf337_1.png",
+        "https://cdn.animeprofile.com/a8e3c1657740b61980e20f03e78ae022_1.png"
+    ];
 
-        let currentAccount = null;
+    // Deterministic pick: same username → same PFP
+    const ANIME_PFPS_FIXED = ANIME_PFPS.map(u => u.replace('cdn.animeprofile.com/', 'cdn.animeprofile.com/pfps/'));
+    function pfpFor(username) {
+    let hash = 0;
+    const s = String(username || '');
+    for (let i = 0; i < s.length; i++) {
+        hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+    }
+    const raw = ANIME_PFPS[hash % ANIME_PFPS.length];
+    return raw.includes('/pfps/')
+        ? raw
+        : raw.replace('cdn.animeprofile.com/', 'cdn.animeprofile.com/pfps/');
+}
 
-        generateBtn.addEventListener('click', async () => {
-            generateBtn.disabled = true;
-            loading.classList.add('show');
-            resultBox.classList.remove('show');
-            errorBox.classList.remove('show');
-            
-            try {
-                const response = await fetch('/api/get-random-steam-account', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
+    // ---------- DOM ----------
+    const searchBtn      = document.getElementById('searchBtn');
+    const gameSearch     = document.getElementById('gameSearch');
+    const searchResults  = document.getElementById('searchResults');
+    const loading        = document.getElementById('loading');
+    const loadingText    = document.getElementById('loadingText');
+    const resultBox      = document.getElementById('resultBox');
+    const errorBox       = document.getElementById('errorBox');
+    const usernameSpan   = document.getElementById('username');
+    const passwordSpan   = document.getElementById('password');
+    const gamesField     = document.getElementById('gamesField');
+    const gamesTags      = document.getElementById('gamesTags');
+    const statsText      = document.getElementById('statsText');
+    const resultAvatar   = document.getElementById('resultAvatar');
+    const resultSubtitle = document.getElementById('resultSubtitle');
+
+    function escapeHtml(s) {
+        return String(s ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // ---------- SEARCH ----------
+    async function performSearch() {
+        const term = gameSearch.value.trim();
+        if (!term) {
+            searchResults.classList.remove('show');
+            return;
+        }
+
+        searchResults.classList.add('show');
+        searchResults.innerHTML =
+            `<div class="searching"><div class="mini-spinner"></div>Searching accounts...</div>`;
+
+        try {
+            const res = await fetch('/api/search-accounts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ term })
+            });
+            const json = await res.json();
+            const accounts = json.accounts || [];
+
+            if (accounts.length === 0) {
+                searchResults.innerHTML =
+                    `<div class="no-results">No accounts found with "${escapeHtml(term)}"</div>`;
+                return;
+            }
+
+            searchResults.innerHTML = accounts.map(a => {
+                const pfp = pfpFor(a.username);
+                return `
+                    <div class="account-result" data-username="${escapeHtml(a.username)}">
+                        <div class="account-icon">
+                            <img src="${escapeHtml(pfp)}" alt="" loading="lazy"
+                                 onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'fallback\\'>${escapeHtml(a.username.charAt(0).toUpperCase())}</span>'">
+                        </div>
+                        <div class="account-info">
+                            <div class="account-username">${escapeHtml(a.username)}</div>
+                            <div class="account-games">
+                                ${escapeHtml((a.games || []).slice(0, 6).join(' • ') || '(no games)')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            searchResults.querySelectorAll('.account-result').forEach(el => {
+                el.addEventListener('click', () => {
+                    const username = el.getAttribute('data-username');
+                    loadAccount(username);
                 });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentAccount = data.data;
-                    emailSpan.textContent = currentAccount.email;
-                    passwordSpan.textContent = currentAccount.password;
-                    
-                    directLoginBtn.href = 'https://store.steampowered.com/login/';
-                    
-                    statsText.innerHTML = `✅ Account ready | ${data.accountsRemaining} accounts remaining`;
-                    
-                    resultBox.classList.add('show');
-                    
-                    document.querySelectorAll('.copy-btn').forEach(btn => {
-                        btn.textContent = 'Copy';
-                        btn.classList.remove('copied');
-                    });
-                } else {
-                    throw new Error(data.error || 'Failed to generate Steam account');
-                }
-            } catch (err) {
-                errorBox.classList.add('show');
-                document.getElementById('errorMessage').innerHTML = `❌ ${err.message}<br><small>Please make sure steam.txt exists with email:pass format</small>`;
-            } finally {
-                generateBtn.disabled = false;
-                loading.classList.remove('show');
+            });
+        } catch (err) {
+            searchResults.innerHTML =
+                `<div class="no-results">Search failed: ${escapeHtml(err.message)}</div>`;
+        }
+    }
+
+    // ---------- LOAD A SINGLE ACCOUNT ----------
+    async function loadAccount(username) {
+        searchResults.classList.remove('show');
+        resultBox.classList.remove('show');
+        errorBox.classList.remove('show');
+        loading.style.display = 'block';
+        loadingText.textContent = `Loading "${username}"...`;
+
+        try {
+            const res = await fetch(`/api/steam-account/${encodeURIComponent(username)}`);
+            const data = await res.json();
+
+            if (!data.success) throw new Error(data.error || 'Not found');
+
+            const acc = data.data;
+            usernameSpan.textContent = acc.username;
+            passwordSpan.textContent = acc.password;
+
+            // Set the avatar
+            const pfp = pfpFor(acc.username);
+            resultAvatar.innerHTML =
+                `<img src="${escapeHtml(pfp)}" alt="" onerror="this.style.display='none'">`;
+
+            const games = Array.isArray(acc.games) ? acc.games : [];
+            if (games.length) {
+                gamesField.style.display = 'block';
+                gamesTags.innerHTML = games
+                    .map(g => `<span class="game-tag">${escapeHtml(g)}</span>`)
+                    .join('');
+            } else {
+                gamesField.style.display = 'none';
+                gamesTags.innerHTML = '';
+            }
+
+            resultSubtitle.textContent = `${games.length} game(s) on this account`;
+            statsText.textContent = `✅ ${games.length} game(s) | Log in via the button below`;
+
+            resultBox.classList.add('show');
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch (err) {
+            errorBox.classList.add('show');
+            document.getElementById('errorMessage').textContent = `❌ ${err.message}`;
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    searchBtn.addEventListener('click', performSearch);
+    gameSearch.addEventListener('keydown', e => {
+        if (e.key === 'Enter') performSearch();
+    });
+
+    let searchTimer = null;
+    gameSearch.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(performSearch, 300);
+    });
+
+    // ---------- COPY ----------
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const field = btn.getAttribute('data-field');
+            const text  = field === 'username'
+                ? usernameSpan.textContent
+                : passwordSpan.textContent;
+            try {
+                await navigator.clipboard.writeText(text);
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 1500);
+            } catch {
+                alert('Failed to copy');
             }
         });
+    });
 
-        document.querySelectorAll('.copy-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const field = btn.getAttribute('data-field');
-                let textToCopy = '';
-                
-                if (field === 'email') {
-                    textToCopy = emailSpan.textContent;
-                } else if (field === 'password') {
-                    textToCopy = passwordSpan.textContent;
-                }
-                
-                try {
-                    await navigator.clipboard.writeText(textToCopy);
-                    btn.textContent = 'Copied!';
-                    btn.classList.add('copied');
-                    setTimeout(() => {
-                        btn.textContent = 'Copy';
-                        btn.classList.remove('copied');
-                    }, 2000);
-                } catch (err) {
-                    alert('Failed to copy');
-                }
+    // ---------- ADMIN PANEL ----------
+    const adminToggle = document.getElementById('adminToggle');
+    const adminPanel  = document.getElementById('adminPanel');
+    const adminClose  = document.getElementById('adminClose');
+    const adminBody   = document.getElementById('adminBody');
+    const addAccountBtn = document.getElementById('addAccountBtn');
+
+    adminToggle.addEventListener('click', () => {
+        adminPanel.classList.add('open');
+        loadAdminAccounts();
+    });
+    adminClose.addEventListener('click', () => adminPanel.classList.remove('open'));
+
+    async function loadAdminAccounts() {
+        adminBody.innerHTML = '<div class="admin-empty">Loading…</div>';
+        try {
+            const res = await fetch('/api/steam-accounts');
+            const data = await res.json();
+            const accounts = data.accounts || [];
+
+            if (!accounts.length) {
+                adminBody.innerHTML = '<div class="admin-empty">No accounts yet.</div>';
+                return;
+            }
+
+            adminBody.innerHTML = accounts.map(a => {
+                const pfp = pfpFor(a.username);
+                return `
+                    <div class="admin-account">
+                        <div class="admin-avatar">
+                            <img src="${escapeHtml(pfp)}" alt="" loading="lazy">
+                        </div>
+                        <div class="admin-account-info">
+                            <div class="admin-account-email">${escapeHtml(a.username)}</div>
+                            <div class="admin-account-games">
+                                ${escapeHtml((a.games || []).join(', ') || '(no games)')}
+                            </div>
+                        </div>
+                        <button class="admin-remove" data-user="${escapeHtml(a.username)}">×</button>
+                    </div>
+                `;
+            }).join('');
+
+            adminBody.querySelectorAll('.admin-remove').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const user = btn.getAttribute('data-user');
+                    if (!confirm(`Remove "${user}"?`)) return;
+                    try {
+                        const res = await fetch(
+                            `/api/steam-accounts/${encodeURIComponent(user)}`,
+                            { method: 'DELETE' }
+                        );
+                        const d = await res.json();
+                        if (!d.success) throw new Error(d.error);
+                        loadAdminAccounts();
+                    } catch (e) {
+                        alert(`❌ ${e.message}`);
+                    }
+                });
             });
-        });
+        } catch (err) {
+            adminBody.innerHTML =
+                `<div class="admin-empty">Failed: ${escapeHtml(err.message)}</div>`;
+        }
+    }
+
+    addAccountBtn.addEventListener('click', async () => {
+        const username = document.getElementById('newUsername').value.trim();
+        const password = document.getElementById('newPassword').value.trim();
+        const gamesRaw = document.getElementById('newGames').value.trim();
+
+        if (!username || !password) {
+            alert('Username and password required');
+            return;
+        }
+
+        const games = gamesRaw
+            ? gamesRaw.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+
+        try {
+            const res = await fetch('/api/steam-accounts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, games })
+            });
+            const d = await res.json();
+            if (!d.success) throw new Error(d.error);
+
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newGames').value = '';
+            loadAdminAccounts();
+        } catch (e) {
+            alert(`❌ ${e.message}`);
+        }
+    });
     </script>
 </body>
 </html>

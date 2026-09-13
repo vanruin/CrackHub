@@ -3,486 +3,576 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Netflix - Account Generator</title>
+    <title>Netflix - Ticket Generator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0b0b0f;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(229,9,20,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(118,75,162,0.15) 0%, transparent 50%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 30px 20px;
         }
 
-        .container {
-            max-width: 600px;
-            width: 100%;
-        }
+        .container { max-width: 900px; width: 100%; }
 
-        .logo-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #E50914 0%, #B20710 100%);
-            border-radius: 30px;
+        .controls {
+            background: #14141a;
+            border: 1px solid #23232c;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            animation: float 3s ease-in-out infinite;
+            gap: 16px;
+            flex-wrap: wrap;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .logo svg {
-            width: 70px;
-            height: 70px;
-        }
-
-        .logo-text {
-            font-size: 32px;
+        .controls .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: #E50914;
+            font-size: 18px;
+            letter-spacing: 1px;
         }
 
-        .subtitle {
-            color: rgba(255,255,255,0.9);
-            font-size: 14px;
-            margin-top: 10px;
-        }
-
-        .main-box {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-        }
-
-        .method-selector {
-            margin-bottom: 25px;
-        }
-
-        .method-label {
-            display: block;
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 14px;
-            font-weight: 600;
-        }
+        .controls .brand svg { width: 26px; height: 26px; fill: #E50914; }
 
         .method-select {
-            width: 100%;
-            padding: 12px;
+            flex: 1;
+            min-width: 220px;
+            padding: 11px 14px;
             border-radius: 10px;
-            border: 2px solid #e0e0e0;
-            font-size: 14px;
+            border: 1px solid #2c2c37;
+            background: #1a1a22;
+            color: #e6e6ee;
+            font-size: 13px;
             cursor: pointer;
-            background: white;
-            transition: border-color 0.3s;
+            outline: none;
+            transition: border-color 0.2s;
         }
-
-        .method-select:hover {
-            border-color: #E50914;
-        }
-
-        .method-hint {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
-        }
+        .method-select:hover, .method-select:focus { border-color: #E50914; }
 
         .generate-btn {
-            width: 100%;
-            padding: 16px;
+            padding: 12px 26px;
             background: linear-gradient(135deg, #E50914 0%, #B20710 100%);
             color: white;
             border: none;
-            border-radius: 50px;
-            font-size: 18px;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 30px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.45);
+        }
+        .generate-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        .ticket {
+            display: none;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            animation: slideIn 0.45s ease;
+        }
+        .ticket.show { display: block; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .ticket-inner { display: flex; min-height: 320px; }
+
+        .ticket-main {
+            flex: 1;
+            padding: 34px 36px;
+            background: linear-gradient(135deg, #ffffff 0%, #f7f7fb 100%);
+            position: relative;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 26px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #d5d5de;
+        }
+
+        .ticket-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 900;
+            color: #E50914;
+            font-size: 26px;
+            letter-spacing: 2px;
+        }
+
+        .ticket-header .logo svg { width: 30px; height: 30px; fill: #E50914; }
+
+        .ticket-header .badge {
+            background: #E50914;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .ticket-title {
+            font-size: 13px;
+            color: #6b6b78;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .ticket-sub {
+            font-size: 22px;
+            font-weight: 800;
+            color: #14141a;
+            margin-bottom: 24px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 26px;
+        }
+
+        .field { min-width: 0; }
+        .field-label {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #8b8b98;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .field-value {
+            font-size: 14px;
+            color: #14141a;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        /* Right: stub */
+        .ticket-stub {
+            width: 260px;
+            background: #14141a;
+            color: #fff;
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .ticket-stub::before {
+            content: "";
+            position: absolute;
+            top: 0; bottom: 0; left: -1px;
+            width: 2px;
+            background-image: linear-gradient(to bottom, #d5d5de 50%, transparent 50%);
+            background-size: 2px 14px;
+        }
+
+        .ticket-stub::after {
+            content: "";
+            position: absolute;
+            top: -14px; left: -14px;
+            width: 28px; height: 28px;
+            background: #0b0b0f;
+            border-radius: 50%;
+            box-shadow: 0 320px 0 #0b0b0f;
+        }
+
+        .stub-label {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #6b6b78;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        /* ── QR CODE BLOCK ─────────────────────────── */
+        .qr-block {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 18px;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+        }
+
+        .qr-block img {
+            display: block;
+            width: 100%;
+            max-width: 180px;
+            height: auto;
+            margin: 0 auto;
+            image-rendering: pixelated;
+            border-radius: 6px;
+        }
+
+        .qr-hint {
+            margin-top: 8px;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #6b6b78;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .qr-placeholder {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            max-width: 180px;
+            margin: 0 auto;
+            background: #f0f0f5;
+            border-radius: 6px;
+            color: #8b8b98;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
 
-        .generate-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+        .stub-token {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #e6e6ee;
+            word-break: break-all;
+            line-height: 1.5;
+            background: #1c1c25;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #2c2c37;
+            max-height: 120px;
+            overflow-y: auto;
         }
 
-        .generate-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .stub-footer { margin-top: 20px; }
+
+        .stub-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 12px;
+            background: #E50914;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .stub-btn:hover { background: #B20710; }
+
+        .stub-btn.copy {
+            background: transparent;
+            border: 1px solid #2c2c37;
+            color: #e6e6ee;
+        }
+        .stub-btn.copy:hover { background: #1c1c25; }
+        .stub-btn.copy.copied {
+            background: #28a745;
+            border-color: #28a745;
+            color: #fff;
         }
 
         .loading {
-            text-align: center;
-            padding: 30px;
             display: none;
+            text-align: center;
+            padding: 60px 20px;
         }
-
-        .loading.show {
-            display: block;
-        }
+        .loading.show { display: block; }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #E50914;
+            width: 54px; height: 54px;
+            border: 3px solid #23232c;
+            border-top: 3px solid #E50914;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.9s linear infinite;
             margin: 0 auto 20px;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        .loading-text { color: #8b8b98; font-size: 14px; letter-spacing: 0.5px; }
 
-        .loading-text {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .result-box {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
+        .error-box {
             display: none;
-            border: 2px solid #28a745;
-        }
-
-        .result-box.show {
-            display: block;
-        }
-
-        .success-header {
+            background: #2a1216;
+            border: 1px solid #4a1a20;
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-top: 20px;
+            color: #ffb3b8;
+            font-size: 14px;
             text-align: center;
-            margin-bottom: 20px;
         }
-
-        .success-icon {
-            width: 60px;
-            height: 60px;
-            background: #28a745;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-
-        .success-icon svg {
-            width: 35px;
-            height: 35px;
-            fill: white;
-        }
-
-        .success-header h3 {
-            color: #28a745;
-            font-size: 24px;
-            margin-top: 10px;
-        }
-
-        .login-url-section {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .url-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
-            border: 1px solid #dee2e6;
-        }
-
-        .login-url {
-            flex: 1;
-            font-family: monospace;
-            font-size: 12px;
-            color: #007bff;
-            word-break: break-all;
-        }
-
-        .copy-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-
-        .copy-btn:hover {
-            background: #0056b3;
-        }
-
-        .copy-btn.copied {
-            background: #28a745;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #E50914 0%, #B20710 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
-        }
+        .error-box.show { display: block; }
 
         .stats {
             margin-top: 20px;
-            padding: 15px;
-            background: #e7f3ff;
-            border-radius: 10px;
+            text-align: center;
+            color: #6b6b78;
             font-size: 12px;
-            color: #004085;
-            text-align: center;
+            letter-spacing: 0.3px;
         }
 
-        .error-box {
-            background: #f8d7da;
-            border: 2px solid #f5c6cb;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            display: none;
-            text-align: center;
-        }
-
-        .error-box.show {
-            display: block;
-        }
-
-        .error-message {
-            color: #721c24;
-            font-size: 14px;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: rgba(255,255,255,0.7);
-            font-size: 12px;
+        @media (max-width: 720px) {
+            .ticket-inner { flex-direction: column; }
+            .ticket-stub {
+                width: 100%;
+                border-left: none;
+                border-top: 2px dashed #2c2c37;
+            }
+            .ticket-stub::before { display: none; }
+            .ticket-stub::after { display: none; }
+            .info-grid { grid-template-columns: 1fr; }
+            .qr-block img, .qr-placeholder { max-width: 220px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo-section">
-            <div class="logo">
-                <svg viewBox="0 0 24 24" fill="white">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
-                </svg>
-            </div>
-            <div class="logo-text">NETFLIX</div>
-            <div class="subtitle">Account Generator with Smart Selection</div>
-        </div>
 
-        <div class="main-box">
-            <div class="method-selector">
-                <label class="method-label">🎲 Random Selection Method:</label>
-                <select id="selectionMethod" class="method-select">
-                    <option value="smart">🧠 Smart Random - Test until working account found (Recommended)</option>
-                    <option value="pure">🎯 Pure Random - Pick one random account (Fastest)</option>
-                    <option value="sequential">🔄 Sequential - Random start, then sequential order</option>
-                    <option value="weighted">⚖️ Weighted - Fully shuffled random order</option>
-                </select>
-                <div class="method-hint">
-                    💡 Smart: Best success rate | Pure: Fastest | Sequential: Ordered | Weighted: True random
-                </div>
+        <div class="controls">
+            <div class="brand">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                NETFLIX TICKET
             </div>
-
+            <select id="selectionMethod" class="method-select">
+                <option value="smart">🧠 Smart Random (Recommended)</option>
+                <option value="pure">🎯 Pure Random (Fastest)</option>
+                <option value="sequential">🔄 Sequential</option>
+                <option value="weighted">⚖️ Weighted Random</option>
+            </select>
             <button class="generate-btn" id="generateBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                    <path d="M8 5v14l11-7z"/>
                 </svg>
-                Generate Netflix Account
+                GENERATE BYPASS LOGIN
             </button>
+        </div>
 
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <div class="loading-text">Testing available accounts...</div>
-            </div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Validating account & issuing ticket…</div>
+        </div>
 
-            <div class="result-box" id="resultBox">
-                <div class="success-header">
-                    <div class="success-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                        </svg>
+        <div class="ticket" id="ticket">
+            <div class="ticket-inner">
+
+                <div class="ticket-main">
+                    <div class="ticket-header">
+                        <div class="logo">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                            NETFLIX
+                        </div>
+                        <div class="badge">Access Ticket</div>
                     </div>
-                    <h3>Success! Account Generated</h3>
-                </div>
 
-                <div class="login-url-section">
-                    <span class="label">🔗 Your Netflix Login URL</span>
-                    <div class="url-container">
-                        <div class="login-url" id="loginUrl">https://netflix.com/...</div>
-                        <button class="copy-btn" id="copyBtn">Copy</button>
+                    <div class="ticket-title">Registered Account</div>
+                    <div class="ticket-sub" id="accEmail">—</div>
+
+                    <div class="info-grid">
+                        <div class="field">
+                            <div class="field-label">Password</div>
+                            <div class="field-value" id="accPassword">—</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Country</div>
+                            <div class="field-value" id="accCountry">—</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Max Streams</div>
+                            <div class="field-value" id="accMaxStreams">—</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Member Since</div>
+                            <div class="field-value" id="accSince">—</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Phone</div>
+                            <div class="field-value" id="accPhone">—</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Gate</div>
+                            <div class="field-value">NETFLIX-01</div>
+                        </div>
                     </div>
                 </div>
 
-                <a href="#" id="directLoginBtn" class="login-btn" target="_blank">
-                    Open Netflix Directly
-                </a>
+                <div class="ticket-stub">
+                    <div>
+                        <!-- QR CODE SECTION -->
+                        <div class="stub-label">Scan to Login</div>
+                        <div class="qr-block" id="qrBlock">
+                            <div class="qr-placeholder" id="qrPlaceholder">NO QR</div>
+                            <img id="qrImage" src="" alt="Login QR" style="display:none;">
+                        </div>
 
-                <div class="stats" id="stats">
-                    <span id="statsText">Ready</span>
+                        <div class="stub-label">Access Token</div>
+                        <div class="stub-token" id="tokenText">—</div>
+                    </div>
+
+                    <div class="stub-footer">
+                        <div class="stub-label">Direct Link</div>
+                        <a href="#" id="directLoginBtn" class="stub-btn" target="_blank">OPEN NETFLIX</a>
+                        <button class="stub-btn copy" id="copyBtn">COPY URL</button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="error-box" id="errorBox">
-                <div class="error-message" id="errorMessage"></div>
             </div>
         </div>
 
-        <div class="footer">
-            ⚡ Instant Account Generation | Multiple Selection Methods
+        <div class="error-box" id="errorBox">
+            <div id="errorMessage"></div>
         </div>
+
+        <div class="stats" id="stats"></div>
+
     </div>
 
     <script>
-        const generateBtn = document.getElementById('generateBtn');
-        const loading = document.getElementById('loading');
-        const resultBox = document.getElementById('resultBox');
-        const errorBox = document.getElementById('errorBox');
-        const loginUrlSpan = document.getElementById('loginUrl');
-        const copyBtn = document.getElementById('copyBtn');
-        const directLoginBtn = document.getElementById('directLoginBtn');
-        const statsText = document.getElementById('statsText');
+        const generateBtn   = document.getElementById('generateBtn');
+        const loading       = document.getElementById('loading');
+        const ticket        = document.getElementById('ticket');
+        const errorBox      = document.getElementById('errorBox');
+        const errorMessage  = document.getElementById('errorMessage');
+        const stats         = document.getElementById('stats');
         const selectionMethod = document.getElementById('selectionMethod');
 
+        const accEmail      = document.getElementById('accEmail');
+        const accPassword   = document.getElementById('accPassword');
+        const accCountry    = document.getElementById('accCountry');
+        const accMaxStreams = document.getElementById('accMaxStreams');
+        const accSince      = document.getElementById('accSince');
+        const accPhone      = document.getElementById('accPhone');
+        const tokenText     = document.getElementById('tokenText');
+        const directLoginBtn = document.getElementById('directLoginBtn');
+        const copyBtn       = document.getElementById('copyBtn');
+
+        // QR elements
+        const qrImage       = document.getElementById('qrImage');
+        const qrPlaceholder = document.getElementById('qrPlaceholder');
+
+        let currentUrl = '';
+
         generateBtn.addEventListener('click', async () => {
-            // Disable button and show loading
             generateBtn.disabled = true;
             loading.classList.add('show');
-            resultBox.classList.remove('show');
+            ticket.classList.remove('show');
             errorBox.classList.remove('show');
-            
+            stats.textContent = '';
+
+            // Reset QR area
+            qrImage.style.display = 'none';
+            qrImage.src = '';
+            qrPlaceholder.style.display = 'flex';
+            qrPlaceholder.textContent = 'GENERATING…';
+
             const method = selectionMethod.value;
-            const methodNames = {
-                'smart': 'Smart Random',
-                'pure': 'Pure Random',
-                'sequential': 'Sequential',
-                'weighted': 'Weighted'
-            };
-            
+
             try {
                 const response = await fetch('/api/get-random-netflix-cookie', {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ method: method })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ method })
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-                
+
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
                 const data = await response.json();
-                
-                if (data.success) {
-                    // Display results
-                    loginUrlSpan.textContent = data.data.loginUrl;
-                    directLoginBtn.href = data.data.loginUrl;
-                    
-                    // Show detailed stats
-                    statsText.innerHTML = `
-                        ✅ Found working account after ${data.attempts} attempts<br>
-                        📊 Total accounts available: ${data.totalAccounts}<br>
-                        🎲 Selection method: ${methodNames[data.selectionMethod] || method}
-                    `;
-                    
-                    resultBox.classList.add('show');
-                    copyBtn.textContent = 'Copy';
-                    copyBtn.classList.remove('copied');
+                if (!data.success) throw new Error(data.error || 'Failed to generate ticket');
+
+                // Fill ticket
+                accEmail.textContent      = data.data.email || 'N/A';
+                accPassword.textContent   = data.data.password || 'N/A';
+                accCountry.textContent    = data.data.country || 'N/A';
+                accMaxStreams.textContent = data.data.maxStreams || 'N/A';
+                accSince.textContent      = data.data.since || 'N/A';
+                accPhone.textContent      = data.data.phone || 'N/A';
+
+                currentUrl = data.data.loginUrl;
+                tokenText.textContent = data.data.token || '—';
+                directLoginBtn.href = currentUrl;
+
+                // ── Inject QR code ──────────────────────────────
+                // If the API already provides a base64 QR image, use it.
+                // Otherwise generate a QR from the login URL using a public QR service.
+                if (data.data.qrCode) {
+                    qrImage.src = data.data.qrCode;         // data:image/png;base64,...
+                    qrImage.style.display = 'block';
+                    qrPlaceholder.style.display = 'none';
+                } else if (currentUrl) {
+                    // Fallback: generate QR from the login URL via QRServer API
+                    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(currentUrl)}`;
+                    qrImage.src = qrApiUrl;
+                    qrImage.style.display = 'block';
+                    qrPlaceholder.style.display = 'none';
                 } else {
-                    throw new Error(data.error || 'Failed to generate account');
+                    qrPlaceholder.textContent = 'NO QR';
                 }
+
+                // Handle image loading errors
+                qrImage.onerror = () => {
+                    qrImage.style.display = 'none';
+                    qrPlaceholder.style.display = 'flex';
+                    qrPlaceholder.textContent = 'QR FAILED';
+                };
+
+                ticket.classList.add('show');
+                copyBtn.textContent = 'COPY URL';
+                copyBtn.classList.remove('copied');
             } catch (err) {
-                console.error('Error:', err);
                 errorBox.classList.add('show');
-                document.getElementById('errorMessage').innerHTML = `
-                    ❌ ${err.message}<br>
-                    <small>Please try again later or try a different selection method</small>
-                `;
+                errorMessage.textContent = `❌ ${err.message}`;
             } finally {
                 generateBtn.disabled = false;
                 loading.classList.remove('show');
             }
         });
 
-        // Copy URL functionality
         copyBtn.addEventListener('click', async () => {
-            const url = loginUrlSpan.textContent;
+            if (!currentUrl) return;
             try {
-                await navigator.clipboard.writeText(url);
-                copyBtn.textContent = 'Copied!';
+                await navigator.clipboard.writeText(currentUrl);
+                copyBtn.textContent = 'COPIED!';
                 copyBtn.classList.add('copied');
                 setTimeout(() => {
-                    copyBtn.textContent = 'Copy';
+                    copyBtn.textContent = 'COPY URL';
                     copyBtn.classList.remove('copied');
-                }, 2000);
-            } catch (err) {
-                alert('Failed to copy URL. Please manually copy the link.');
+                }, 1800);
+            } catch {
+                alert('Failed to copy. Please copy manually.');
             }
         });
     </script>
