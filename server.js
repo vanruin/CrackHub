@@ -14,6 +14,9 @@ const { getRandomMoontonAccount, getMoontonAccountCount } = require('./backend/m
 const { getRandomXboxAccount, getXboxAccountCount } = require('./backend/xbox');
 const { getRandomCapcutAccount, getCapcutAccountCount } = require('./backend/capcut');
 
+// Universal account parser — detects any credential format
+const { parseAccounts, addAccountsToFile, getAccountCount, SERVICE_FILES } = require('./backend/accountParser');
+
 // Steam backend (uses steam.json)
 // Steam backend (uses steam.json)
 const {
@@ -32,7 +35,8 @@ const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+// Uploaded account files can hold thousands of lines — allow a large JSON body
+app.use(express.json({ limit: '25mb' }));
 app.use(express.static('public'));
 
 // ============ STEAM API ENDPOINTS ============
@@ -111,6 +115,105 @@ app.delete('/api/steam-accounts/:username', async (req, res) => {
         res.json(result);
     } catch (error) {
         res.status(400).json({ success: false, error: error.message });
+    }
+});
+
+// ============ UNIVERSAL ACCOUNT PARSER ENDPOINTS ============
+
+/**
+ * Parse raw account text and detect the format — no file writes.
+ * Body: { text: "...", service?: string }
+ */
+app.post('/api/accounts/parse', (req, res) => {
+    try {
+        const { text, service } = req.body || {};
+        if (!text || typeof text !== 'string' || !text.trim()) {
+            return res.status(400).json({ success: false, error: 'No text provided' });
+        }
+
+        const result = parseAccounts(text);
+
+        if (result.count === 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'No valid accounts could be parsed from the provided text',
+                format: result.format,
+            });
+        }
+
+        const serviceInfo = service && SERVICE_FILES[service]
+            ? { name: service, fileType: SERVICE_FILES[service].type }
+            : null;
+
+        res.json({
+            success: true,
+            format: result.format,
+            count: result.count,
+            service: serviceInfo,
+            accounts: result.accounts,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * Parse text, then append accounts to the target service file.
+ * Body: { text: "...", service: string, overwrite?: boolean }
+ */
+app.post('/api/accounts/add', async (req, res) => {
+    try {
+        const { text, service } = req.body || {};
+        if (!service || !SERVICE_FILES[service]) {
+            return res.status(400).json({
+                success: false,
+                error: `Invalid or missing service. Valid: ${Object.keys(SERVICE_FILES).join(', ')}`,
+            });
+        }
+        if (!text || typeof text !== 'string' || !text.trim()) {
+            return res.status(400).json({ success: false, error: 'No text provided' });
+        }
+
+        const parsed = parseAccounts(text);
+        if (parsed.count === 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'No valid accounts detected in the provided text',
+                format: parsed.format,
+            });
+        }
+
+        const writeResult = await addAccountsToFile(service, parsed.accounts);
+
+        res.json({
+            success: true,
+            format: parsed.format,
+            service,
+            added: writeResult.added,
+            updated: writeResult.updated,
+            duplicates: writeResult.duplicates,
+            totalInPool: await getAccountCount(service),
+            sample: parsed.accounts.slice(0, 5),
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * Get account counts for all supported services.
+ */
+app.get('/api/account-counts', async (req, res) => {
+    try {
+        const counts = {};
+        for (const [svc, cfg] of Object.entries(SERVICE_FILES)) {
+            counts[svc] = await getAccountCount(svc);
+        }
+        counts.netflix = await getNetflixAccountCount();
+        counts.hbo = await getHboCookieCount();
+        res.json({ success: true, counts });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
