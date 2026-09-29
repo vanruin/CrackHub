@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrackHub — Staff Entrance</title>
+    <link rel="stylesheet" href="/platform.css">
+    <style>
+        body.ch-staff-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 18px;
+            background:
+                radial-gradient(700px 460px at 18% -10%, rgba(167, 139, 250, 0.22), transparent 60%),
+                radial-gradient(760px 420px at 100% 105%, rgba(123, 79, 255, 0.18), transparent 55%),
+                radial-gradient(1200px 600px at 85% 0%, #241b45 0%, transparent 60%),
+                linear-gradient(135deg, #171227 0%, #14102a 100%);
+            background-attachment: fixed;
+        }
+
+        .staff-wrap {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: min(440px, 100%);
+            gap: 0;
+        }
+
+        .staff-banner {
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            padding: 30px 28px 24px;
+            border: 1px solid var(--ch-border);
+            border-bottom: none;
+            border-radius: 24px 24px 0 0;
+            background: linear-gradient(160deg, rgba(167, 139, 250, 0.16), rgba(255,255,255,0.03));
+        }
+
+        .staff-banner::after {
+            content: '';
+            position: absolute;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 240px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(167,139,250,0.4), transparent 70%);
+            filter: blur(8px);
+            pointer-events: none;
+        }
+
+        .shield {
+            position: relative;
+            z-index: 1;
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 14px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            background: linear-gradient(135deg, #a78bfa, #7b4fff);
+            box-shadow: 0 14px 34px rgba(123, 79, 255, 0.45);
+        }
+
+        .staff-banner .eyebrow {
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2.4px;
+            color: #c4b5fd;
+            margin-bottom: 8px;
+        }
+
+        .staff-banner h1 {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: -0.4px;
+            background: linear-gradient(135deg, #ffffff, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .staff-banner p {
+            position: relative;
+            z-index: 1;
+            margin: 8px 0 0;
+            font-size: 13px;
+            color: var(--ch-muted);
+        }
+
+        .staff-card {
+            background: #10162a;
+            border: 1px solid var(--ch-border);
+            border-radius: 0 0 24px 24px;
+            padding: 26px 30px 28px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+        }
+
+        .key-input {
+            width: 100%;
+            padding: 15px 18px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            border-radius: 14px;
+            border: 1px solid var(--ch-border);
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .key-input:focus {
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.16);
+        }
+
+        .login-error {
+            display: none;
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.14);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        .login-error.show { display: block; }
+        .login-error a { color: #fff; font-weight: 700; }
+
+        .login-hint {
+            margin-top: 16px;
+            font-size: 12.5px;
+            color: var(--ch-muted);
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .login-foot {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--ch-border);
+            font-size: 12.5px;
+            color: var(--ch-muted);
+            text-align: center;
+        }
+
+        .login-foot a { color: var(--ch-accent); font-weight: 600; }
+
+        .ch-btn.block { padding: 14px 18px; font-size: 15px; border-radius: 14px; }
+        .ch-btn.staff {
+            background: linear-gradient(135deg, #7b4fff, #a78bfa);
+            border-color: transparent;
+            color: #120b2e;
+        }
+
+        .ch-btn.staff:hover { filter: brightness(1.06); transform: translateY(-1px); }
+        .ch-btn.staff:active { transform: translateY(0); }
+    </style>
+</head>
+<body class="ch-page ch-staff-login">
+    <div class="staff-wrap">
+        <section class="staff-banner">
+            <div class="shield">🛡️</div>
+            <span class="eyebrow">Staff entrance</span>
+            <h1>CrackHub Administration</h1>
+            <p>This door is unlisted — members sign in at the store entrance.</p>
+        </section>
+
+        <section class="staff-card">
+            <div class="ch-field">
+                <label for="keyInput">Staff key</label>
+                <input class="key-input" id="keyInput" type="password" placeholder="••••••••••••"
+                       maxlength="128" autocomplete="off" spellcheck="false">
+            </div>
+
+            <button class="ch-btn block staff" id="loginBtn" type="button">Enter the control room</button>
+
+            <div class="login-error" id="loginError"></div>
+
+            <p class="login-hint" id="loginHint">Keys are issued and rotated by the admin. This page is rate-limited — repeated failures lock the endpoint for a minute.</p>
+
+            <div class="login-foot">
+                Not staff? <a href="/login">Back to the member entrance →</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const nextUrl = params.get('next') || '';
+
+        const keyInput = document.getElementById('keyInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorBox = document.getElementById('loginError');
+
+        function showError(message, linkUrl, linkText) {
+            errorBox.textContent = message;
+            if (linkUrl) {
+                const a = document.createElement('a');
+                a.href = linkUrl;
+                a.textContent = ' ' + linkText;
+                errorBox.appendChild(a);
+            }
+            errorBox.classList.add('show');
+        }
+
+        function clearError() { errorBox.classList.remove('show'); }
+
+        async function signIn() {
+            const key = keyInput.value.trim().slice(0, 128);
+            if (!key) {
+                showError('Enter your staff key first.');
+                keyInput.focus();
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Verifying…';
+            clearError();
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key, portal: 'admin' }),
+                });
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok || !data.success) {
+                    if (data.loginUrl === '/login') {
+                        showError('That looks like a member key.', '/login', 'Member entrance →');
+                    } else if (res.status === 429) {
+                        showError(data.error || 'Too many attempts — wait a minute.');
+                    } else {
+                        showError(data.error || `Login failed (${res.status})`);
+                    }
+                    return;
+                }
+
+                window.location.href = nextUrl || data.redirect || '/admin.html';
+            } catch (err) {
+                showError('Could not reach the server. Please try again.');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Enter the control room';
+            }
+        }
+
+        loginBtn.addEventListener('click', signIn);
+        keyInput.addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
+
+        // Already signed in as staff? Skip the form.
+        (async function checkSession() {
+            try {
+                const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data || !data.success) return;
+                if (data.role === 'admin') {
+                    window.location.href = nextUrl || '/admin.html';
+                } else {
+                    showError('You are signed in with a member key — staff access needs the staff key.', '/login', 'Member entrance →');
+                }
+            } catch (err) { /* stay on the form */ }
+        })();
+
+        keyInput.focus();
+    </script>
+</body>
+</html>
+

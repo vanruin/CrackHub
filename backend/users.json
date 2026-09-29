@@ -1,0 +1,2427 @@
+
+
+
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" class="">
+
+
+
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" /><meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Page title -->
+    <title>
+	EZS
+</title><link rel="apple-touch-icon" sizes="120x120" href="/brand/favicon/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/brand/favicon/favicon-16x16.png" />
+<link rel="manifest" href="/Admin/manifest.json">
+<link rel="mask-icon" href="/brand/favicon/safari-pinned-tab.svg" color="#5bbad5" />
+
+<meta name="msapplication-TileColor" content="#da532c" />
+<meta name="theme-color" content="#ffffff" />
+<!-- Vendor styles -->
+<link rel="stylesheet" href="/admin/themes/vendor/fontawesome/css/font-awesome.css" />
+<link rel="stylesheet" href="/admin/themes/vendor/metisMenu/dist/metisMenu.css" />
+<link rel="stylesheet" href="/admin/themes/vendor/animate.css/animate.css" />
+<link rel="stylesheet" href="/admin/themes/vendor/bootstrap/dist/css/bootstrap.css" />
+
+<!-- App styles -->
+<link rel="stylesheet" href="/admin/themes/vendor/perfect-scrollbar/perfect-scrollbar.css" />
+<link rel="stylesheet" href="/admin/themes/fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css" />
+<link rel="stylesheet" href="/admin/themes/fonts/pe-icon-7-stroke/css/helper.css" />
+<link rel="stylesheet" href="/admin/themes/styles/style.css" />
+<link href="/Admin/ReactCDN/react-datepicker.css" rel="stylesheet" />
+
+<link rel="stylesheet" href="/Admin/Themes/vendor/fancybox/fancybox.css" />
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
+
+<!-- App js -->
+<script src="/admin/themes/vendor/jquery/dist/jquery.min.js"></script>
+<script src="/admin/themes/vendor/jquery-ui/jquery-ui.min.js"></script>
+<script src="/admin/themes/vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
+<script src="/admin/themes/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/Adminz/js/qrcode.min.js"></script>
+
+
+<script src="/Admin/Themes/vendor/fancybox/fancybox.umd.js"></script>
+
+
+<script src="/admin/themes/vendor/metisMenu/dist/metisMenu.min.js"></script>
+<script src="/admin/themes/vendor/iCheck/icheck.min.js"></script>
+<script src="/admin/themes/vendor/peity/jquery.peity.min.js"></script>
+
+<!--js old Admincp-->
+<script src="/admincp/Js/jquery.cookie.js"></script>
+<script src="/admincp/Js/datetimepicker/moment.min.js"></script>
+<script src="/ckeditor/ckeditor.js"></script>
+<script src="/AdminCp/Js/lib.js"></script>
+<link href="/AdminCp/Js/select2.min.css" rel="stylesheet" />
+<script src="/AdminCp/Js/select2.min.js"></script>
+<script src="/App/plugins/sweetalert.min.js"></script>
+<script src="/Admin/Themes/vendor/xlsx/xlsx.full.min.js"></script>
+
+<link href="/Admin/Themes/vendor/magnific-popup/magnific-popup.css" rel="stylesheet" />
+<script src="/Admin/Themes/vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+
+<link href="/admin/Themes/vendor/tooltipster/tooltipster.bundle.min.css" rel="stylesheet" />
+<script src="/admin/Themes/vendor/tooltipster/tooltipster.bundle.min.js"></script>
+
+
+
+<script>
+    //custom select2
+    $.fn.select2.defaults.set('templateSelection', function (data, container) {
+        // Add custom attributes to the <option> tag for the selected option
+        $(data.element).attr('data-custom-attribute', data.Id || 0);
+        return data.text;
+    });
+    var HasVue = true;
+</script>
+
+<link href="/admin/Themes/vendor/toastr/toastr.min.css" rel="stylesheet" />
+<script src="/admin/Themes/vendor/toastr/toastr.min.js"></script>
+
+<script src="/admin/js/Select2Data.js"></script>
+<script src="/Admin/Themes/vendor/dom-to-image.min.js"></script>
+
+<link href="/admincp/CSS/bootstrap-datetimepicker.css" rel="stylesheet" />
+<script src="/admincp/Js/datetimepicker/bootstrap-datetimepicker.min.js"></script>
+<link href="/admincp/CSS/bootstrap-datetimepicker-standalone.css" rel="stylesheet" />
+<script src="/admincp/Js/datetimepicker/vi.js"></script>
+<!--admin ui-->
+<link href="/admin/css/style.css" rel="stylesheet" />
+<link href="/admin/css/spa2020.css" rel="stylesheet" />
+
+<script src="/admin/js/XR.js"></script>
+<script src="/admin/js/ui.js?t=2026_01_02"></script>
+<script src="/admin/js/bzClient.js?t=1"></script>
+<script src="/admin/js/OD.js"></script>
+<link href="/admin/css/u.css?v=2025_5" rel="stylesheet" />
+
+<script src="/admin/js/vue.js"></script>
+<script src="/admin/js/VueHelper.js?t=2020_08_30_1"></script>
+<script src="/admin/js/VueHelperComp.js?t=20250913"></script>
+<script src="/Adminz/js/adj$"></script>
+
+<!--Tailwindcss CDN-->
+<script src="/Admin/Themes/tailwindcss/tailwindcss.js"></script>
+<script src="/Admin/Themes/tailwindcss/tailwindcss.config.js"></script>
+<style type="text/tailwindcss">
+    @layer base {
+        *,
+        :after,
+        :before {
+            box-sizing: border-box;
+            border: 0 solid #e5e7eb;
+        }
+    }
+</style>
+<!--React CDN-->
+
+<script src="/Admin/ReactCDN/react.production.min.js"></script>
+<script src="/Admin/ReactCDN/react-dom.production.min.js"></script>
+<script src="/Admin/ReactCDN/react-bootstrap.min.js"></script>
+<script src="/Admin/ReactCDN/react-router-dom.min.js"></script>
+<script src="/Admin/ReactCDN/axios.min.js"></script>
+<script type="text/javascript" src="/Admin/ReactCDN/prop-types.min.js"></script>
+<script type="text/javascript" src="/Admin/ReactCDN/react-onclickoutside.min.js"></script>
+<script type="text/javascript" src="/Admin/ReactCDN/classnames.js"></script>
+<script type="text/javascript" src="/Admin/ReactCDN/popper.min.js"></script>
+<script type="text/javascript" src="/Admin/ReactCDN/react-popper.js"></script>
+<script type="text/javascript" src="/Admin/ReactCDN/react-datepicker.js"></script>
+<script src="/Admin/ReactCDN/emotion.umd.min.js"></script>
+<script src="/Admin/ReactCDN/react-input-autosize.min.js"></script>
+<script src="/Admin/ReactCDN/react-select.min.js"></script>
+<script src="/Admin/ReactCDN/react-number-format.min.js"></script>
+<script src="/Admin/ReactCDN/react-hook-form@7.21.2.min.js"></script>
+<script src="/Admin/ReactCDN/react-redux.min.js"></script>
+<script src="/Admin/ReactCDN/redux.min.js"></script>
+<script src="/Admin/ReactCDN/react-query.js"></script>
+<script src="/Admin/ReactCDN/babel.js"></script>
+<style media="print">
+    #header, #menu, .normalheader, footer, .n-print {
+        display: none !important
+    }
+
+    .content {
+        padding: 0
+    }
+
+    #wrapper, .payroll {
+        top: 0;
+        margin: 0;
+        border-left: 0;
+    }
+
+    .select2 {
+        width: 100% !important;
+    }
+
+    .form-group {
+        margin: 0;
+    }
+
+    .title-print {
+        display: block !important;
+    }
+
+    .hr-line-dashed {
+        border-top: 1px dotted #000 !important;
+    }
+
+    .payroll fieldset {
+        padding: 20px 20px 0 20px;
+    }
+
+    .form-horizontal .form-group {
+        margin-bottom: 0;
+    }
+</style>
+<style>
+    body.memberpresent-loading > * {
+        visibility: hidden;
+        opacity: 0
+    }
+</style>
+
+<style>
+    [data-prop-name="Ages"] {
+        display: none !important
+    }
+
+    [data-prop-name="Gender"] {
+        display: none !important
+    }
+
+   
+
+    [data-prop-name="DescSEO"] {
+        display: none !important
+    }
+
+    [data-prop-name="KeySEO"] {
+        display: none !important
+    }
+
+
+    .form-service [data-prop-name="Manu"] {
+        display: none !important
+    }
+
+    .form-service [data-prop-name="IsReady"] {
+        display: none !important
+    }
+
+    .form-service [data-prop-name="IsService"] {
+        display: none !important
+    }
+
+    .form-service [data-prop-name="Meta"] {
+        display: none !important
+    }
+
+
+
+    .form-service:not(.form-combo):not(.form-new-combo) [data-prop-name="IsPublic"] {
+        /*display: none !important*/
+    }
+
+    .form-service:not(.form-combo):not(.form-new-combo) [data-prop-name="PriceProduct"] {
+        /*display: none !important*/
+    }
+
+    .form-service:not(.form-combo):not(.form-new-combo) [data-prop-name="IsDisplayPrice"] {
+        /* display: none !important*/
+    }
+
+    .form-service:not(.form-combo):not(.form-new-combo) [data-prop-name="InDays"] {
+        /*display: none !important*/
+    }
+
+    body.has-sidebar {
+        overflow: hidden !important
+    }
+
+    .full-size {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .ad20 .modal .switch input:empty {
+        margin: 0;
+        height: unset;
+        width: unset;
+        opacity: 1;
+        position: relative;
+    }
+
+    .ad20 .modal .switch-24 .slider.round {
+        display: none
+    }
+
+    .ad20 .switch-24, .switch-24 {
+        padding: 0
+    }
+
+        .switch-24 input:checked + .slider:before {
+            width: 18px
+        }
+
+        .switch-24 input:empty ~ span {
+            width: 43px;
+            height: 24px;
+        }
+
+            .switch-24 input:empty ~ span:after, .switch input:empty ~ span:before {
+                width: 18px;
+                height: 18px;
+                margin: 3px
+            }
+
+        .switch-24 input:checked ~ span:after {
+            display: none
+        }
+
+        .switch-24 input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
+        .switch-24 input:checked ~ span:before {
+            background: #fff
+        }
+
+    .sdmn {
+        overflow: auto;
+        padding-right: 10px;
+        box-sizing: content-box;
+        width: 60px;
+        position: fixed;
+        top: 62px;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+        background: #fff;
+        display: none;
+    }
+
+    @media(min-width:768px) {
+        body.hide-sidebar #wrapper.sdmn-ready
+        {
+            margin: 0 0 0 60px !important;
+        }
+
+        .sdmn {
+            width: 60px;
+            position: fixed;
+            top: 62px;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+            display: none;
+        }
+
+        body.hide-sidebar .sdmn {
+            display: block;
+            animation: sdmn-ani;
+            animation-duration: 0.5s;
+            animation-delay: 0.2s;
+            opacity: 0;
+            animation-iteration-count: 1;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes sdmn-ani {
+            0% {
+                opacity: 0
+            }
+
+            100% {
+                opacity: 1
+            }
+        }
+
+        body.hide-sidebar .mp2024 {
+            margin-left: 60px !important;
+        }
+    }
+
+    #side-menu {
+        font-size: 12px
+    }
+
+        #side-menu li.active > a, #side-menu li.active li.active a {
+            background: #3b82f6 !important;
+            color: #fff !important;
+        }
+
+        #side-menu li.active a {
+            color: #fff;
+        }
+
+        #side-menu li:hover a {
+            color: #fff;
+        }
+
+        #side-menu li > a:hover {
+            background: #3b82f6 !important;
+        }
+
+        #side-menu li .nav-second-level li a:hover {
+            color: #fff
+        }
+</style>
+
+<script src="/admin/SideMenuMini.js?t=2"></script>
+    <script>
+        const Now = new Date('9/25/2026 10:51:36 AM');
+        var IsAdmin = true;
+        var NAME = document.title;
+        var STOCK_UNITS = 'L,ML,MG,G,KG,M,CM,MM,DM,Hộp,Thùng,Chai,Lọ,Cái,Chiếc,M2,M3,Túi,Vỉ,Bó,Sợi,Đơn vị,Đôi,Set,Bịch,Cuộn,Bộ,Gói,Quyển,Tập,Tuýp,Ram,Miếng';
+        const AppWebnoti = `var firebaseConfig = firebase.initializeApp({
+  apiKey: "AIzaSyApkHBwsgvGxNxqM71qdDdPTf54GN7ktWY",
+  authDomain: "korei-aesthetic-clinic.firebaseapp.com",
+  databaseURL: "https://korei-aesthetic-clinic-default-rtdb.firebaseio.com",
+  projectId: "korei-aesthetic-clinic",
+  storageBucket: "korei-aesthetic-clinic.firebasestorage.app",
+  messagingSenderId: "228761099696",
+  appId: "1:228761099696:web:bcb94d068264a3fc0e0a75",
+  measurementId: "G-JY58VLQE80"
+});`;
+
+        var MethodPays = [{"ID":1,"Title":"Tiền mặt","IsPublic":1,"Provinces":"2,5,3,1","Districts":"33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,55,54,56,57,58","Detail":""},{"ID":2,"Title":"Chuyển khoản","IsPublic":1,"Provinces":"1,2,3,5","Districts":"2,1,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58","Detail":""},{"ID":3,"Title":"Quẹt thẻ","IsPublic":1,"Provinces":"","Districts":"","Detail":""}];
+        var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBdXRoMlR5cGUiOiJVc2VyRW50IiwiSUQiOiIxIiwiVG9rZW5JZCI6IjExMzI5MDQxOTM0MDAwMDMiLCJuYmYiOjE3OTAzMDc1MTcsImV4cCI6MTg3NjcwNzUxNywiaWF0IjoxNzkwMzA3NTE3fQ.TSS2E039lQX2ISxKFBv8g7oE85x5Qsb7F2RYZLG3bkI';
+        var GlobalConfig = {
+    "StocksNotBook": "",
+    "__Stocksclassactive": "",
+    "vong_quay_may_man": true,
+    "APP": {
+        "AverageMilk": 200,
+        "isGender": false,
+        "isGenderRequired": false,
+        "Name": "KOREI AESTHETIC CLINIC",
+        "Version": "2.0",
+        "accuracy": 100,
+        "v2Login": false,
+        "hiddenOrder": false,
+        "Firebase": {
+            "apiKey": "AIzaSyApkHBwsgvGxNxqM71qdDdPTf54GN7ktWY",
+            "authDomain": "korei-aesthetic-clinic.firebaseapp.com",
+            "databaseURL": "https://korei-aesthetic-clinic-default-rtdb.firebaseio.com",
+            "projectId": "korei-aesthetic-clinic",
+            "storageBucket": "korei-aesthetic-clinic.firebasestorage.app",
+            "messagingSenderId": "228761099696",
+            "appId": "1:228761099696:web:bcb94d068264a3fc0e0a75",
+            "measurementId": "G-JY58VLQE80"
+        },
+        "Prom": {
+            "NotiMp3Push": true
+        },
+        "Home": {
+            "SliderFull": false,
+            "Slidernail": false
+        },
+        "an_chi_duong": false,
+        "Booking": {
+            "TimeOpen": {
+                "hour": "09",
+                "minute": "00",
+                "second": "00"
+            },
+            "TimeClose": {
+                "hour": "21",
+                "minute": "00",
+                "second": "00"
+            },
+            "TimeNext": 15,
+            "AtHome": false,
+            "hideNoteTime": true
+        },
+        "Working": {
+            "TimeOpen": "07:00:00",
+            "TimeClose": "22:00:00"
+        },
+        "Prod": {
+            "IsDetailOriginal": true,
+            "AppMuaHang": 0,
+            "SL": "",
+            "ShowTags": false
+        },
+        "Services": {
+            "PriceCardHide": false,
+            "HideButtonOrder": false,
+            "isEndDate": true
+        },
+        "ReviewIpad": {
+            "ShowNote": true
+        },
+        "User": {
+            "IsDelete": false
+        },
+        "Staff": {
+            "hideHistoryMember": false,
+            "hidePhoneMember": true,
+            "hideAddressMember": false,
+            "hideWalletCard": false
+        },
+        "Login": {
+            "Background": ""
+        },
+        "Css": {
+            "--ezs-color": "#d3d2ce",
+            "--ezs-color-gradient": "#d3d2ce",
+            "--ezs-color-voucher": "#d3d2ce"
+        },
+        "ColorRandom": ["#3C4048", "#B2B2B2", "#EAEAEA"],
+        "IconsRandom": ["/admincp/images/1.png", "/admincp/images/2.png", "/admincp/images/3.png"],
+        "UIBase": false,
+        "DeviceCheck": false,
+        "OnlyStaff": false,
+        "SL_khach": true,
+        "isSell": false,
+        "notFilterVoucher": true,
+        "isRateNote": true,
+        "isRateNotetickchon": true,
+        "isIconSocial": false,
+        "ByProvince": false,
+        "isTimekeepingHour": true,
+        "_isNotFechToken": false,
+        "OutUser": true,
+        "isMulti": false,
+        "_isMultiConfig": {
+            "select": true,
+            "logo": {
+                "with": 200,
+                "url": "https://insonnguyen.vn/wp-content/uploads/2025/01/logo-spa-sang-chanh-1-1.png"
+            },
+            "stocks": [{
+                    "Title": "Cser Beauty Hà Nội",
+                    "Address": [
+                        "Đội 8 Vĩnh Trung, Đại Áng, Thanh Trì, Hà Nội",
+                        "69 Hoa Lan, phường 2, quận Phú Nhuận"
+                    ],
+                    "Domain": "https://cserbeauty.com"
+                },
+                {
+                    "Title": "Cser Beauty Hồ Chí Minh",
+                    "Address": [
+                        "Đội 8 Vĩnh Trung, Đại Áng, Thanh Trì, Hà Nội",
+                        "69 Hoa Lan, phường 2, quận Phú Nhuận"
+                    ],
+                    "Domain": "https://ezs.vn"
+                }
+            ]
+        },
+        "isHotCenter": false,
+        "ScheduledMinutes": 60,
+        "FirebaseOTPHidden": false,
+        "ContactPrice": true
+    },
+    "WEBSITE": {
+        "UIBase": false
+    },
+    "Admin": {
+    	"newpos": true,
+        "_benlam": 60,
+        "_khachdenmuahangluon": false,
+        "_cai_dat_sl_khach": true,
+        "_dk_footer_in": true,
+        "__print_ie": "s.ProdCode",
+        "_MasExportExcel": true,
+        "_thong_tin_pos": true,
+        "_cai_dat_phi": {
+            "sp_loai_bo": "20420,20421,20422",
+            "visible": true,
+            "an_tinh_hs_ds": true,
+            "TIP": {
+                "ProdID": "20420",
+                "ProdTitle": "TIP"
+            },
+            "PHIDICHVU": {
+                "ProdID": "20421",
+                "ProdTitle": "Phí dịch vụ",
+                "Value": "8",
+                "Type": "don_hang",
+                "_Type": "dich_vu",
+                "donhang_type": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "donhang_price": "GG",
+                "_donhang_price": "NG",
+                "max": 100000
+            },
+            "PHIQUETTHE": {
+                "ProdID": "20422",
+                "ProdTitle": "Phí quẹt thẻ",
+                "Value": "2.0"
+            }
+        },
+        "lich_su_cham_soc_pos": false,
+        "_otp_kh": true,
+        "_an_nap_vi": false,
+        "_tai_xuong_hoa_don": false,
+        "_an_cai_dai_dinh_vi": true,
+        "kiemsoat_thuchi": false,
+        "kpi_ngay": false,
+        "byAdminExcel": false,
+        "SettingBookOnline": true,
+        "_hoa_hong_an_gia": true,
+        "TextToSpeech": "google",
+        "PosStatus": ["KHACH_DEN"],
+        "PosActiveCalendar": "",
+        "isQrAdmin": true,
+        "ho_so": false,
+        "bao_cao_mely": false,
+        "tang_them_xoa_buoi": false,
+        "_phu_cap_ngay_cong": 0.8,
+        "os_4_chi_tiet": false,
+        "sua_ngay_cong": false,
+        "showCalcSalaryAt": false,
+        "_Tips": "",
+        "isRooms": false,
+        "isAdminBooks": false,
+        "Pos_quan_ly": {
+            "thanh_toan_dh": {
+                "thanh_toan_vi_tt_am": false
+            },
+            "su_dung_dich_vu": {
+                "cho_phep_no": true
+            },
+            "napvi": {
+                "napvi_khong_thu_tien": false
+            },
+            "giao_ca_canh_bao_check_in": false,
+            "kiem_tra_dk_xoa_phu_phi_don_hang": true,
+            "buoi_dv_khong_chon_phu_phi": false,
+            "lam_tron_tien": 1,
+            "__giao_ca_thao_tac": "Hoàn thành ca"
+        },
+        "chi_tiet_cong": false,
+        "san_pham_chuyen_doi_don_vi": false,
+        "the_dich_vu_phuong_thuc_tinh_cost": 2,
+        "KPT_Max_Type": 10,
+        "PrintToStockID": true,
+        "tim_kiem_khac_diem_chinh_xac": false,
+        "cho_phep_tim_khac_diem": false,
+        "dat_lich_nhan_vien": 1,
+        "dat_lich_nhan_vien_sao": 0,
+        "SettingBookOnlineMinutes": 10,
+        "SettingBookOnlineExpectedMinutes": 60,
+        "chuyen_doi_kh_cu": true,
+        "AmountExport": 10000,
+        "an_xoa_don_hang": false,
+        "cam_chinh_gia": false,
+        "admin_chinh_sua_thong_tin": false,
+        "thuong_ds_nang_cao": false,
+        "thuong_ds_theo_loai": false,
+        "the_tien_nang_cao": false,
+        "ks_chuyen_ngay": false,
+        "yeu_cau_giao_nhan_vien_dich_vu": false,
+        "cau_hinh_cong_ca": true,
+        "nv_le_tan_an_tao_the_cu": false,
+        "check_in_mobile": false,
+        "kpi2": true,
+        "_text_dat_lich": "Quý khách vui lòng chờ đợi, chúng tôi sẽ kiểm tra lịch cửa hàng và phản hồi thông tin sớm nhất.Trong trường hợp bạn muốn đến ngay, vui lòng liên hệ hotline",
+        "kpiSuccess": "Đặt lịch thành công",
+        "kpiCancelFinish": "Khách không đến",
+        "kpiFinish": "Khách đến",
+        "kpiCancel": "Khách hủy",
+        "hoa_hong_tu_van": "Hoa hồng tư vấn",
+        "hoa_hong_tu_van_khm": "Hoa hồng tư vấn khách mới",
+        "kpiSortColumn": [{
+                "key": "index",
+                "order": 0,
+                "isvisible": false
+            },
+            {
+                "key": "FullName",
+                "order": 1,
+                "isvisible": false
+            },
+            {
+                "key": "CreateDate",
+                "order": 2,
+                "isvisible": false
+            },
+            {
+                "key": "ByStock.Title",
+                "order": 3,
+                "isvisible": false
+            },
+            {
+                "key": "Staffs",
+                "order": 4,
+                "isvisible": false
+            },
+            {
+                "key": "TeleTags",
+                "order": 5,
+                "isvisible": false
+            },
+            {
+                "key": "TopTele",
+                "order": 6,
+                "isvisible": false
+            },
+            {
+                "key": "TeleNote",
+                "order": 7,
+                "isvisible": false
+            },
+            {
+                "key": "action",
+                "order": 100,
+                "isvisible": false
+            }
+        ],
+        "hoa_hong_tu_van_ktv_an": true,
+        "_checkout_time": "21:00;05:00",
+        "extrasalary": false,
+        "hoan_thanh_ca_trong_phien": false,
+        "khong_co_kho": true,
+        "cam_sua_luong_tour": false,
+        "hoa_hong_dac_biet": false,
+        "whitelabel": "",
+        "gioi_thieu_khach_moi": false,
+        "chinh_sua_thanh_toan": true,
+        "checkout_nhanh": true,
+        "tich_the_don_gian": false,
+        "buoi_dich_vu_chon_ngay_nhanh": false,
+        "_minbookdate": "now",
+        "_khoahocinfo": false,
+        "chinh_sua_don_hang": true,
+        "maff": false,
+        "maffAdmin": false,
+        "_OTP_USER": false,
+        "thanh_toan_het_in": true,
+        "_MemberAutoUpGroup": true,
+        "Cap_nhat_cong_no_khach_hang": true,
+        "ClientCreateNoti": true,
+        "Chinh_sua_don_hang_da_thanh_toan": false,
+        "__thong_tin_bat_buoc_nhap_them_khach_hang": "FullName,MobilePhone,Gender,Source",
+        "_cam_sua_khi_co_du_lieu": "HandCardID,Source",
+        "_cam_sua": "MobilePhone,InputGroups,IsKeepGroup",
+        "vat": true,
+        "hddt": {
+            "__SenderName": "Khách lẻ không lấy hóa đơn"
+        },
+        "_valid_phone": false,
+        "nv_phu_trach_la_telesale": true,
+        "thanh_toan_moi_cho_in": false,
+        "ngay_het_han_dich_vu_theo_solg_mua": true,
+        "_chinh_gia_0_dong_mua_hang": true,
+        "_so_luong_nv_buoi_dv": 10,
+        "TransactionOTP": false,
+        "_TransactionOTPTimeout": 120,
+        "__TU_DONG_TIP": true,
+        "_TU_DONG_NHAC_HET_GIO_DICH_VU_PHUT": 5,
+        "_volume_audio_service": 0.8,
+        "_CHINH_SUA_TT_KH_CHINH_SUA_DON_HANG": false,
+        "_CHINH_SUA_TT_KH_AN": "",
+        "__nvl_cho_dich_vu": "nvl,san_pham",
+	"toi_uu_bang_lich":  true,
+    	"dat_lich_hien_dv_an": false,
+    	"osmode": "Không tải lại khi giao/hoàn thành buổi"
+    },
+    "SideMenu": {
+        "add": {
+            "Kế toán / HCNS": {
+                "KPI doanh số": {
+                    "href": "?mdl20=user2&act20=kpi2config",
+                    "$index": 1
+                }
+            }
+        },
+        "remove": ["?mdl20=user2&act20=userrevenue"]
+    },
+    "ZALO": {
+        "or": "user",
+        "type": "oa",
+        "ID": "52576634589693766"
+    },
+    "SMSOTP": false,
+    "IPAD": {
+        "Items": [{
+                "value": 1,
+                "desc": "Rất không hài lòng",
+                "feedbacks": [
+                    "Thất vọng về thái độ phục vụ của nhân viên",
+                    "Chất lượng dịch vụ kém",
+                    "Trang thiết bị nghèo nàn lạc hậu",
+                    "Không gian và lối kiến trúc mờ nhạt, không ấn tượng",
+                    "Chất lượng vệ sinh không đạt yêu cầu"
+                ],
+                "feedSelected": [],
+                "image": ""
+            },
+            {
+                "value": 2,
+                "desc": "Chưa được tốt",
+                "feedbacks": [
+                    "Thất vọng về thái độ phục vụ của nhân viên",
+                    "Chất lượng dịch vụ kém",
+                    "Trang thiết bị nghèo nàn lạc hậu",
+                    "Không gian và lối kiến trúc mờ nhạt, không ấn tượng",
+                    "Chất lượng vệ sinh không đạt yêu cầu"
+                ],
+                "feedSelected": [],
+                "image": ""
+            },
+            {
+                "value": 3,
+                "desc": "Bình thường",
+                "feedbacks": [
+                    "Thái độ phục vụ của nhân viên không thân thiện",
+                    "Chất lượng dịch vụ ở mức trung bình",
+                    "Trang thiết bị chưa đạt chuẩn",
+                    "Không gian chưa đủ ấn tượng",
+                    "Chất lượng vệ sinh chưa tốt"
+                ],
+                "feedSelected": [],
+                "image": ""
+            },
+            {
+                "value": 4,
+                "desc": "Gần như hoàn hảo",
+                "feedbacks": [
+                    "Nhân viên phục vụ thân thiện",
+                    "Trang thiết bị hiện đại",
+                    "Thời gian chờ phục vụ hơi lâu",
+                    "Trang thiết bị hiện đại",
+                    "Không gian đẹp, tạo cảm giác thoải mái"
+                ],
+                "feedSelected": [],
+                "image": ""
+            },
+            {
+                "value": 5,
+                "desc": "Hoàn hảo",
+                "feedbacks": [
+                    "Thái độ nhân viên rất tốt",
+                    "Rất hài lòng về chất lượng dịch vụ",
+                    "Phục vụ khách hàng siêu nhanh không phải chờ đợi",
+                    "Không gian thoáng đẹp, kiến trúc thu hút",
+                    "Rất hài lòng và sẽ quay trở lại cùng bạn bè"
+                ],
+                "feedSelected": [],
+                "image": ""
+            }
+        ]
+    },
+    "Print": {
+        "isQRPay": true,
+        "isSource": true,
+        "_isInfoQrNamePhone": true,
+        "_QrPayToStocks": [{
+            "StockID": 11557,
+            "STK": "2024241286"
+        }]
+    },
+    "UIVersion": 2,
+    "PosApp": true,
+    "_BASICAPPIDEZS": true,
+    "_EZSIDVersion": 1
+};
+        GlobalConfig.getPath = (path, fn) => {
+            //path start with '$.';
+            var p = path.startsWith('$.') ? path.substr(2) : path;
+            var segs = p.split('.');
+            var exist = true;
+            var o = GlobalConfig;
+            for (var i = 0; i < segs.length; i++) {
+                o = o[segs[i]];
+                if (!o) {
+                    if (i < segs.length - 1) exist = false;
+                    break;
+                }
+            }
+            if (exist) return fn(o);
+            return false;
+        }
+        function isAdminTools() {
+            var pass = false;
+            if (window.Info) {
+                Info.rightTree.groups.every(gr => {
+                    if (gr.group == "Chức năng khác") {
+                        //console.log(gr.group, gr.rights);
+                        gr.rights.every(r => {
+                            if (r.name == "adminTools") {
+                                // console.log(r.name);
+                                r.subs.every(s => {
+                                    if (s.name == "adminTools_byStock") {
+                                        //console.log(s.name);
+                                        pass = s.hasRight || false;
+                                    }
+                                    return pass == false;
+                                })
+                            }
+                            return pass == false;
+                        })
+                    }
+                    return pass === false;
+                });
+                if (pass) return true;
+            }
+            return pass
+        }
+        var UploadAllowsExt = '.jpeg,.jpg,.gif,.png,.pdf,.doc,.docx,.xls,.xlsx,.txt,.rar,.zip,.7zip,.tiff,.exif,.bmp,.wmf';
+
+        GlobalConfig.getPath('$.UploadAllowsExt', v => {
+            UploadAllowsExt = v;
+        })
+
+    </script>
+    <script>
+        var VERSION = '20220709_1';
+        var ByDomain = {
+            find(path, df) {
+                var t = this;
+                var arr = path.split('.');
+                var o = t;
+                for (var i = 0; i < arr.length; i++) {
+                    o = o[arr[i]];
+                    if (o === undefined) {
+                        return df;
+                    }
+                }
+                return o;
+
+            }
+        };
+
+        ByDomain = Object.assign(ByDomain, );
+        Vue.mixin({
+            data: () => {
+                return {
+                    ByDomain: ByDomain
+                }
+            }
+        })
+
+        //var PendingSave = null;
+
+        //window.addEventListener('beforeunload', e => {
+
+        //    if (PendingSave) {
+        //        e.preventDefault();
+        //        e.returnValue = 'Xóa dữ liệu chưa lưu';
+        //    }
+
+
+        //})
+
+        //function CleanPendingSave() {
+        //    if (PendingSave)
+        //        $.post('/api/v3/unsave?cmd=clean', { data: JSON.stringify(PendingSave) }, () => { }, 'json');
+        //}
+        //window.addEventListener('unload', e => {
+        //    CleanPendingSave();
+        //})
+
+        //safe-height
+        const safeHeight = () => {
+            const doc = document.documentElement
+            doc.style.setProperty('--safe-height', `${window.innerHeight}px`)
+        }
+        window.addEventListener('resize', safeHeight);
+        safeHeight();
+    </script>
+
+    <style>
+        .safe-top-0
+        {
+            top: env(safe-area-inset-top, 0) !important
+        }
+
+        .safe-bottom-0
+        {
+            bottom: env(safe-area-inset-bottom, 0) !important
+        }
+
+        body #cprtqwsjqlrfgtoydftbb .chat-button
+        {
+            display: none !important;
+        }
+    </style>
+
+    <script>
+        var SideMenu = {
+
+ "TRANG CHỦ": {
+ "$ico": "pe-7s-home",
+        "TRANG CHỦ": "/admin"
+    },
+
+
+
+    "Phần mềm": {
+        "$ico": "pe-7s-date",
+        "Thu ngân": "/admin/?mdl=store&act=sell",
+       
+
+        "Thu chi / sổ quỹ": "/admin/?v2=cashs",
+  "Xuất hóa đơn": "/admin/?v2=electronic-invoice",
+
+
+
+
+
+        "CSKH": "/admin/?mdl20=care&act20=tele",
+        "Page/Telesale": "/admin/?mdl20=care&act20=pagetele",
+        "Đào tạo": "/admin/?mdl20=Course&act20=index"
+    },
+    "Web & App": {
+ "$ico": "pe-7s-global",
+        "Nội dung / Blogs": "/admin/?v2=posts/list",
+        "Media / Video": "/admin/?v2=banners/list",
+      
+        "Thông báo App": "/admin/?v2=notifications/danh-sach",
+        "Liên hệ": "/admin/?mdl25=contact",
+
+
+    },
+
+    "Bảng giá": {
+ "$ico": "pe-7s-keypad",
+        "Quản lý SP/DV": "/admin/?v2=prods"
+    },
+
+    "Kho & hàng tồn": {
+ "$ico": "pe-7s-box2",
+        "Kho & hàng tồn": "/admin/?mdl20=whouse2&act20=index25"
+    },
+
+
+    "Khuyến mại": {
+ "$ico": "pe-7s-gift",
+        "Khuyến mại": "/admin/?v2=promotions/campaigns",
+        "Voucher/Coupon": "/admin/?v2=promotions/vouchers",
+ "Minigame": "/admin/?v2=promotions/minigames"
+
+
+
+
+    },
+    "Quyền lợi": {
+ "$ico": "pe-7s-diamond",
+        "Nhóm khách hàng": "/admin/?mdl=member&act=group",
+        //"Tích lũy mua hàng": "?mdl=member&act=config&type=MUA_HANG",
+        "Tích lũy ( hoàn tiền )": "/admin/?mdl25=memberconfig",
+ "Tích điểm ( đổi quà )": "/admin/?v2=clients/settings-point",
+        "Chính sách affiliate": "/admin/?mdl25=memberconfig&type=GIOI_THIEU",//"?mdl=member&act=config&type=GIOI_THIEU",
+        "Sinh nhật / Cài App": "/admin/?mdl20=promo&act20=promo"
+    },
+    "NHÂN VIÊN": {
+ "$ico": "pe-7s-user",
+        "Danh sách": "/admin/?v2=users",
+        "Chính sách lương": "/admin/?v2=users/salary-settings",
+        "Bảng lương": "/admin/?v2=payroll",
+        "Kpi doanh số": "/admin/?mdl20=user2&act20=kpi2config",
+
+        "Thưởng phạt / khác": "/admin/?v2=users/reward-penalty",
+        "Chấm công": "/admin/?mdl20=cash&act20=staffs&type=cong_ca", "Kpi lương tour": "/admin/?v2=settings/tour-kpi-config"
+    },
+    "Báo cáo": {
+ "$ico": "pe-7s-graph",
+        "Tổng quan": "/admin/?mdl20=R23&act20=daily",
+
+    },
+    "Công cụ Admin": {
+ "$ico": "pe-7s-tools",
+        "CC Admin": "/admin/?mdl=sysadmin",
+
+    },
+
+
+    "Hệ thống": {
+ "$ico": "pe-7s-config",
+       
+        "Thông tin cơ bản": "/admin/?mdl20=config&act20=config",
+        //"Cơ sở kinh doanh": "?mdl=home&act=stock",
+        "Cơ sở / Chi nhánh": "/admin/?v2=settings/business-establishment",
+        "Cài đặt máy in": "/admin/?mdl=InvoiceConfig",
+        "Cài đặt thông báo": "/admin/?mdl25=noticonfig"
+    }
+};
+var SideMenuIcos = {
+
+}
+
+
+    </script>
+</head>
+
+<body id="body" class="fixed-navbar sidebar-scroll">
+
+
+    <!--POS27-->
+    <script src="/adminz/user.user.top/POS27"></script>
+    <script src="/adminz/user.user.top/POSORDER27"></script>
+    <script src="/adminz/user.user.top/NOTI27"></script>
+    <script src="/adminz/user.user.top/appPOS"></script>
+    <!---->
+    <script>
+        new function () {
+            var before = sessionStorage.getItem('beforeLoad');
+
+            if (before && location.href.indexOf('mdl=store&act=sell') > -1) {
+                $('body').addClass('memberpresent-loading');
+                sessionStorage.removeItem('beforeLoad')
+            }
+        }
+    </script>
+
+    <div id="ErrorAlert_cnt" style="display: none">
+        <span class="x" onclick="$(this).parent().hide()">[Đóng]</span>
+        <iframe src="about:blank" id="ErrorAlert"></iframe>
+    </div>
+
+    <div class="loader">
+        <div class="splash-loader">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+    <div class="header-process"></div>
+
+    <form name="form1" method="post" action="/admin/?v2=users" id="form1">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTUzOTExMDQ2NQ9kFgQCAQ9kFgICBA8WAh4EVGV4dAXoWjxsaW5rIHJlbD0iYXBwbGUtdG91Y2gtaWNvbiIgc2l6ZXM9IjEyMHgxMjAiIGhyZWY9Ii9icmFuZC9mYXZpY29uL2FwcGxlLXRvdWNoLWljb24ucG5nIiAvPg0KPGxpbmsgcmVsPSJpY29uIiB0eXBlPSJpbWFnZS9wbmciIHNpemVzPSIzMngzMiIgaHJlZj0iL2JyYW5kL2Zhdmljb24vZmF2aWNvbi0zMngzMi5wbmciIC8+DQo8bGluayByZWw9Imljb24iIHR5cGU9ImltYWdlL3BuZyIgc2l6ZXM9IjE2eDE2IiBocmVmPSIvYnJhbmQvZmF2aWNvbi9mYXZpY29uLTE2eDE2LnBuZyIgLz4NCjxsaW5rIHJlbD0ibWFuaWZlc3QiIGhyZWY9Ii9BZG1pbi9tYW5pZmVzdC5qc29uIj4NCjxsaW5rIHJlbD0ibWFzay1pY29uIiBocmVmPSIvYnJhbmQvZmF2aWNvbi9zYWZhcmktcGlubmVkLXRhYi5zdmciIGNvbG9yPSIjNWJiYWQ1IiAvPg0KDQo8bWV0YSBuYW1lPSJtc2FwcGxpY2F0aW9uLVRpbGVDb2xvciIgY29udGVudD0iI2RhNTMyYyIgLz4NCjxtZXRhIG5hbWU9InRoZW1lLWNvbG9yIiBjb250ZW50PSIjZmZmZmZmIiAvPg0KPCEtLSBWZW5kb3Igc3R5bGVzIC0tPg0KPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIvYWRtaW4vdGhlbWVzL3ZlbmRvci9mb250YXdlc29tZS9jc3MvZm9udC1hd2Vzb21lLmNzcyIgLz4NCjxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iL2FkbWluL3RoZW1lcy92ZW5kb3IvbWV0aXNNZW51L2Rpc3QvbWV0aXNNZW51LmNzcyIgLz4NCjxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iL2FkbWluL3RoZW1lcy92ZW5kb3IvYW5pbWF0ZS5jc3MvYW5pbWF0ZS5jc3MiIC8+DQo8bGluayByZWw9InN0eWxlc2hlZXQiIGhyZWY9Ii9hZG1pbi90aGVtZXMvdmVuZG9yL2Jvb3RzdHJhcC9kaXN0L2Nzcy9ib290c3RyYXAuY3NzIiAvPg0KDQo8IS0tIEFwcCBzdHlsZXMgLS0+DQo8bGluayByZWw9InN0eWxlc2hlZXQiIGhyZWY9Ii9hZG1pbi90aGVtZXMvdmVuZG9yL3BlcmZlY3Qtc2Nyb2xsYmFyL3BlcmZlY3Qtc2Nyb2xsYmFyLmNzcyIgLz4NCjxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iL2FkbWluL3RoZW1lcy9mb250cy9wZS1pY29uLTctc3Ryb2tlL2Nzcy9wZS1pY29uLTctc3Ryb2tlLmNzcyIgLz4NCjxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iL2FkbWluL3RoZW1lcy9mb250cy9wZS1pY29uLTctc3Ryb2tlL2Nzcy9oZWxwZXIuY3NzIiAvPg0KPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIvYWRtaW4vdGhlbWVzL3N0eWxlcy9zdHlsZS5jc3MiIC8+DQo8bGluayBocmVmPSIvQWRtaW4vUmVhY3RDRE4vcmVhY3QtZGF0ZXBpY2tlci5jc3MiIHJlbD0ic3R5bGVzaGVldCIgLz4NCg0KPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIvQWRtaW4vVGhlbWVzL3ZlbmRvci9mYW5jeWJveC9mYW5jeWJveC5jc3MiIC8+DQoNCjxzY3JpcHQgc3JjPSJodHRwczovL3d3dy5nc3RhdGljLmNvbS9maXJlYmFzZWpzLzkuNi4xL2ZpcmViYXNlLWFwcC1jb21wYXQuanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Imh0dHBzOi8vd3d3LmdzdGF0aWMuY29tL2ZpcmViYXNlanMvOS42LjEvZmlyZWJhc2UtZmlyZXN0b3JlLWNvbXBhdC5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iaHR0cHM6Ly93d3cuZ3N0YXRpYy5jb20vZmlyZWJhc2Vqcy85LjYuMS9maXJlYmFzZS1hdXRoLWNvbXBhdC5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iaHR0cHM6Ly93d3cuZ3N0YXRpYy5jb20vZmlyZWJhc2Vqcy85LjYuMS9maXJlYmFzZS1kYXRhYmFzZS1jb21wYXQuanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Imh0dHBzOi8vd3d3LmdzdGF0aWMuY29tL2ZpcmViYXNlanMvOS42LjEvZmlyZWJhc2UtbWVzc2FnaW5nLWNvbXBhdC5qcyI+PC9zY3JpcHQ+DQoNCjwhLS0gQXBwIGpzIC0tPg0KPHNjcmlwdCBzcmM9Ii9hZG1pbi90aGVtZXMvdmVuZG9yL2pxdWVyeS9kaXN0L2pxdWVyeS5taW4uanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9hZG1pbi90aGVtZXMvdmVuZG9yL2pxdWVyeS11aS9qcXVlcnktdWkubWluLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgc3JjPSIvYWRtaW4vdGhlbWVzL3ZlbmRvci9wZXJmZWN0LXNjcm9sbGJhci9wZXJmZWN0LXNjcm9sbGJhci5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL2FkbWluL3RoZW1lcy92ZW5kb3IvYm9vdHN0cmFwL2Rpc3QvanMvYm9vdHN0cmFwLm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL0FkbWluei9qcy9xcmNvZGUubWluLmpzIj48L3NjcmlwdD4NCg0KDQo8c2NyaXB0IHNyYz0iL0FkbWluL1RoZW1lcy92ZW5kb3IvZmFuY3lib3gvZmFuY3lib3gudW1kLmpzIj48L3NjcmlwdD4NCg0KDQo8c2NyaXB0IHNyYz0iL2FkbWluL3RoZW1lcy92ZW5kb3IvbWV0aXNNZW51L2Rpc3QvbWV0aXNNZW51Lm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL2FkbWluL3RoZW1lcy92ZW5kb3IvaUNoZWNrL2ljaGVjay5taW4uanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9hZG1pbi90aGVtZXMvdmVuZG9yL3BlaXR5L2pxdWVyeS5wZWl0eS5taW4uanMiPjwvc2NyaXB0Pg0KDQo8IS0tanMgb2xkIEFkbWluY3AtLT4NCjxzY3JpcHQgc3JjPSIvYWRtaW5jcC9Kcy9qcXVlcnkuY29va2llLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgc3JjPSIvYWRtaW5jcC9Kcy9kYXRldGltZXBpY2tlci9tb21lbnQubWluLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgc3JjPSIvY2tlZGl0b3IvY2tlZGl0b3IuanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9BZG1pbkNwL0pzL2xpYi5qcyI+PC9zY3JpcHQ+DQo8bGluayBocmVmPSIvQWRtaW5DcC9Kcy9zZWxlY3QyLm1pbi5jc3MiIHJlbD0ic3R5bGVzaGVldCIgLz4NCjxzY3JpcHQgc3JjPSIvQWRtaW5DcC9Kcy9zZWxlY3QyLm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL0FwcC9wbHVnaW5zL3N3ZWV0YWxlcnQubWluLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgc3JjPSIvQWRtaW4vVGhlbWVzL3ZlbmRvci94bHN4L3hsc3guZnVsbC5taW4uanMiPjwvc2NyaXB0Pg0KDQo8bGluayBocmVmPSIvQWRtaW4vVGhlbWVzL3ZlbmRvci9tYWduaWZpYy1wb3B1cC9tYWduaWZpYy1wb3B1cC5jc3MiIHJlbD0ic3R5bGVzaGVldCIgLz4NCjxzY3JpcHQgc3JjPSIvQWRtaW4vVGhlbWVzL3ZlbmRvci9tYWduaWZpYy1wb3B1cC9qcXVlcnkubWFnbmlmaWMtcG9wdXAubWluLmpzIj48L3NjcmlwdD4NCg0KPGxpbmsgaHJlZj0iL2FkbWluL1RoZW1lcy92ZW5kb3IvdG9vbHRpcHN0ZXIvdG9vbHRpcHN0ZXIuYnVuZGxlLm1pbi5jc3MiIHJlbD0ic3R5bGVzaGVldCIgLz4NCjxzY3JpcHQgc3JjPSIvYWRtaW4vVGhlbWVzL3ZlbmRvci90b29sdGlwc3Rlci90b29sdGlwc3Rlci5idW5kbGUubWluLmpzIj48L3NjcmlwdD4NCg0KDQoNCjxzY3JpcHQ+DQogICAgLy9jdXN0b20gc2VsZWN0Mg0KICAgICQuZm4uc2VsZWN0Mi5kZWZhdWx0cy5zZXQoJ3RlbXBsYXRlU2VsZWN0aW9uJywgZnVuY3Rpb24gKGRhdGEsIGNvbnRhaW5lcikgew0KICAgICAgICAvLyBBZGQgY3VzdG9tIGF0dHJpYnV0ZXMgdG8gdGhlIDxvcHRpb24+IHRhZyBmb3IgdGhlIHNlbGVjdGVkIG9wdGlvbg0KICAgICAgICAkKGRhdGEuZWxlbWVudCkuYXR0cignZGF0YS1jdXN0b20tYXR0cmlidXRlJywgZGF0YS5JZCB8fCAwKTsNCiAgICAgICAgcmV0dXJuIGRhdGEudGV4dDsNCiAgICB9KTsNCiAgICB2YXIgSGFzVnVlID0gdHJ1ZTsNCjwvc2NyaXB0Pg0KDQo8bGluayBocmVmPSIvYWRtaW4vVGhlbWVzL3ZlbmRvci90b2FzdHIvdG9hc3RyLm1pbi5jc3MiIHJlbD0ic3R5bGVzaGVldCIgLz4NCjxzY3JpcHQgc3JjPSIvYWRtaW4vVGhlbWVzL3ZlbmRvci90b2FzdHIvdG9hc3RyLm1pbi5qcyI+PC9zY3JpcHQ+DQoNCjxzY3JpcHQgc3JjPSIvYWRtaW4vanMvU2VsZWN0MkRhdGEuanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9BZG1pbi9UaGVtZXMvdmVuZG9yL2RvbS10by1pbWFnZS5taW4uanMiPjwvc2NyaXB0Pg0KDQo8bGluayBocmVmPSIvYWRtaW5jcC9DU1MvYm9vdHN0cmFwLWRhdGV0aW1lcGlja2VyLmNzcyIgcmVsPSJzdHlsZXNoZWV0IiAvPg0KPHNjcmlwdCBzcmM9Ii9hZG1pbmNwL0pzL2RhdGV0aW1lcGlja2VyL2Jvb3RzdHJhcC1kYXRldGltZXBpY2tlci5taW4uanMiPjwvc2NyaXB0Pg0KPGxpbmsgaHJlZj0iL2FkbWluY3AvQ1NTL2Jvb3RzdHJhcC1kYXRldGltZXBpY2tlci1zdGFuZGFsb25lLmNzcyIgcmVsPSJzdHlsZXNoZWV0IiAvPg0KPHNjcmlwdCBzcmM9Ii9hZG1pbmNwL0pzL2RhdGV0aW1lcGlja2VyL3ZpLmpzIj48L3NjcmlwdD4NCjwhLS1hZG1pbiB1aS0tPg0KPGxpbmsgaHJlZj0iL2FkbWluL2Nzcy9zdHlsZS5jc3MiIHJlbD0ic3R5bGVzaGVldCIgLz4NCjxsaW5rIGhyZWY9Ii9hZG1pbi9jc3Mvc3BhMjAyMC5jc3MiIHJlbD0ic3R5bGVzaGVldCIgLz4NCg0KPHNjcmlwdCBzcmM9Ii9hZG1pbi9qcy9YUi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL2FkbWluL2pzL3VpLmpzP3Q9MjAyNl8wMV8wMiI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL2FkbWluL2pzL2J6Q2xpZW50LmpzP3Q9MSI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL2FkbWluL2pzL09ELmpzIj48L3NjcmlwdD4NCjxsaW5rIGhyZWY9Ii9hZG1pbi9jc3MvdS5jc3M/dj0yMDI1XzUiIHJlbD0ic3R5bGVzaGVldCIgLz4NCg0KPHNjcmlwdCBzcmM9Ii9hZG1pbi9qcy92dWUuanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9hZG1pbi9qcy9WdWVIZWxwZXIuanM/dD0yMDIwXzA4XzMwXzEiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9hZG1pbi9qcy9WdWVIZWxwZXJDb21wLmpzP3Q9MjAyNTA5MTMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9BZG1pbnovanMvYWRqJCI+PC9zY3JpcHQ+DQoNCjwhLS1UYWlsd2luZGNzcyBDRE4tLT4NCjxzY3JpcHQgc3JjPSIvQWRtaW4vVGhlbWVzL3RhaWx3aW5kY3NzL3RhaWx3aW5kY3NzLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgc3JjPSIvQWRtaW4vVGhlbWVzL3RhaWx3aW5kY3NzL3RhaWx3aW5kY3NzLmNvbmZpZy5qcyI+PC9zY3JpcHQ+DQo8c3R5bGUgdHlwZT0idGV4dC90YWlsd2luZGNzcyI+DQogICAgQGxheWVyIGJhc2Ugew0KICAgICAgICAqLA0KICAgICAgICA6YWZ0ZXIsDQogICAgICAgIDpiZWZvcmUgew0KICAgICAgICAgICAgYm94LXNpemluZzogYm9yZGVyLWJveDsNCiAgICAgICAgICAgIGJvcmRlcjogMCBzb2xpZCAjZTVlN2ViOw0KICAgICAgICB9DQogICAgfQ0KPC9zdHlsZT4NCjwhLS1SZWFjdCBDRE4tLT4NCg0KPHNjcmlwdCBzcmM9Ii9BZG1pbi9SZWFjdENETi9yZWFjdC5wcm9kdWN0aW9uLm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL0FkbWluL1JlYWN0Q0ROL3JlYWN0LWRvbS5wcm9kdWN0aW9uLm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL0FkbWluL1JlYWN0Q0ROL3JlYWN0LWJvb3RzdHJhcC5taW4uanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9BZG1pbi9SZWFjdENETi9yZWFjdC1yb3V0ZXItZG9tLm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL0FkbWluL1JlYWN0Q0ROL2F4aW9zLm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCIgc3JjPSIvQWRtaW4vUmVhY3RDRE4vcHJvcC10eXBlcy5taW4uanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCB0eXBlPSJ0ZXh0L2phdmFzY3JpcHQiIHNyYz0iL0FkbWluL1JlYWN0Q0ROL3JlYWN0LW9uY2xpY2tvdXRzaWRlLm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCIgc3JjPSIvQWRtaW4vUmVhY3RDRE4vY2xhc3NuYW1lcy5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCIgc3JjPSIvQWRtaW4vUmVhY3RDRE4vcG9wcGVyLm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCIgc3JjPSIvQWRtaW4vUmVhY3RDRE4vcmVhY3QtcG9wcGVyLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgdHlwZT0idGV4dC9qYXZhc2NyaXB0IiBzcmM9Ii9BZG1pbi9SZWFjdENETi9yZWFjdC1kYXRlcGlja2VyLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgc3JjPSIvQWRtaW4vUmVhY3RDRE4vZW1vdGlvbi51bWQubWluLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgc3JjPSIvQWRtaW4vUmVhY3RDRE4vcmVhY3QtaW5wdXQtYXV0b3NpemUubWluLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgc3JjPSIvQWRtaW4vUmVhY3RDRE4vcmVhY3Qtc2VsZWN0Lm1pbi5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL0FkbWluL1JlYWN0Q0ROL3JlYWN0LW51bWJlci1mb3JtYXQubWluLmpzIj48L3NjcmlwdD4NCjxzY3JpcHQgc3JjPSIvQWRtaW4vUmVhY3RDRE4vcmVhY3QtaG9vay1mb3JtQDcuMjEuMi5taW4uanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9BZG1pbi9SZWFjdENETi9yZWFjdC1yZWR1eC5taW4uanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9BZG1pbi9SZWFjdENETi9yZWR1eC5taW4uanMiPjwvc2NyaXB0Pg0KPHNjcmlwdCBzcmM9Ii9BZG1pbi9SZWFjdENETi9yZWFjdC1xdWVyeS5qcyI+PC9zY3JpcHQ+DQo8c2NyaXB0IHNyYz0iL0FkbWluL1JlYWN0Q0ROL2JhYmVsLmpzIj48L3NjcmlwdD4NCjxzdHlsZSBtZWRpYT0icHJpbnQiPg0KICAgICNoZWFkZXIsICNtZW51LCAubm9ybWFsaGVhZGVyLCBmb290ZXIsIC5uLXByaW50IHsNCiAgICAgICAgZGlzcGxheTogbm9uZSAhaW1wb3J0YW50DQogICAgfQ0KDQogICAgLmNvbnRlbnQgew0KICAgICAgICBwYWRkaW5nOiAwDQogICAgfQ0KDQogICAgI3dyYXBwZXIsIC5wYXlyb2xsIHsNCiAgICAgICAgdG9wOiAwOw0KICAgICAgICBtYXJnaW46IDA7DQogICAgICAgIGJvcmRlci1sZWZ0OiAwOw0KICAgIH0NCg0KICAgIC5zZWxlY3QyIHsNCiAgICAgICAgd2lkdGg6IDEwMCUgIWltcG9ydGFudDsNCiAgICB9DQoNCiAgICAuZm9ybS1ncm91cCB7DQogICAgICAgIG1hcmdpbjogMDsNCiAgICB9DQoNCiAgICAudGl0bGUtcHJpbnQgew0KICAgICAgICBkaXNwbGF5OiBibG9jayAhaW1wb3J0YW50Ow0KICAgIH0NCg0KICAgIC5oci1saW5lLWRhc2hlZCB7DQogICAgICAgIGJvcmRlci10b3A6IDFweCBkb3R0ZWQgIzAwMCAhaW1wb3J0YW50Ow0KICAgIH0NCg0KICAgIC5wYXlyb2xsIGZpZWxkc2V0IHsNCiAgICAgICAgcGFkZGluZzogMjBweCAyMHB4IDAgMjBweDsNCiAgICB9DQoNCiAgICAuZm9ybS1ob3Jpem9udGFsIC5mb3JtLWdyb3VwIHsNCiAgICAgICAgbWFyZ2luLWJvdHRvbTogMDsNCiAgICB9DQo8L3N0eWxlPg0KPHN0eWxlPg0KICAgIGJvZHkubWVtYmVycHJlc2VudC1sb2FkaW5nID4gKiB7DQogICAgICAgIHZpc2liaWxpdHk6IGhpZGRlbjsNCiAgICAgICAgb3BhY2l0eTogMA0KICAgIH0NCjwvc3R5bGU+DQoNCjxzdHlsZT4NCiAgICBbZGF0YS1wcm9wLW5hbWU9IkFnZXMiXSB7DQogICAgICAgIGRpc3BsYXk6IG5vbmUgIWltcG9ydGFudA0KICAgIH0NCg0KICAgIFtkYXRhLXByb3AtbmFtZT0iR2VuZGVyIl0gew0KICAgICAgICBkaXNwbGF5OiBub25lICFpbXBvcnRhbnQNCiAgICB9DQoNCiAgIA0KDQogICAgW2RhdGEtcHJvcC1uYW1lPSJEZXNjU0VPIl0gew0KICAgICAgICBkaXNwbGF5OiBub25lICFpbXBvcnRhbnQNCiAgICB9DQoNCiAgICBbZGF0YS1wcm9wLW5hbWU9IktleVNFTyJdIHsNCiAgICAgICAgZGlzcGxheTogbm9uZSAhaW1wb3J0YW50DQogICAgfQ0KDQoNCiAgICAuZm9ybS1zZXJ2aWNlIFtkYXRhLXByb3AtbmFtZT0iTWFudSJdIHsNCiAgICAgICAgZGlzcGxheTogbm9uZSAhaW1wb3J0YW50DQogICAgfQ0KDQogICAgLmZvcm0tc2VydmljZSBbZGF0YS1wcm9wLW5hbWU9IklzUmVhZHkiXSB7DQogICAgICAgIGRpc3BsYXk6IG5vbmUgIWltcG9ydGFudA0KICAgIH0NCg0KICAgIC5mb3JtLXNlcnZpY2UgW2RhdGEtcHJvcC1uYW1lPSJJc1NlcnZpY2UiXSB7DQogICAgICAgIGRpc3BsYXk6IG5vbmUgIWltcG9ydGFudA0KICAgIH0NCg0KICAgIC5mb3JtLXNlcnZpY2UgW2RhdGEtcHJvcC1uYW1lPSJNZXRhIl0gew0KICAgICAgICBkaXNwbGF5OiBub25lICFpbXBvcnRhbnQNCiAgICB9DQoNCg0KDQogICAgLmZvcm0tc2VydmljZTpub3QoLmZvcm0tY29tYm8pOm5vdCguZm9ybS1uZXctY29tYm8pIFtkYXRhLXByb3AtbmFtZT0iSXNQdWJsaWMiXSB7DQogICAgICAgIC8qZGlzcGxheTogbm9uZSAhaW1wb3J0YW50Ki8NCiAgICB9DQoNCiAgICAuZm9ybS1zZXJ2aWNlOm5vdCguZm9ybS1jb21ibyk6bm90KC5mb3JtLW5ldy1jb21ibykgW2RhdGEtcHJvcC1uYW1lPSJQcmljZVByb2R1Y3QiXSB7DQogICAgICAgIC8qZGlzcGxheTogbm9uZSAhaW1wb3J0YW50Ki8NCiAgICB9DQoNCiAgICAuZm9ybS1zZXJ2aWNlOm5vdCguZm9ybS1jb21ibyk6bm90KC5mb3JtLW5ldy1jb21ibykgW2RhdGEtcHJvcC1uYW1lPSJJc0Rpc3BsYXlQcmljZSJdIHsNCiAgICAgICAgLyogZGlzcGxheTogbm9uZSAhaW1wb3J0YW50Ki8NCiAgICB9DQoNCiAgICAuZm9ybS1zZXJ2aWNlOm5vdCguZm9ybS1jb21ibyk6bm90KC5mb3JtLW5ldy1jb21ibykgW2RhdGEtcHJvcC1uYW1lPSJJbkRheXMiXSB7DQogICAgICAgIC8qZGlzcGxheTogbm9uZSAhaW1wb3J0YW50Ki8NCiAgICB9DQoNCiAgICBib2R5Lmhhcy1zaWRlYmFyIHsNCiAgICAgICAgb3ZlcmZsb3c6IGhpZGRlbiAhaW1wb3J0YW50DQogICAgfQ0KDQogICAgLmZ1bGwtc2l6ZSB7DQogICAgICAgIHdpZHRoOiAxMDAlOw0KICAgICAgICBoZWlnaHQ6IDEwMCU7DQogICAgICAgIG1hcmdpbjogMDsNCiAgICAgICAgcGFkZGluZzogMDsNCiAgICB9DQoNCiAgICAuYWQyMCAubW9kYWwgLnN3aXRjaCBpbnB1dDplbXB0eSB7DQogICAgICAgIG1hcmdpbjogMDsNCiAgICAgICAgaGVpZ2h0OiB1bnNldDsNCiAgICAgICAgd2lkdGg6IHVuc2V0Ow0KICAgICAgICBvcGFjaXR5OiAxOw0KICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7DQogICAgfQ0KDQogICAgLmFkMjAgLm1vZGFsIC5zd2l0Y2gtMjQgLnNsaWRlci5yb3VuZCB7DQogICAgICAgIGRpc3BsYXk6IG5vbmUNCiAgICB9DQoNCiAgICAuYWQyMCAuc3dpdGNoLTI0LCAuc3dpdGNoLTI0IHsNCiAgICAgICAgcGFkZGluZzogMA0KICAgIH0NCg0KICAgICAgICAuc3dpdGNoLTI0IGlucHV0OmNoZWNrZWQgKyAuc2xpZGVyOmJlZm9yZSB7DQogICAgICAgICAgICB3aWR0aDogMThweA0KICAgICAgICB9DQoNCiAgICAgICAgLnN3aXRjaC0yNCBpbnB1dDplbXB0eSB+IHNwYW4gew0KICAgICAgICAgICAgd2lkdGg6IDQzcHg7DQogICAgICAgICAgICBoZWlnaHQ6IDI0cHg7DQogICAgICAgIH0NCg0KICAgICAgICAgICAgLnN3aXRjaC0yNCBpbnB1dDplbXB0eSB+IHNwYW46YWZ0ZXIsIC5zd2l0Y2ggaW5wdXQ6ZW1wdHkgfiBzcGFuOmJlZm9yZSB7DQogICAgICAgICAgICAgICAgd2lkdGg6IDE4cHg7DQogICAgICAgICAgICAgICAgaGVpZ2h0OiAxOHB4Ow0KICAgICAgICAgICAgICAgIG1hcmdpbjogM3B4DQogICAgICAgICAgICB9DQoNCiAgICAgICAgLnN3aXRjaC0yNCBpbnB1dDpjaGVja2VkIH4gc3BhbjphZnRlciB7DQogICAgICAgICAgICBkaXNwbGF5OiBub25lDQogICAgICAgIH0NCg0KICAgICAgICAuc3dpdGNoLTI0IGlucHV0OmNoZWNrZWQgKyAuc2xpZGVyOmJlZm9yZSB7DQogICAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVgoMThweCk7DQogICAgICAgIH0NCg0KICAgICAgICAuc3dpdGNoLTI0IGlucHV0OmNoZWNrZWQgfiBzcGFuOmJlZm9yZSB7DQogICAgICAgICAgICBiYWNrZ3JvdW5kOiAjZmZmDQogICAgICAgIH0NCg0KICAgIC5zZG1uIHsNCiAgICAgICAgb3ZlcmZsb3c6IGF1dG87DQogICAgICAgIHBhZGRpbmctcmlnaHQ6IDEwcHg7DQogICAgICAgIGJveC1zaXppbmc6IGNvbnRlbnQtYm94Ow0KICAgICAgICB3aWR0aDogNjBweDsNCiAgICAgICAgcG9zaXRpb246IGZpeGVkOw0KICAgICAgICB0b3A6IDYycHg7DQogICAgICAgIGJvdHRvbTogMDsNCiAgICAgICAgbGVmdDogMDsNCiAgICAgICAgei1pbmRleDogMTA7DQogICAgICAgIGJhY2tncm91bmQ6ICNmZmY7DQogICAgICAgIGRpc3BsYXk6IG5vbmU7DQogICAgfQ0KDQogICAgQG1lZGlhKG1pbi13aWR0aDo3NjhweCkgew0KICAgICAgICBib2R5LmhpZGUtc2lkZWJhciAjd3JhcHBlci5zZG1uLXJlYWR5DQogICAgICAgIHsNCiAgICAgICAgICAgIG1hcmdpbjogMCAwIDAgNjBweCAhaW1wb3J0YW50Ow0KICAgICAgICB9DQoNCiAgICAgICAgLnNkbW4gew0KICAgICAgICAgICAgd2lkdGg6IDYwcHg7DQogICAgICAgICAgICBwb3NpdGlvbjogZml4ZWQ7DQogICAgICAgICAgICB0b3A6IDYycHg7DQogICAgICAgICAgICBib3R0b206IDA7DQogICAgICAgICAgICBsZWZ0OiAwOw0KICAgICAgICAgICAgei1pbmRleDogMTA7DQogICAgICAgICAgICBkaXNwbGF5OiBub25lOw0KICAgICAgICB9DQoNCiAgICAgICAgYm9keS5oaWRlLXNpZGViYXIgLnNkbW4gew0KICAgICAgICAgICAgZGlzcGxheTogYmxvY2s7DQogICAgICAgICAgICBhbmltYXRpb246IHNkbW4tYW5pOw0KICAgICAgICAgICAgYW5pbWF0aW9uLWR1cmF0aW9uOiAwLjVzOw0KICAgICAgICAgICAgYW5pbWF0aW9uLWRlbGF5OiAwLjJzOw0KICAgICAgICAgICAgb3BhY2l0eTogMDsNCiAgICAgICAgICAgIGFuaW1hdGlvbi1pdGVyYXRpb24tY291bnQ6IDE7DQogICAgICAgICAgICBhbmltYXRpb24tZmlsbC1tb2RlOiBmb3J3YXJkczsNCiAgICAgICAgfQ0KDQogICAgICAgIEBrZXlmcmFtZXMgc2Rtbi1hbmkgew0KICAgICAgICAgICAgMCUgew0KICAgICAgICAgICAgICAgIG9wYWNpdHk6IDANCiAgICAgICAgICAgIH0NCg0KICAgICAgICAgICAgMTAwJSB7DQogICAgICAgICAgICAgICAgb3BhY2l0eTogMQ0KICAgICAgICAgICAgfQ0KICAgICAgICB9DQoNCiAgICAgICAgYm9keS5oaWRlLXNpZGViYXIgLm1wMjAyNCB7DQogICAgICAgICAgICBtYXJnaW4tbGVmdDogNjBweCAhaW1wb3J0YW50Ow0KICAgICAgICB9DQogICAgfQ0KDQogICAgI3NpZGUtbWVudSB7DQogICAgICAgIGZvbnQtc2l6ZTogMTJweA0KICAgIH0NCg0KICAgICAgICAjc2lkZS1tZW51IGxpLmFjdGl2ZSA+IGEsICNzaWRlLW1lbnUgbGkuYWN0aXZlIGxpLmFjdGl2ZSBhIHsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6ICMzYjgyZjYgIWltcG9ydGFudDsNCiAgICAgICAgICAgIGNvbG9yOiAjZmZmICFpbXBvcnRhbnQ7DQogICAgICAgIH0NCg0KICAgICAgICAjc2lkZS1tZW51IGxpLmFjdGl2ZSBhIHsNCiAgICAgICAgICAgIGNvbG9yOiAjZmZmOw0KICAgICAgICB9DQoNCiAgICAgICAgI3NpZGUtbWVudSBsaTpob3ZlciBhIHsNCiAgICAgICAgICAgIGNvbG9yOiAjZmZmOw0KICAgICAgICB9DQoNCiAgICAgICAgI3NpZGUtbWVudSBsaSA+IGE6aG92ZXIgew0KICAgICAgICAgICAgYmFja2dyb3VuZDogIzNiODJmNiAhaW1wb3J0YW50Ow0KICAgICAgICB9DQoNCiAgICAgICAgI3NpZGUtbWVudSBsaSAubmF2LXNlY29uZC1sZXZlbCBsaSBhOmhvdmVyIHsNCiAgICAgICAgICAgIGNvbG9yOiAjZmZmDQogICAgICAgIH0NCjwvc3R5bGU+DQoNCjxzY3JpcHQgc3JjPSIvYWRtaW4vU2lkZU1lbnVNaW5pLmpzP3Q9MiI+PC9zY3JpcHQ+ZAIDD2QWAgIBDxYCHgZhY3Rpb24FEC9hZG1pbi8/djI9dXNlcnNkZOQm4vv6qDp5EHKgmxLJRLQHNJlDEfmvuzJtPwpRXvGQ" />
+</div>
+
+        <!-- Header -->
+        <div id="header">
+            <div class="color-line">
+            </div>
+            <div id="logo" class="light-version !h-full flex">
+                <div class="hide-menu w-[50px] flex items-center justify-center h-full text-[20px] cursor-pointer text-[#6a6c6f]">
+                    <svg id="hamburger-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                        <title>Stockholm-icons / Text / Align-left</title>
+                        <desc>Created with Sketch.</desc>
+                        <defs></defs>
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <rect x="0" y="0" width="24" height="24"></rect>
+                            <rect fill="#000000" opacity="0.3" x="4" y="5" width="16" height="2" rx="1"></rect>
+                            <rect fill="#000000" opacity="0.3" x="4" y="13" width="16" height="2" rx="1"></rect>
+                            <path d="M5,9 L13,9 C13.5522847,9 14,9.44771525 14,10 C14,10.5522847 13.5522847,11 13,11 L5,11 C4.44771525,11 4,10.5522847 4,10 C4,9.44771525 4.44771525,9 5,9 Z M5,17 L13,17 C13.5522847,17 14,17.4477153 14,18 C14,18.5522847 13.5522847,19 13,19 L5,19 C4.44771525,19 4,18.5522847 4,18 C4,17.4477153 4.44771525,17 5,17 Z" fill="#000000"></path>
+                        </g>
+                    </svg>
+                </div>
+                <a class="flex-1 hidden md:!block text-left pl-[5px] pt-[2px]" href="/admin">
+                    <img src="/admin/themes/images/logo_ezs.png" alt="" />
+                </a>
+            </div>
+            <nav role="navigation">
+
+                <div class="small-logo">
+                    <span class="text-primary">EZS.VN</span>
+                </div>
+                <div class="form-group navbar-form-custom">
+                    <ol class="hbreadcrumb breadcrumb">
+                        <li><a href="/admin/">Trang chủ</a></li>
+                        <li class="active ">
+                            <span>Phần mềm</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="navbar-right" style="margin-right: 0;">
+                    <ul class="nav navbar-nav no-borders">
+
+                        <!--Search min-->
+                        <li class="nav-search" data-alt="top" onclick="searchBoxFloat()">
+                            <a href="javascript:;" title="Tìm khách hàng - đơn hàng" class="label-menu-corner sm:mt-0">
+                                <i class="pe-7s-search"></i>
+                            </a>
+                        </li>
+
+                        <!--Check in show-->
+                        <li class="h-full !hidden xl:!block liBanglich">
+                            <div class="flex h-full">
+                                <div class="flex items-center" id="el-calendar-btn">
+                                    <div class="bg-[#f5f5f9] px-[10px] h-[42px] rounded cursor-pointer text-primary flex items-center relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
+                                        </svg>
+                                        <span class="pl-2">Bảng lịch</span>
+                                        <div class="el-calendar-count absolute top-0 right-0 text-[9px] bg-[#d9534f] text-white font-bold leading-[12px] py-[1px] px-[3px] rounded-[2px] empty:hidden"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center ml-2 empty:!hidden" id="top-bill"></div>
+                            </div>
+                        </li>
+
+                        <!--KH checkin-->
+                        <li class="nav-checkin !ml-2 !mr-0" data-alt="drop" data-checkin>
+                            <div class="flex items-center h-full">
+                                <a href="javascript:;" title="Khách hàng đang CheckIn tại điểm" class="label-menu-corner !px-2 md:!px-3 !py-0 !h-[42px] bg-[#f5f5f9] rounded flex items-center relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 md:w-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                                    </svg>
+                                    <span class="label label-danger " style="display: none">0</span>
+                                </a>
+                            </div>
+                        </li>
+
+			<li class="nav-birt ml-1 md:ml-2 !hidden" data-alt="drop" data-handle>
+                            <div class="flex items-center h-full">
+                                <a href="javascript:;" title="birthday" class="label-menu-corner !px-2 md:!px-3 !py-0 !h-[42px] bg-[#f5f5f9] !text-primary rounded flex items-center relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 md:w-6">
+  					<path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75-1.5.75a3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0L3 16.5m15-3.379a48.474 48.474 0 0 0-6-.371c-2.032 0-4.034.126-6 .371m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.169c0 .621-.504 1.125-1.125 1.125H4.125A1.125 1.125 0 0 1 3 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 0 1 6 13.12M12.265 3.11a.375.375 0 1 1-.53 0L12 2.845l.265.265Zm-3 0a.375.375 0 1 1-.53 0L9 2.845l.265.265Zm6 0a.375.375 0 1 1-.53 0L15 2.845l.265.265Z" />
+					</svg>
+                                    <span class="label label-danger" style="display: none">0</span>
+                                </a>
+                            </div>
+                        </li>
+
+                        <!--Cần xử lý-->
+                        <li class="nav-task mr-1 md:mr-3" data-alt="drop" data-handle>
+                            <div class="flex items-center h-full md:ml-2 ml-1">
+                                <a href="javascript:;" title="Cần xử lý" class="label-menu-corner !px-2 md:!px-3 !py-0 !h-[42px] bg-[#f5f5f9] !text-primary rounded flex items-center relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 md:w-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
+                                    </svg>
+                                    <span class="label label-danger" style="display: none">0</span>
+                                </a>
+                            </div>
+                        </li>
+
+                        <li id="nav-users" class="nav-users"></li>
+
+
+                        <!--Ipad đánh giá-->
+                        
+
+                        
+
+                        <!--Đặt lịch-->
+                        <!--
+                        <li onclick="window.GotoSectionBook && window.GotoSectionBook()" class="nav-book" data-alt="drop">
+                            <a href="javascript:GotoBook()" title="Đặt lịch" class="label-menu-corner">
+                                <i class="pe-7s-date"></i>
+                                <span class="label label-danger " style="display: none">0</span>
+                            </a>
+                        </li>
+                             -->
+
+                        <!--Thông báo: không sử dụng, chỉ để lấy mốc hiển thị chat-->
+                        <!--
+                        <li class="dropdown dropdown-noty" style="display: none">
+                            <a class="dropdown-toggle label-menu-corner" href="javascript:;" data-toggle="dropdown">
+                                <i class="pe-7s-speaker" title="Thông báo"></i>
+                                <span class="label label-success u1 num">0</span>
+                            </a>
+                            <ul class="dropdown-menu hdropdown notification animated fadeIn "></ul>
+                        </li>
+                       
+                        <!--Hoạt động - notification-->
+                        <li style="display: none">
+                            <a href="javascript:;" title="Hoạt động" class="right-sidebar-toggle label-menu-corner unread-icon">
+                                <i class="pe-7s-bell"></i>
+                                <span class="label label-danger u1">0</span>
+                            </a>
+                        </li>
+
+
+
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+
+        <!-- Navigation -->
+        <aside id="menu">
+            <div id="navigation">
+
+                
+
+
+<ul class="nav" id="side-menu" style="margin-bottom: 10vh;"></ul>
+
+<script>
+    /*
+        var obj = {};
+        $('#side-menu>li').each(function () {
+            var a = $(this);
+            var k = a.find('>a').text();
+            var x = {};
+            a.find('>ul').find('li').each(function () {
+                var b = $(this);
+                x[b.text().trim()] = b.find('a').attr('href');
+            })
+            obj[k.trim()] = x;
+        })
+        //*/
+
+
+    $('#side-menu').each(function () {
+        var ul = $(this);
+        for (var k in SideMenu) {
+            var li = $(`<li>
+            <a href="javascript:;" class="!flex items-center justify-between !pl-2">
+            <span class="nav-label flex items-center">${k}</span><span class="fa arrow"></span></a><ul class="nav nav-second-level"></ul>
+            </li>`)
+            var sub = li.find('ul');
+            ul.append(li);
+
+            var subItem = [];
+            var firstUrl = '';
+            var index = 0;
+            for (var z in SideMenu[k]) {
+                var v = SideMenu[k][z];
+                if (z.startsWith('$')) {
+                    switch (z) {
+                        case '$ico':
+                            //console.log('icon', v);
+                            //sub.before(`<span class="label label-success pull-right label-nav"><i class="${v}"></i></span>`)
+                            li.find('.nav-label').prepend(`<span class="w-5 h-5 flex items-center justify-center text-[20px] mr-3"><i class="w-5 h-5 ${v}"></i></span>`)
+                            break;
+                    }
+                    continue;
+                }
+
+                var href = typeof v == 'string' ? v : v.href;
+                var _index = typeof v == 'object' && typeof v['$index'] === 'number' ? v['$index'] : -1;
+                var subLi = $(`<li><a href="${href}">${z}</a></li>`);
+
+                if (firstUrl == '') firstUrl = href;
+
+                subItem.push({
+                    $el: subLi,
+                    index: _index > -1 ? _index : index,
+                    _index: _index
+                })
+                index++;
+            }
+            //console.log(k);
+            //console.log(subItem);
+
+            subItem.sort((a, b) => a.index - b.index);
+            li.attr('data-first', firstUrl)
+            if (subItem.length == 1 && firstUrl) {
+                sub.remove();
+                li.find('.fa.arrow').remove();
+                li.on('click', function () {
+                    window.location = li.attr('data-first');
+                });
+                li.find('a').attr('href', firstUrl);
+            }
+
+            subItem.forEach(z => {
+                sub.append(z.$el);
+            })
+        }
+    })
+
+</script>
+
+
+
+
+            </div>
+            
+        </aside>
+
+        <!-- MainWrapper -->
+        <div id="wrapper" class="">
+            <!--placeholder-->
+            
+            <!-- Content -->
+            <div id="content" class="content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="plControls u1 module--">
+                            
+                            
+<head>
+   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+   <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Xóa viền mặc định của trình duyệt khi click hoặc quay lại link */
+        a, a:focus, a:active, a:visited {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+       
+
+        h1.main-title {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            color: #0b1c3c;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        .dashboard-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            display: flex;
+            gap: 25px;
+        }
+
+        /* Cột trái (Cài đặt) */
+        .col-left {
+            width: 320px;
+            flex-shrink: 0;
+        }
+
+        /* Cột phải (Chứa các phần còn lại) */
+        .col-right {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* --- TÙY CHỈNH NÚT BÊN CỘT PHẢI (ICON TRÊN / TEXT DƯỚI) --- */
+        .col-right .card-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+        }
+
+        .col-right .menu-link {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px 10px;
+            height: 100%;
+        }
+
+        .col-right .menu-link .item-icon {
+            font-size: 26px;
+            margin-right: 0;
+            margin-bottom: 12px;
+        }
+
+        /* Bỏ hiệu ứng đẩy text sang trái khi hover vì text đang ở dưới */
+        .col-right .menu-item:hover .menu-link {
+            padding-right: 10px;
+        }
+
+        /* Nút hướng dẫn đặt góc trên bên phải */
+        .col-right .help-action {
+            top: 10px;
+            right: 10px;
+            transform: none;
+        }
+
+        /* Style chung cho Card */
+        .card {
+            border-radius: 16px;
+            padding: 14px 14px; /* Giảm padding của toàn bộ card để thu ngắn chiều cao */
+            background: var(--bg-gradient);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Thêm đổ bóng nhẹ */
+        }
+
+        /* Layout ngang cho Card cột phải */
+        .col-right .card {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative; /* Thêm relative để canh vị trí tiêu đề */
+            padding-left: 90px; /* Tạo khoảng trống bên trái để tiêu đề đè vào không che mất nút */
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Tùy chỉnh Header cột phải: Đưa ra ngoài đè lên viền trái, đưa lên top */
+        .col-right .card-header {
+            position: absolute;
+            left: -12px; /* Thò ra mép trái 12px */
+            top: 16px; /* Đưa lên phần top của khối */
+            transform: none; /* Bỏ căn giữa theo chiều dọc */
+            margin: 0;
+            z-index: 10;
+        }
+
+        .col-right .card-title {
+            writing-mode: horizontal-tb; /* Xoay ngang chữ lại */
+            transform: none; /* Bỏ xoay 180 độ */
+            letter-spacing: normal;
+            white-space: normal; /* Cho phép rớt dòng */
+            text-align: center;
+            line-height: 1.4;
+            /* Cập nhật font chữ nhỏ hơn và khung bo */
+            font-size: 11px; 
+            color: #ffffff;
+            background-color: var(--icon-bg);
+            padding: 8px 10px; /* Thu gọn padding cho ngang */
+            border-radius: 8px;
+            box-shadow: 2px 3px 6px rgba(0,0,0,0.15); /* Tăng bóng đổ cho cảm giác nổi đè lên */
+            min-width: 82px; /* Định mức độ rộng tối thiểu cho đều */
+        }
+
+        .col-right .card-body {
+            flex-grow: 1;
+        }
+
+        .icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background-color: var(--icon-bg);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--title-color);
+            text-transform: uppercase;
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Style cho từng Item Container */
+        .menu-item {
+            position: relative; /* Để định vị icon help bên trong */
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            z-index: 1; /* Thêm z-index mặc định */
+        }
+
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            z-index: 50; /* Đưa khối lên trên cùng khi hover để tooltip không bị che */
+        }
+
+        /* Style cho Link chức năng chính */
+        .menu-link {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #3f4756;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: padding 0.2s ease;
+        }
+
+        .menu-item:hover .menu-link {
+            padding-right: 45px; /* Đẩy text sang trái một chút khi di chuột để không đè lên icon */
+        }
+
+        .menu-link .item-icon {
+            width: 24px;
+            font-size: 14px;
+            color: var(--icon-bg);
+            margin-right: 12px;
+            text-align: center;
+        }
+
+        /* --- Bắt đầu: Style cho Link và Tooltip Hướng dẫn --- */
+        .help-action {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease;
+            z-index: 2;
+            text-decoration: none; /* Bỏ gạch chân cho link */
+        }
+
+        /* Hiện icon ? khi di chuột vào dòng menu */
+        .menu-item:hover .help-action {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .help-icon {
+            color: #3b82f6; /* Màu xanh dương giống ảnh */
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .tooltip-box {
+            position: absolute;
+            bottom: calc(100% + 10px);
+            right: -12px;
+            background-color: #1f2937; /* Nền tối */
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, bottom 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            pointer-events: none; /* Tránh nhấp nháy khi di chuột qua lại */
+            z-index: 999; /* Đảm bảo tooltip luôn nổi trên tất cả */
+        }
+
+        /* Mũi tên chỉ xuống của tooltip */
+        .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 16px; /* Căn giữa với icon ? */
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+        }
+
+        /* Hiện hộp text ngay khi di chuột vào dòng menu */
+        .menu-item:hover .tooltip-box {
+            opacity: 1;
+            visibility: visible;
+            bottom: calc(100% + 6px); /* Hiệu ứng trượt nhẹ */
+        }
+        /* --- Kết thúc: Style cho Tooltip Hướng dẫn --- */
+
+        /* --- Bắt đầu: Gom nhóm Menu cột trái --- */
+        .menu-group {
+            background-color: #ffffff; /* Nền trắng cho toàn bộ box */
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            /* Xóa dòng overflow: hidden; ở đây để tooltip không bị cắt */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .menu-group .menu-item {
+            border-radius: 0;
+            box-shadow: none;
+            border-bottom: 1px solid rgba(0,0,0,0.05); /* Đường kẻ mỏng giữa các nút */
+            background-color: transparent;
+        }
+
+        /* Bổ sung CSS bo góc thủ công cho item đầu và cuối (thay thế cho overflow: hidden) */
+        .menu-group .menu-item:first-child {
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .menu-group .menu-item:last-child {
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            border-bottom: none;
+        }
+
+        .menu-group .menu-item:hover {
+            background-color: #f8fafc; /* Hiệu ứng highlight nhẹ thay vì nhảy lên */
+            transform: none;
+        }
+        /* --- Kết thúc: Gom nhóm Menu cột trái --- */
+
+        /* Định nghĩa màu sắc riêng biệt cho từng Card */
+        .card-caidat { --bg-gradient: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%); --icon-bg: #3b82f6; --title-color: #1d4ed8; }
+        .card-pos { --bg-gradient: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%); --icon-bg: #ef4444; --title-color: #b91c1c; }
+        .card-baocao { --bg-gradient: linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 100%); --icon-bg: #10b981; --title-color: #047857; }
+        .card-nhanvien { --bg-gradient: linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%); --icon-bg: #a855f7; --title-color: #7e22ce; }
+        .card-hangton { --bg-gradient: linear-gradient(135deg, #eef2ff 0%, #c7d2fe 100%); --icon-bg: #6366f1; --title-color: #4338ca; }
+        .card-chuongtrinh { --bg-gradient: linear-gradient(135deg, #fdf4ff 0%, #fbcfe8 100%); --icon-bg: #ec4899; --title-color: #be185d; }
+        .card-webdatlich { --bg-gradient: linear-gradient(135deg, #f5f3ff 0%, #ddd6fe 100%); --icon-bg: #8b5cf6; --title-color: #6d28d9; }
+        .card-appkhach { --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #bae6fd 100%); --icon-bg: #0ea5e9; --title-color: #0369a1; }
+
+        /* Icon Groups cho phần CÀI ĐẶT */
+        .icon-group-1 { color: #3b82f6 !important; } /* Nhóm 1: Xanh dương (3 item đầu) */
+        .icon-group-2 { color: #10b981 !important; } /* Nhóm 2: Xanh lá (1 item tiếp) */
+        .icon-group-3 { color: #f59e0b !important; } /* Nhóm 3: Cam (2 item tiếp) */
+        .icon-group-4 { color: #ef4444 !important; } /* Nhóm 4: Đỏ (3 item tiếp) */
+        .icon-group-5 { color: #8b5cf6 !important; } /* Nhóm 5: Tím (1 item cuối) */
+
+        /* Reponsive cơ bản */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            .col-left {
+                width: 100%;
+            }
+        }
+        @media (max-width: 768px) {
+            .br-desktop {
+                display: none; /* Ẩn thẻ ngắt dòng trên mobile để tiêu đề thành 1 dòng ngang */
+            }
+            .col-right .card-body {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            /* Đưa tiêu đề đè lên mép trên cùng của card trên mobile */
+            .col-right .card {
+                flex-direction: column;
+                align-items: stretch;
+                padding-left: 14px; /* Phục hồi padding trái chuẩn */
+                padding-top: 32px; /* Thêm khoảng trống ở trên để nhường cho tiêu đề */
+            }
+            .col-right .card-header {
+                left: 14px;
+                top: -12px; /* Đè lên mép trên */
+                transform: none; /* Bỏ căn giữa theo chiều dọc */
+            }
+            .col-right .card-title {
+                padding: 6px 14px; /* Chỉnh padding ngang trên mobile */
+                min-width: auto;
+            }
+        }
+
+        /* --- NÚT ZALO CHAT GÓC PHẢI --- */
+        .zalo-chat-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            z-index: 9999;
+            text-decoration: none;
+        }
+
+        .zalo-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #0068ff; /* Màu xanh Zalo */
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 104, 255, 0.4);
+            transition: transform 0.3s ease;
+            position: relative;
+            animation: pulse-zalo 2s infinite;
+        }
+
+        .zalo-icon span {
+            font-size: 16px;
+            font-weight: 700;
+            font-family: Arial, sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .zalo-chat-widget:hover .zalo-icon {
+            transform: scale(1.1);
+            animation: none; /* Dừng nháy khi hover */
+        }
+
+        /* Tooltip hiển thị số điện thoại Zalo */
+        .zalo-tooltip {
+            position: absolute;
+            right: calc(100% + 15px); /* Cách nút Zalo 1 khoảng */
+            background-color: #ffffff;
+            color: #0068ff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            pointer-events: none;
+        }
+
+        /* Mũi tên chỉ từ tooltip vào nút Zalo */
+        .zalo-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent transparent #ffffff;
+        }
+        
+        /* Hiệu ứng viền mũi tên (tùy chọn để đồng bộ với border) */
+        .zalo-tooltip::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            border-width: 7px;
+            border-style: solid;
+            border-color: transparent transparent transparent #e2e8f0;
+            z-index: -1;
+        }
+
+        /* Hiện số điện thoại khi di chuột vào khối widget */
+        .zalo-chat-widget:hover .zalo-tooltip {
+            opacity: 1;
+            visibility: visible;
+            right: calc(100% + 20px); /* Trượt nhẹ sang trái */
+        }
+
+        /* Animation nhịp đập */
+        @keyframes pulse-zalo {
+            0% { box-shadow: 0 0 0 0 rgba(0, 104, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 104, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 104, 255, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="main-title">MENU TRUY CẬP NHANH</h1>
+
+    <div class="dashboard-container">
+        
+        <!-- Cột Trái -->
+        <div class="col-left">
+            <div class="card card-caidat">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div class="card-title">CÀI ĐẶT</div>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- Nhóm 1: 3 mục đầu -->
+                    <div class="menu-group">
+                        <div class="menu-item">
+                            <a href="/admin/?mdl20=cash&act20=staffs&type=cong_ca&page=ca-lam-viec" class="menu-link">
+                                <i class="fa-solid fa-clock item-icon icon-group-1"></i> Khung giờ làm việc
+                            </a>
+                            <a href="https://youtu.be/ONL0wj0M5_w" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+                        
+                        <div class="menu-item">
+                            <a href="/admin/?mdl20=cash&act20=staffs&type=cong_ca&page=thuong-phat" class="menu-link">
+                                <i class="fa-solid fa-stopwatch item-icon icon-group-1"></i> Phạt đi muộn, tăng ca
+                            </a>
+                            <a href="https://youtu.be/x3w9QVVQCl0" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+
+                        <div class="menu-item">
+                            <a href="https://www.youtube.com/watch?v=tNNf45z7LA8" class="menu-link">
+                                <i class="fa-solid fa-calendar-check item-icon icon-group-1"></i> Wifi chấm công
+                            </a>
+                            <a href="#link-huong-dan" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Nhóm 2: 1 mục tiếp theo -->
+                    <div class="menu-group">
+                        <div class="menu-item">
+                            <a href="/admin/?v2=cashs&action=banks" class="menu-link">
+                                <i class="fa-solid fa-building-columns item-icon icon-group-2"></i> Tài khoản ngân hàng
+                            </a>
+                            <a href="https://youtu.be/x2utfn0UIZM" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Nhóm 3: 2 mục tiếp theo -->
+                    <div class="menu-group">
+                        <div class="menu-item">
+                            <a href="/admin/?v2=users" class="menu-link">
+                                <i class="fa-solid fa-user-group item-icon icon-group-3"></i> Quản lý nhân viên
+                            </a>
+                            <a href="https://youtu.be/95I34pOLwnk" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+
+                        <div class="menu-item">
+                            <a href="#" class="menu-link">
+                                <i class="fa-solid fa-users-gear item-icon icon-group-3"></i> Cài đặt APP cho nhân viên
+                            </a>
+                            <a href="#link-huong-dan" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Nhóm 4: 3 mục tiếp theo -->
+                    <div class="menu-group">
+                        <div class="menu-item">
+                            <a href="/admin/?v2=prods" class="menu-link">
+                                <i class="fa-solid fa-box-open item-icon icon-group-4"></i> Bảng giá Sản phẩm
+                            </a>
+                            <a href="https://youtu.be/IPNU-zy1nPU" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+
+                        <div class="menu-item">
+                            <a href="/admin/?v2=prods&page=dich-vu/795" class="menu-link">
+                                <i class="fa-solid fa-hand-sparkles item-icon icon-group-4"></i> Bảng giá Dịch vụ
+                            </a>
+                            <a href="https://youtu.be/l3Hdbclt6xw" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+
+                        <div class="menu-item">
+                            <a href="/admin/?v2=prods&page=the-tien/10106" class="menu-link">
+                                <i class="fa-solid fa-money-check-dollar item-icon icon-group-4"></i> Bảng giá Thẻ tiền
+                            </a>
+                            <a href="https://youtu.be/f0_15-iI7vM" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Nhóm 5: Mục cuối cùng -->
+                    <div class="menu-group">
+                        <div class="menu-item">
+                            <a href="/ipad/danh-gia" class="menu-link" target="_blank">
+                                <i class="fa-solid fa-tablet-screen-button item-icon icon-group-5"></i> IPAD Đánh giá, ký điện tử
+                            </a>
+                            <a href="https://youtu.be/gbnnKi-6Y3I" class="help-action" target="_blank">
+                                <i class="fa-regular fa-circle-question help-icon"></i>
+                                <div class="tooltip-box">Xem hướng dẫn</div>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột Phải -->
+        <div class="col-right">
+            
+            <div class="card card-pos">
+                <div class="card-header">
+                    <div class="card-title">THU NGÂN</div>
+                </div>
+                <div class="card-body">
+                    <div class="menu-item">
+                        <a href="/admin/?mdl=store&act=sell" class="menu-link">
+                            <i class="fa-solid fa-store item-icon"></i> Thu ngân & Bảng lịch
+                        </a>
+                        <a href="#link-huong-dan" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?mdl=store&act=sell#khach-hang" class="menu-link">
+                            <i class="fa-solid fa-user item-icon"></i> Khách hàng
+                        </a>
+                        <a href="https://youtu.be/Mu_OfjXO5VY" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?mdl=store&act=sell#don-hang" class="menu-link">
+                            <i class="fa-solid fa-cart-shopping item-icon"></i> Đơn hàng
+                        </a>
+                        <a href="https://youtu.be/9UiV58W3f6o" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?v2=cashs" class="menu-link">
+                            <i class="fa-solid fa-cash-register item-icon"></i> Tạo thu / chi khác
+                        </a>
+                        <a href="https://youtu.be/8eiHMVzgrZk" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-baocao">
+                <div class="card-header">
+                    <div class="card-title">BÁO CÁO</div>
+                </div>
+                <div class="card-body">
+                    <div class="menu-item">
+                        <a href="/admin/?mdl20=R23&act20=daily" class="menu-link">
+                            <i class="fa-regular fa-calendar-days item-icon"></i> Báo cáo ngày
+                        </a>
+                        <a href="#link-huong-dan" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?mdl20=R23&act20=index#rp:/ban-hang/doanh-so" class="menu-link">
+                            <i class="fa-solid fa-cart-arrow-down item-icon"></i> Báo cáo bán hàng
+                        </a>
+                        <a href="#link-huong-dan" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?mdl20=R23&act20=index#rp:/dich-vu/tong-quan" class="menu-link">
+                            <i class="fa-brands fa-envira item-icon"></i> Báo cáo dịch vụ
+                        </a>
+                        <a href="#link-huong-dan" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?mdl20=R23&act20=index#rp:/bao-cao-thu-chi/tong-quan" class="menu-link">
+                            <i class="fa-solid fa-wallet item-icon"></i> Thu chi sổ quỹ
+                        </a>
+                        <a href="#link-huong-dan" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-nhanvien">
+                <div class="card-header">
+                    <div class="card-title">NHÂN VIÊN</div>
+                </div>
+                <div class="card-body">
+                    <div class="menu-item">
+                        <a href="/admin/?mdl20=cash&act20=staffs&type=cong_ca" class="menu-link">
+                            <i class="fa-solid fa-user-clock item-icon"></i> Bảng chấm công
+                        </a>
+                        <a href="https://youtu.be/H-f1DfgsYzY" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+
+
+ <div class="menu-item">
+                        <a href="/admin/?mdl20=cash&act20=staffs&type=cong_ca&event=roster" class="menu-link">
+                            <i class="fa-solid fa-calendar item-icon"></i> Lịch làm việc
+                        </a>
+                        <a href="https://youtu.be/XB3_x0BFfko" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?v2=payroll" class="menu-link">
+                            <i class="fa-solid fa-money-bill-wave item-icon"></i> Xem bảng lương
+                        </a>
+                        <a href="https://youtu.be/YAqbMAP6mPM" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?v2=users/reward-penalty" class="menu-link">
+                            <i class="fa-solid fa-user-plus item-icon"></i> Tạo Thưởng / phạt
+                        </a>
+                        <a href="https://youtu.be/dYkqS1rSjUY" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-hangton">
+                <div class="card-header">
+                    <div class="card-title">KHO</div>
+                </div>
+                <div class="card-body">
+                    <div class="menu-item">
+                        <a href="/admin/?mdl20=whouse2&act20=index25" class="menu-link">
+                            <i class="fa-solid fa-boxes-stacked item-icon"></i> Check tồn kho
+                        </a>
+                        <a href="https://youtu.be/-7-_EseKQwc" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?mdl20=whouse2&act20=index25&page=import-export" class="menu-link">
+                            <i class="fa-solid fa-list item-icon"></i> Đơn nhập / xuất
+                        </a>
+                        <a href="https://youtu.be/VZ9KdPWs4do" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?mdl20=whouse2&act20=index25&page=import-export&action=material-conversion" class="menu-link">
+                            <i class="fa-solid fa-arrow-right-arrow-left item-icon"></i> Xuất làm nguyên liệu
+                        </a>
+                        <a href="https://youtu.be/ioKr2454Yms" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+
+
+                    <div class="menu-item">
+                        <a href="/admin/?mdl20=whouse2&act20=index25&event=can-kho" class="menu-link">
+                            <i class="fa-solid fa-check item-icon"></i> Cân kho
+                        </a>
+                        <a href="https://youtu.be/zHBIvZBivtY" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+            <div class="card card-chuongtrinh">
+                <div class="card-header">
+                    <div class="card-title">ƯU ĐÃI</div>
+                </div>
+                <div class="card-body">
+                    <div class="menu-item">
+                        <a href="/admin/?v2=promotions/campaigns" class="menu-link">
+                            <i class="fa-solid fa-bullhorn item-icon"></i> Khuyến mại
+                        </a>
+                        <a href="https://youtu.be/9b7OjSyuzuE" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?v2=promotions/vouchers" class="menu-link">
+                            <i class="fa-solid fa-ticket item-icon"></i> Mã voucher
+                        </a>
+                        <a href="https://youtu.be/6hK1U6KwLzU" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?v2=promotions/minigames" class="menu-link">
+                            <i class="fa-solid fa-gamepad item-icon"></i> Minigame
+                        </a>
+                        <a href="https://youtu.be/A1XGnwzya_I" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?v2=clients/settings-point" class="menu-link">
+                            <i class="fa-solid fa-star item-icon"></i> Tích điểm
+                        </a>
+                        <a href="https://youtu.be/FrMz1MOTtmU" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-webdatlich">
+                <div class="card-header">
+                    <div class="card-title">WEB ĐẶT LỊCH</div>
+                </div>
+                <div class="card-body">
+                    <div class="menu-item">
+                        <a href="/admin/fn/sap-xep" class="menu-link">
+                            <i class="fa-solid fa-gears item-icon"></i> Cài đặt dịch vụ
+                        </a>
+                        <a href="https://youtu.be/48PHOSDRLjI" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/admin/?mdl=store&act=sell&action=cai-dat-khoa-lich" class="menu-link">
+                            <i class="fa-solid fa-ban item-icon"></i> Khung giờ cấm 
+                        </a>
+                        <a href="https://youtu.be/HVobgX6ptrM" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="https://www.youtube.com/watch?v=0h9M7BLhQEI" class="menu-link">
+                            <i class="fa-solid fa-bell-concierge item-icon"></i> Xử lý lịch online
+                        </a>
+                        <a href="https://youtu.be/_r0_MNeHGOw" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="/dat-lich" class="menu-link" target="_blank"">
+                            <i class="fa-solid fa-link item-icon"></i> Link web đặt lịch
+                        </a>
+                        <a href="https://youtu.be/H-NIhMCY374" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-appkhach">
+                <div class="card-header">
+                    <div class="card-title">APP KHÁCH</div>
+                </div>
+                <div class="card-body">
+                    <div class="menu-item">
+                        <a href="https://youtube.com/shorts/ePxKi5epNSM" class="menu-link">
+                            <i class="fa-solid fa-mobile-button item-icon"></i> Tải APP
+                        </a>
+                        <a href="https://youtube.com/shorts/ePxKi5epNSM" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="https://youtube.com/shorts/OvqWUhIShbM" class="menu-link">
+                            <i class="fa-solid fa-list-check item-icon"></i> Hướng dẫn sủ dụng
+                        </a>
+                        <a href="https://youtube.com/shorts/OvqWUhIShbM" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="https://youtube.com/shorts/w5fRxtJnrbw" class="menu-link">
+                            <i class="fa-regular fa-pen-to-square item-icon"></i> Viết bài trên APP
+                        </a>
+                        <a href="https://youtube.com/shorts/w5fRxtJnrbw" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a href="https://youtube.com/shorts/g1-KcEVm6kI" class="menu-link">
+                            <i class="fa-regular fa-paper-plane item-icon"></i> Gửi tin nhắn App
+                        </a>
+                        <a href="https://youtube.com/shorts/g1-KcEVm6kI" class="help-action" target="_blank">
+                            <i class="fa-regular fa-circle-question help-icon"></i>
+                            <div class="tooltip-box">Xem hướng dẫn</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Nút Zalo nổi góc phải -->
+    <a href="https://zalo.me/0981883338" target="_blank" class="zalo-chat-widget">
+        <div class="zalo-tooltip">Zalo: 0981 883 338</div>
+        <div class="zalo-icon">
+            <span>Zalo</span>
+        </div>
+    </a>
+
+</body>
+
+                            
+<link href="/admin/Themes/styles/custom.css" rel="stylesheet" />
+
+<script>
+    $('.funs').addClass('clearfix');
+    $('.tb').addClass('table table-bordered');
+    $('iframe').load(function () { $(this).height($(this).contents().outerHeight()); });
+    // check bõ
+</script>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- End Of Content -->
+            <script src="/AdminCp/Js/form/validInput.js"></script>
+            <script src="/admin/js/plControls.js?t=2025"></script>
+            <script src="/admin/js/plControls2.js?t=2025"></script>
+
+            <!--end placeholder-->
+
+
+
+        </div>
+        <!-- Right sidebar: notification -->
+        <div id="right-sidebar" class="animated fadeInRight">
+            <div class="vue-el" style="display: none">
+                <div class="p-m">
+                    <button type="button" id="sidebar-close" class="right-sidebar-toggle sidebar-button btn btn-default m-b-md" v-on:click.prevent v-on:click="close()">
+                        <i class="pe pe-7s-close"></i>
+                    </button>
+                    <select class="form-control unread-type" v-model="filterValue" name="account" style="width: 120px; top: 20px; right: 20px; position: absolute">
+                        <option value="" selected="selected">Tất cả</option>
+                        <option value="(Chưa đọc)">(Chưa đọc)</option>
+                        <option v-for="z in filters" v-bind:value="z">{{z}}</option>
+                    </select>
+                </div>
+
+                <div v-if="confirmReload" class="confirmReload  btn-warning" v-on:click="doConfirmReload()">Có tin nhắn mới. Tải lại</div>
+
+                <div class="p-m bg-white border-bottom border-top" v-on:scroll="scroll($event)" style="box-shadow: -1px 0 1px rgba(0,0,0,0.5); height: calc(100vh - 160px); overflow: auto">
+                    <div class="m-t-md unread-lst lst-2428">
+                        <div v-if="loading" style="text-align: center">Đang tải....</div>
+                        <div v-else-if="visi()===0" style="text-align: center">Trống</div>
+                        <div v-if="!loading">
+                            <div class="item ix ix20 mb-2" v-on:click="readed($event,x.ID, x)" v-bind:readed="x.IsReaded" v-for="x in notiItems" v-if="visi(x)" style="padding-top: 30px; display: block;">
+                                <div><b class=""><i class="hot-fa fa fa-comment-o "></i>{{x.Title}}</b></div>
+                                <div class="time" style="top: 10px" v-bind:title="datevn(x.CreateDate)">{{fromNow(x.CreateDate)}}</div>
+                                <div class="body">{{x.Body}}</div>
+                                <div v-if="x.IsActed" style="margin: 1rem 0">
+                                    <small class="text-muted">Đã phản hồi</small>
+                                </div>
+                                <div class="unread-btns">
+                                    <span class="btn btn-xs btn-default readed mr-1" v-on:click.stop="clear($event, x.ID)">Xóa</span>
+                                    <span class="btn btn-xs btn-default  mr-1" v-if="x.book" v-bind:acted="x.IsActed" v-bind:title="x.IsActed ? 'Đã phản hồi':'Chưa phản hồi'" v-on:click.stop="replyNoty(x,true)">Xác nhận</span>
+                                    <span class="btn btn-xs btn-default" v-if="x.book" v-bind:acted="x.IsActed" v-bind:title="x.IsActed ? 'Đã phản hồi':'Chưa phản hồi'" v-on:click="replyNoty(x)">Hủy</span>
+
+                                    <span class="btn btn-xs btn-default  mr-1" v-if="x.newbook" v-bind:acted="x.IsActed" v-bind:title="x.IsActed ? 'Đã phản hồi':'Chưa phản hồi'" v-on:click.stop="replyBookNew(x,true)">Xác nhận</span>
+                                    <span class="btn btn-xs btn-default  mr-1" v-if="x.newbook" v-bind:acted="x.IsActed" v-bind:title="x.IsActed ? 'Đã phản hồi':'Chưa phản hồi'" v-on:click.stop="replyBookNew(x)">Hủy</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div v-if="showMore && lastCount" style="text-align: center; padding: 15px 0">Đang tải thêm....</div>
+                        <div v-if="lastCount === 0 && notiItems.length> 0 && notiItems.length< MAX" style="text-align: center; padding: 15px 0">--Hết--</div>
+                    </div>
+                </div>
+                <div class="p-m">
+                    <!--<button type="button" class="btn w-xs btn-info btn-xs btn-unread-readall" v-on:click="readed($event)">Đã đọc tất cả</button>-->
+                    <a class="btn w-xs btn-link btn-xs btn-unread-delete " v-on:click="clear($event)">Xóa tất</a>
+                    <a class="btn w-xs btn-link btn-xs btn-unread-delete " v-on:click="reload($event)">Làm mới</a>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <!-- Right Task -->
+        <div id="right-task" class="animated fadeInRight right-task right-div" onclick="event.stopPropagation()">
+            <!--
+         in: /adminz/user.user.top/top.js
+         -->
+        </div>
+
+        <!-- Right CheckIn -->
+        <div id="right-checkin" class="animated fadeInRight right-checkin right-div" onclick="event.stopPropagation()">
+            <div class="u1 full-size iframe-cnt">
+                <!--
+         in: /adminz/user.user.top/top.js
+         -->
+            </div>
+
+        </div>
+
+        <!-- Footer-->
+
+        <!-- End Of MainWrapper -->
+
+        <!-- Vendor scripts -->
+
+        <script src="/admin/themes/vendor/sparkline/index.js"></script>
+
+        <!-- App scripts -->
+
+        <script src="/admin/themes/scripts/homer.js"></script>
+
+
+        <script src="/admin/js/MutationObserver.js?t=1"></script>
+        <script src="/admin/js/MdlAction.js?t=1"></script>
+        <script src="/admin/js/Mon20.js?t=1"></script>
+        <!--chater-->
+
+        <script async="async" src="/adminz/user.user.top/top?t=20260325"></script>
+        <script async="async" src="/adminz/user.user.webnoti/webnoti"></script>
+
+        <!--msg.ezs.vn-->
+
+        <script>
+            function reportWindowSize() {
+                document.documentElement.style.setProperty('--ezs-height-root', `${window.innerHeight}px`);
+            }
+            reportWindowSize();
+            window.addEventListener('resize', reportWindowSize);
+        </script>
+
+
+    
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="CD4DC1CD" />
+</div></form>
+</body>
+</html>

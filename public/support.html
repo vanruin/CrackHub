@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrackHub — Support</title>
+    <link rel="stylesheet" href="/platform.css">
+    <style>
+        .ticket {
+            border: 1px solid var(--ch-border);
+            border-radius: 16px;
+            background: var(--ch-card);
+            overflow: hidden;
+        }
+
+        .ticket-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding: 16px 18px;
+            cursor: pointer;
+        }
+
+        .ticket-id { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700; }
+        .ticket-body { padding: 0 18px 18px; display: none; }
+        .ticket.open .ticket-body { display: block; }
+
+        .replacement {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(34, 197, 94, 0.10);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            font-size: 13.5px;
+        }
+
+        .thread { margin: 14px 0; max-height: 320px; overflow-y: auto; }
+        .reply-row { display: flex; gap: 10px; align-items: flex-end; }
+        .reply-row .ch-textarea { min-height: 60px; }
+        .status-legend { display: flex; gap: 8px; flex-wrap: wrap; }
+    </style>
+</head>
+<body class="ch-page">
+    <div class="ch-wrap">
+        <div class="ch-head">
+            <div>
+                <h1>🧾 Support desk</h1>
+                <p>Report an account that did not work. The admin replaces it or refunds the charge to your balance.</p>
+            </div>
+            <button class="ch-btn" id="newTicketBtn" type="button">New ticket</button>
+        </div>
+
+        <div class="ch-card" id="newTicketCard" style="display:none;margin-bottom:24px">
+            <h2>Open a ticket</h2>
+            <div class="ch-grid cols-2">
+                <div>
+                    <div class="ch-field">
+                        <label for="ticketService">Service</label>
+                        <select class="ch-select" id="ticketService"></select>
+                    </div>
+                    <div class="ch-field">
+                        <label for="ticketAccount">Account that failed</label>
+                        <input class="ch-input" id="ticketAccount" type="text" placeholder="email or username">
+                    </div>
+                </div>
+                <div>
+                    <div class="ch-field">
+                        <label for="ticketUsage">Link to a recent generation (optional)</label>
+                        <select class="ch-select" id="ticketUsage">
+                            <option value="">— not linked —</option>
+                        </select>
+                    </div>
+                    <div class="ch-field">
+                        <label for="ticketReason">What went wrong?</label>
+                        <textarea class="ch-textarea" id="ticketReason"
+                            placeholder="Example: the password is wrong / the cookie is expired / the account asks for verification since I generated it."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="ch-row">
+                <button class="ch-btn" id="submitTicket" type="button">Submit ticket</button>
+                <button class="ch-btn ghost" id="cancelTicket" type="button">Cancel</button>
+                <span class="ch-small ch-muted" id="ticketHint"></span>
+            </div>
+        </div>
+
+        <div class="ch-tabs" id="filterTabs">
+            <button class="ch-tab active" data-filter="open" type="button">Open</button>
+            <button class="ch-tab" data-filter="all" type="button">All</button>
+            <button class="ch-tab" data-filter="replaced" type="button">Replaced</button>
+            <button class="ch-tab" data-filter="closed" type="button">Closed</button>
+        </div>
+
+        <div class="ch-list" id="ticketsList">
+            <div class="ch-empty">Loading your tickets…</div>
+        </div>
+    </div>
+
+    <script src="/platform.js"></script>
+    <script>
+        const $ = id => document.getElementById(id);
+        const params = new URLSearchParams(window.location.search);
+
+        let SERVICES = [];
+        let USAGE = [];
+        let TICKETS = [];
+        let filter = 'open';
+
+        const STATUS_BADGE = {
+            open: 'warn',
+            in_review: 'info',
+            replaced: 'good',
+            rejected: 'bad',
+            closed: '',
+        };
+
+        function serviceLabel(key) {
+            const svc = SERVICES.find(s => s.key === key);
+            return svc ? `${svc.emoji} ${svc.label}` : key;
+        }
+
+        function renderServiceOptions() {
+            const select = $('ticketService');
+            select.innerHTML = SERVICES.map(svc =>
+                `<option value="${CH.esc(svc.key)}">${svc.emoji} ${CH.esc(svc.label)} — ${CH.money(svc.price)}</option>`
+            ).join('');
+
+            if (params.get('service')) select.value = params.get('service');
+        }
+
+        function renderUsageOptions() {
+            const select = $('ticketUsage');
+            const reportable = USAGE.filter(u => !u.ticketId);
+            select.innerHTML = '<option value="">— not linked —</option>' + reportable.map(u =>
+                `<option value="${CH.esc(u.id)}">${CH.esc(u.service)} · ${CH.esc(u.login || 'unknown')} · ${CH.when(u.at)}</option>`
+            ).join('');
+
+            const wanted = params.get('usage');
+            if (wanted && reportable.some(u => u.id === wanted)) {
+                select.value = wanted;
+                const entry = reportable.find(u => u.id === wanted);
+                if (entry) {
+                    $('ticketService').value = entry.service;
+                    $('ticketAccount').value = entry.login || '';
+                    $('ticketHint').textContent = `Charged ${CH.money(entry.price)} — a replacement or refund is decided by the admin.`;
+                }
+            }
+        }
+
+        function renderTickets() {
+            const box = $('ticketsList');
+            const list = TICKETS.filter(t => {
+                if (filter === 'all') return true;
+                if (filter === 'open') return t.status === 'open' || t.status === 'in_review';
+                if (filter === 'closed') return t.status === 'closed' || t.status === 'rejected';
+                return t.status === filter;
+            });
+
+            if (!list.length) {
+                box.innerHTML = '<div class="ch-empty">No tickets here yet.</div>';
+                return;
+            }
+
+            box.innerHTML = list.map(t => {
+                const replacement = t.replacement ? `
+                    <div class="replacement">
+                        <strong>Replacement account:</strong>
+                        <div class="ch-mono">${CH.esc(t.replacement.account)}</div>
+                        ${t.replacement.password ? `<div class="ch-mono">${CH.esc(t.replacement.password)}</div>` : ''}
+                        <div class="ch-small">${CH.esc(t.replacement.note || '')} · ${CH.when(t.replacement.at)}</div>
+                    </div>` : '';
+
+                const messages = (t.messages || []).map(m => `
+                    <div class="ch-msg ${m.from === 'admin' ? 'admin' : 'member'}">
+                        <span class="meta">${m.from === 'admin' ? '🛡️ Admin' : '🙋 You'} · ${CH.when(m.at)}</span>
+                        ${CH.esc(m.text)}
+                    </div>`).join('');
+
+                const canReply = t.status !== 'closed' && t.status !== 'replaced';
+
+                return `
+                <div class="ticket ${t.status === 'open' ? 'open' : ''}" data-id="${CH.esc(t.id)}">
+                    <div class="ticket-head" data-toggle>
+                        <div>
+                            <div class="ticket-id">${CH.esc(t.id)}</div>
+                            <div class="ch-small ch-muted">
+                                ${serviceLabel(t.service)} · ${CH.esc(t.account)} · ${CH.when(t.createdAt)}
+                            </div>
+                        </div>
+                        <div class="ch-row">
+                            <span class="ch-badge ${STATUS_BADGE[t.status] || ''}">${CH.esc(String(t.status).replace('_', ' '))}</span>
+                            <span class="ch-badge">${CH.money(t.charged)}</span>
+                            ${t.refunded ? `<span class="ch-badge good">refunded ${CH.money(t.refundAmount)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="ticket-body">
+                        <div class="thread">${messages || '<div class="ch-empty">No messages.</div>'}</div>
+                        ${replacement}
+                        ${canReply ? `
+                        <div class="reply-row">
+                            <textarea class="ch-textarea" data-reply placeholder="Add more details for the admin…"></textarea>
+                            <div style="display:flex;flex-direction:column;gap:8px">
+                                <button class="ch-btn sm" data-reply-btn type="button">Send</button>
+                                <button class="ch-btn ghost sm" data-close-btn type="button">Close</button>
+                            </div>
+                        </div>` : `
+                        <div class="ch-row">
+                            <span class="ch-badge good">Resolved</span>
+                            <button class="ch-btn ghost sm" data-close-btn type="button">Close ticket</button>
+                        </div>`}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ------------------------------------------------------------ data
+        async function loadTickets() {
+            const data = await CH.request('/api/member/tickets');
+            TICKETS = data.tickets || [];
+            renderTickets();
+        }
+
+        async function loadUsage() {
+            const data = await CH.request('/api/member/usage');
+            USAGE = data.usage || [];
+            renderUsageOptions();
+        }
+
+        async function boot() {
+            const [prices] = await Promise.all([
+                CH.request('/api/prices'),
+                loadUsage(),
+                loadTickets(),
+            ]);
+            SERVICES = prices.services || [];
+            renderServiceOptions();
+            renderUsageOptions();
+
+            if (params.get('usage') || params.get('service')) openForm();
+        }
+
+        // ------------------------------------------------------------ actions
+        function openForm() {
+            $('newTicketCard').style.display = 'block';
+            $('newTicketCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function closeForm() {
+            $('newTicketCard').style.display = 'none';
+        }
+
+        $('newTicketBtn').addEventListener('click', openForm);
+        $('cancelTicket').addEventListener('click', closeForm);
+
+        $('ticketUsage').addEventListener('change', e => {
+            const entry = USAGE.find(u => u.id === e.target.value);
+            if (!entry) return;
+            $('ticketService').value = entry.service;
+            $('ticketAccount').value = entry.login || '';
+            $('ticketHint').textContent = `Charged ${CH.money(entry.price)}.`;
+        });
+
+        $('submitTicket').addEventListener('click', async () => {
+            const button = $('submitTicket');
+            const payload = {
+                service: $('ticketService').value,
+                account: $('ticketAccount').value.trim(),
+                reason: $('ticketReason').value.trim(),
+                usageId: $('ticketUsage').value || null,
+            };
+
+            if (!payload.account) { CH.toast('Enter the account that failed.', 'bad'); return; }
+            if (payload.reason.length < 5) { CH.toast('Describe the problem (5+ characters).', 'bad'); return; }
+
+            button.disabled = true;
+            try {
+                const data = await CH.request('/api/member/tickets', { method: 'POST', body: payload });
+                CH.toast(data.message || 'Ticket opened.', 'good');
+                $('ticketAccount').value = '';
+                $('ticketReason').value = '';
+                closeForm();
+                await Promise.all([loadTickets(), loadUsage()]);
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        $('filterTabs').addEventListener('click', e => {
+            const tab = e.target.closest('.ch-tab');
+            if (!tab) return;
+            filter = tab.dataset.filter;
+            document.querySelectorAll('#filterTabs .ch-tab').forEach(t => t.classList.toggle('active', t === tab));
+            renderTickets();
+        });
+
+        $('ticketsList').addEventListener('click', async e => {
+            const card = e.target.closest('.ticket');
+            if (!card) return;
+            const id = card.dataset.id;
+
+            if (e.target.closest('[data-toggle]')) {
+                card.classList.toggle('open');
+                return;
+            }
+
+            if (e.target.closest('[data-reply-btn]')) {
+                const box = card.querySelector('[data-reply]');
+                const text = (box.value || '').trim();
+                if (!text) { CH.toast('Write a message first.', 'bad'); return; }
+                try {
+                    await CH.request(`/api/member/tickets/${encodeURIComponent(id)}/reply`, {
+                        method: 'POST',
+                        body: { text },
+                    });
+                    CH.toast('Message sent to the admin.', 'good');
+                    await loadTickets();
+                    document.querySelector(`.ticket[data-id="${id}"]`)?.classList.add('open');
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                }
+                return;
+            }
+
+            if (e.target.closest('[data-close-btn]')) {
+                try {
+                    await CH.request(`/api/member/tickets/${encodeURIComponent(id)}/close`, { method: 'POST' });
+                    CH.toast(`Ticket ${id} closed.`, 'good');
+                    await loadTickets();
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                }
+            }
+        });
+
+        CH.start({
+            requireRole: 'member',
+            onReady: boot,
+        });
+    </script>
+</body>
+</html>

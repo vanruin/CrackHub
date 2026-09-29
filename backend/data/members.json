@@ -1,0 +1,31 @@
+{
+  "updatedAt": "2026-09-29T08:01:50.804Z",
+  "members": [
+    {
+      "id": "MBR_3A27D08FC6C5",
+      "name": "Juan Dela Cruz",
+      "key": "CH-B3PX-3D9R-4KAQ",
+      "balance": 100,
+      "status": "active",
+      "note": "",
+      "createdAt": "2026-09-29T08:01:50.804Z",
+      "updatedAt": "2026-09-29T08:01:50.804Z",
+      "lastUsedAt": null,
+      "totalSpent": 0,
+      "totalGenerated": 0,
+      "generationsByService": {},
+      "transactions": [
+        {
+          "id": "TX_29F320A8E291",
+          "at": "2026-09-29T08:01:50.804Z",
+          "type": "credit",
+          "amount": 100,
+          "balanceAfter": 100,
+          "note": "Initial balance (member created)",
+          "by": "admin"
+        }
+      ],
+      "usage": []
+    }
+  ]
+}

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrackHub — Member Access</title>
+    <link rel="stylesheet" href="/platform.css">
+    <style>
+        body.ch-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 18px;
+            background:
+                radial-gradient(760px 420px at 82% -8%, rgba(0, 212, 255, 0.16), transparent 60%),
+                radial-gradient(700px 460px at -5% 105%, rgba(123, 79, 255, 0.22), transparent 55%),
+                radial-gradient(1200px 600px at 15% -10%, #1d2b53 0%, transparent 60%),
+                linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background-attachment: fixed;
+        }
+
+        .login-wrap {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 26px;
+            width: min(960px, 100%);
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+            border: 1px solid var(--ch-border);
+            border-radius: 24px;
+            padding: 34px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,212,255,0.35), transparent 70%);
+            filter: blur(6px);
+            pointer-events: none;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 0.4px;
+        }
+
+        .brand .mark {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            box-shadow: 0 10px 26px rgba(0, 212, 255, 0.35);
+        }
+
+        .eyebrow {
+            display: inline-block;
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--ch-accent);
+            margin-bottom: 10px;
+        }
+
+        .hero h1 {
+            font-size: 34px;
+            line-height: 1.15;
+            margin: 0 0 12px;
+            letter-spacing: -0.6px;
+        }
+
+        .hero h1 .grad {
+            background: linear-gradient(135deg, #00d4ff, #7b4fff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero .copy p {
+            color: var(--ch-muted);
+            font-size: 14.5px;
+            line-height: 1.65;
+            margin: 0;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 12px;
+        }
+
+        .feature-list li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 14px;
+            border: 1px solid var(--ch-border);
+            border-radius: 14px;
+            background: rgba(0, 0, 0, 0.22);
+        }
+
+        .feature-list .ico { font-size: 20px; line-height: 1.2; }
+        .feature-list strong { display: block; font-size: 13.5px; }
+        .feature-list small { color: var(--ch-muted); font-size: 12.5px; line-height: 1.5; }
+
+        .hero-foot {
+            font-size: 12px;
+            color: var(--ch-muted);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .login-card {
+            position: relative;
+            background: #10162a;
+            border: 1px solid var(--ch-border);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .portal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--ch-accent);
+            box-shadow: 0 0 0 5px rgba(0, 212, 255, 0.15);
+            flex: none;
+        }
+
+        .card-head h2 { margin: 0; font-size: 18px; }
+        .card-head p { margin: 3px 0 0; font-size: 12.5px; color: var(--ch-muted); }
+
+        .key-input {
+            width: 100%;
+            padding: 16px 18px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 17px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            border-radius: 14px;
+            border: 1px solid var(--ch-border);
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .key-input:focus {
+            border-color: var(--ch-accent);
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.14);
+        }
+
+        .login-error {
+            display: none;
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.14);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        .login-error.show { display: block; }
+        .login-error a { color: #fff; font-weight: 700; }
+
+        .login-hint {
+            margin-top: 16px;
+            font-size: 12.5px;
+            color: var(--ch-muted);
+            line-height: 1.6;
+        }
+
+        .login-foot {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--ch-border);
+            font-size: 12px;
+            color: var(--ch-muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .ch-btn.block { padding: 14px 18px; font-size: 15px; border-radius: 14px; }
+
+        @media (max-width: 860px) {
+            .login-wrap { grid-template-columns: 1fr; }
+            .hero { order: 2; }
+            .hero h1 { font-size: 27px; }
+        }
+    </style>
+</head>
+<body class="ch-page ch-login">
+    <div class="login-wrap">
+        <section class="hero">
+            <div class="brand"><span class="mark">⚡</span> CrackHub</div>
+            <div class="copy">
+                <span class="eyebrow">Member access</span>
+                <h1>Premium accounts,<br><span class="grad">generated on tap.</span></h1>
+                <p>Every key carries its own peso balance — you are only charged when a working account is delivered to you.</p>
+            </div>
+            <ul class="feature-list">
+                <li><span class="ico">🎬</span><div><strong>Streaming vault</strong><small>Netflix, HBO Max, Disney+, Crunchyroll, Paramount+</small></div></li>
+                <li><span class="ico">🎮</span><div><strong>Gaming drops</strong><small>Steam, Xbox Game Pass, Moonton, Garena, CapCut Pro</small></div></li>
+                <li><span class="ico">🛡️</span><div><strong>Protected keys</strong><small>Dead account? Open a ticket for a replacement or refund</small></div></li>
+            </ul>
+            <div class="hero-foot">🔒 Your key is exchanged for an encrypted session cookie — never stored in plain text.</div>
+        </section>
+
+        <section class="login-card">
+            <div class="card-head">
+                <span class="portal-dot"></span>
+                <div>
+                    <h2>Enter your access key</h2>
+                    <p>Member portal — staff sign in separately</p>
+                </div>
+            </div>
+
+            <div class="ch-field">
+                <label for="keyInput">Access key</label>
+                <input class="key-input" id="keyInput" type="text" placeholder="CH-XXXX-XXXX-XXXX"
+                       maxlength="128" autocomplete="off" spellcheck="false">
+            </div>
+
+            <button class="ch-btn block" id="loginBtn" type="button">Unlock CrackHub</button>
+
+            <div class="login-error" id="loginError"></div>
+
+            <p class="login-hint" id="loginHint">No key yet? Ask the admin for one — keys look like <strong>CH-XXXX-XXXX-XXXX</strong> and hold a peso balance.</p>
+
+            <div class="login-foot">
+                <span>Generation is billed from your balance only.</span>
+                <span>© CrackHub</span>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const nextUrl = params.get('next') || '';
+
+        const keyInput = document.getElementById('keyInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorBox = document.getElementById('loginError');
+
+        function showError(message, linkUrl, linkText) {
+            errorBox.textContent = message;
+            if (linkUrl) {
+                const a = document.createElement('a');
+                a.href = linkUrl;
+                a.textContent = ' ' + linkText;
+                errorBox.appendChild(a);
+            }
+            errorBox.classList.add('show');
+        }
+
+        function clearError() { errorBox.classList.remove('show'); }
+
+        async function signIn() {
+            const key = keyInput.value.trim().toUpperCase().slice(0, 128);
+            if (!key) {
+                showError('Enter your access key first.');
+                keyInput.focus();
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Checking key…';
+            clearError();
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key, portal: 'member' }),
+                });
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok || !data.success) {
+                    if (data.loginUrl === '/admin-login') {
+                        showError(data.error || 'That is a staff key.', '/admin-login', 'Staff entrance →');
+                    } else if (res.status === 429) {
+                        showError(data.error || 'Too many attempts — wait a minute before trying again.');
+                    } else if (res.status === 403) {
+                        showError(data.error || 'This key is disabled.', data.loginUrl, 'Try again →');
+                    } else {
+                        showError(data.error || `Login failed (${res.status})`);
+                    }
+                    return;
+                }
+
+                window.location.href = nextUrl || (data.role === 'admin' ? '/admin.html' : data.redirect) || '/';
+            } catch (err) {
+                showError('Could not reach the server. Please try again.');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Unlock CrackHub';
+            }
+        }
+
+        loginBtn.addEventListener('click', signIn);
+        keyInput.addEventListener('input', () => {
+            const start = keyInput.selectionStart;
+            keyInput.value = keyInput.value.toUpperCase();
+            try { keyInput.setSelectionRange(start, start); } catch (err) { /* ignore */ }
+        });
+        keyInput.addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
+
+        // Already signed in? Skip the form.
+        (async function checkSession() {
+            try {
+                const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data || !data.success) return;
+                window.location.href = nextUrl || (data.role === 'admin' ? '/admin.html' : '/');
+            } catch (err) { /* stay on the form */ }
+        })();
+
+        keyInput.focus();
+    </script>
+</body>
+</html>
+

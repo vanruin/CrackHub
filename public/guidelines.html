@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrackHub — Guidelines</title>
+    <link rel="stylesheet" href="/platform.css">
+    <style>
+        .doc { max-width: 900px; }
+        .doc h2 { font-size: 19px; margin: 30px 0 12px; }
+        .doc p, .doc li { font-size: 14.5px; line-height: 1.7; }
+        .doc ul { padding-left: 22px; margin: 10px 0; }
+        .doc li { margin-bottom: 8px; }
+        .doc .callout {
+            margin: 18px 0;
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.28);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+        .doc .callout.warn {
+            background: rgba(245, 158, 11, 0.10);
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+        .doc .callout.bad {
+            background: rgba(239, 68, 68, 0.10);
+            border-color: rgba(239, 68, 68, 0.35);
+        }
+        .doc code {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--ch-border);
+            padding: 1px 6px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .toc { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .toc a { color: var(--ch-accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+    </style>
+</head>
+<body class="ch-page">
+    <div class="ch-wrap doc">
+        <div class="ch-head">
+            <div>
+                <h1>📘 Guidelines &amp; fair-use policy</h1>
+                <p>How billing, replacements and refunds work on CrackHub.</p>
+            </div>
+            <a class="ch-btn ghost" href="/support">Open a ticket</a>
+        </div>
+
+        <div class="toc">
+            <a href="#billing">Billing</a>·<a href="#reporting">Reporting a dead account</a>·
+            <a href="#refunds">Refunds</a>·<a href="#rules">Rules</a>·<a href="#security">Key security</a>
+        </div>
+
+        <h2 id="billing">1. How billing works</h2>
+        <p>Every access key holds a peso balance managed by the admin. You are charged
+           <strong>only when a working account is delivered</strong> — a failed attempt never costs
+           anything. The price list is on the store page and the exact amount is shown before you
+           generate.</p>
+        <ul>
+            <li>The balance is debited the moment the generator returns an account.</li>
+            <li>Your new balance appears immediately in the top bar ("₱" chip) and in your activity list.</li>
+            <li>If the balance is too low the request is rejected with <em>"Insufficient balance"</em> — nothing is generated.</li>
+            <li>Pool counters, prices and your usage history are visible any time from the store page.</li>
+        </ul>
+
+        <h2 id="reporting">2. Reporting a dead account</h2>
+        <p>Accounts can die minutes after delivery (password changes, sessions invalidated, region
+           locks). Report it right away:</p>
+        <ul>
+            <li>Open <a href="/support">Support</a> and pick the generation from the dropdown (or paste the account).</li>
+            <li>Describe exactly what happens: wrong password, verification prompt, "restricted", etc.</li>
+            <li>The same account cannot be reported twice while a ticket is still open.</li>
+            <li>The admin answers inside the ticket thread — you can reply with more details any time.</li>
+        </ul>
+
+        <div class="callout">
+            <strong>Turnaround:</strong> tickets are normally handled within a few hours. You will get either a
+            <strong>fresh replacement account</strong> or a <strong>refund</strong> of the exact amount charged.
+        </div>
+
+        <h2 id="refunds">3. Refund &amp; replacement policy</h2>
+        <ul>
+            <li><strong>Account never worked</strong> — full refund or a free replacement, your choice.</li>
+            <li><strong>Worked, then died within 24 hours</strong> — replacement or refund.</li>
+            <li><strong>Worked for days</strong> — replacement at the admin's discretion, no refund.</li>
+            <li><strong>Heavy use, changed credentials or cancelled subscription</strong> — no refund.</li>
+        </ul>
+        <div class="callout warn">
+            Refunds are credited to your <strong>key balance</strong>, never paid out in cash. Refunded
+            generations stay in your activity list and are marked with the ticket number.
+        </div>
+
+        <h2 id="rules">4. Fair-use rules</h2>
+        <ul>
+            <li>Do not resell keys, accounts or the bulk credential tools without permission.</li>
+            <li>Do not generate repeatedly just to "check" a pool — each working account is charged.</li>
+            <li>Do not share a key between people. Keys are per-user and traceable.</li>
+            <li>Abusing the ticket system (false reports, duplicate tickets) can disable a key without refund.</li>
+            <li>Only use the accounts for personal access to the service you paid for.</li>
+        </ul>
+        <div class="callout bad">
+            <strong>Disabling:</strong> a key can be paused at any time for abuse or chargebacks. Outstanding
+            balance is preserved and usable again once the key is re-enabled.
+        </div>
+
+        <h2 id="security">5. Keeping your key safe</h2>
+        <ul>
+            <li>Your key works like a password — never post it in public chats or screenshots.</li>
+            <li>Think it leaked? Ask the admin to rotate it — a new key is issued instantly and yours stops working.</li>
+            <li>Sessions last 30 days; use <code>Log out</code> on shared devices.</li>
+        </ul>
+
+        <p class="ch-small ch-muted" style="margin-top:26px">
+            Questions about a charge? Open a ticket — your usage history (service, price, exact time)
+            is attached automatically so nobody has to guess.
+        </p>
+    </div>
+
+    <script src="/platform.js"></script>
+    <script>CH.start({ requireRole: 'member' });</script>
+</body>
+</html>

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrackHub — Admin panel</title>
+    <link rel="stylesheet" href="/platform.css">
+    <style>
+        .stat-card { background: var(--ch-card); border: 1px solid var(--ch-border); border-radius: var(--ch-border-radius, 16px); padding: 18px; }
+        .stat-card .ch-stat-value { font-size: 24px; }
+
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+
+        .key-cell {
+            font-family: ui-monospace, Menlo, Consolas, monospace;
+            font-size: 12.5px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--ch-border);
+            border-radius: 8px;
+            padding: 3px 8px;
+            display: inline-block;
+        }
+
+        .mono-small {
+            font-family: ui-monospace, Menlo, Consolas, monospace;
+            font-size: 12.5px;
+            word-break: break-all;
+        }
+
+        .split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+
+        .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+        .toolbar .ch-input, .toolbar .ch-select { width: auto; min-width: 170px; }
+        .checkline { display: flex; align-items: center; gap: 8px; font-size: 13.5px; margin-bottom: 12px; }
+    </style>
+</head>
+<body class="ch-page">
+    <div class="ch-wrap">
+        <div class="ch-head">
+            <div>
+                <h1>🛡️ Admin panel</h1>
+                <p id="adminSub">Members, balances, tickets, pricing and credential pools.</p>
+            </div>
+            <div class="ch-row">
+                <button class="ch-btn ghost sm" id="refreshAll" type="button">Refresh</button>
+                <a class="ch-btn ghost sm" href="/tools">Bulk tools</a>
+                <a class="ch-btn sm" href="/">Store</a>
+            </div>
+        </div>
+
+        <div class="ch-grid cols-4" style="margin-bottom:22px">
+            <div class="stat-card"><div class="ch-stat-label">Members</div><div class="ch-stat-value" id="stMembers">0</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Active keys</div><div class="ch-stat-value" id="stActive">0</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Outstanding balance</div><div class="ch-stat-value" id="stOutstanding">₱0.00</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Revenue (charged)</div><div class="ch-stat-value" id="stRevenue">₱0.00</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Refunded</div><div class="ch-stat-value" id="stRefunded">₱0.00</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Net</div><div class="ch-stat-value" id="stNet">₱0.00</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Generations</div><div class="ch-stat-value" id="stGenerations">0</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Open tickets</div><div class="ch-stat-value" id="stTickets">0</div></div>
+        </div>
+
+        <div class="ch-tabs" id="adminTabs">
+            <button class="ch-tab active" data-tab="members" type="button">Members</button>
+            <button class="ch-tab" data-tab="tickets" type="button">Tickets</button>
+            <button class="ch-tab" data-tab="pricing" type="button">Pricing</button>
+            <button class="ch-tab" data-tab="pools" type="button">Pools</button>
+            <button class="ch-tab" data-tab="settings" type="button">Settings</button>
+        </div>
+
+        <!-- ============================================================ MEMBERS -->
+        <section class="admin-section active" id="pane-members">
+            <div class="ch-card" style="margin-bottom:18px">
+                <h2>Create a member</h2>
+                <div class="ch-inline-form">
+                    <div class="ch-field"><label for="newName">Name</label>
+                        <input class="ch-input" id="newName" type="text" placeholder="Juan Dela Cruz"></div>
+                    <div class="ch-field"><label for="newBalance">Starting balance (₱)</label>
+                        <input class="ch-input" id="newBalance" type="number" min="0" step="0.01" value="0"></div>
+                    <div class="ch-field"><label for="newKey">Custom key (optional)</label>
+                        <input class="ch-input" id="newKey" type="text" placeholder="auto-generated"></div>
+                    <div class="ch-field"><label for="newNote">Note</label>
+                        <input class="ch-input" id="newNote" type="text" placeholder="paid via GCash #1234"></div>
+                    <button class="ch-btn" id="createMember" type="button">Create member</button>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <input class="ch-input" id="memberSearch" type="search" placeholder="Search name or key…">
+                <button class="ch-btn ghost sm" id="memberSearchBtn" type="button">Search</button>
+                <span class="ch-small ch-muted" id="memberCount"></span>
+            </div>
+
+            <div class="ch-card ch-scroll">
+                <table class="ch-table">
+                    <thead>
+                        <tr>
+                            <th>Member</th><th>Key</th><th>Balance</th><th>Status</th>
+                            <th>Generated</th><th>Tickets</th><th>Last used</th><th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersBody"><tr><td colspan="8" class="ch-muted">Loading…</td></tr></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ============================================================ TICKETS -->
+        <section class="admin-section" id="pane-tickets">
+            <div class="toolbar">
+                <select class="ch-select" id="ticketFilter">
+                    <option value="open">Open / in review</option>
+                    <option value="all">All</option>
+                    <option value="replaced">Replaced</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="closed">Closed</option>
+                </select>
+                <input class="ch-input" id="ticketSearch" type="search" placeholder="Ticket id, account, member…">
+                <button class="ch-btn ghost sm" id="ticketSearchBtn" type="button">Search</button>
+                <span class="ch-small ch-muted" id="ticketCount"></span>
+            </div>
+            <div id="ticketsList" class="ch-list"><div class="ch-empty">Loading tickets…</div></div>
+        </section>
+
+        <!-- ============================================================ PRICING -->
+        <section class="admin-section" id="pane-pricing">
+            <div class="ch-card">
+                <h2>Price per successful generation (₱)</h2>
+                <div class="ch-row" style="margin-bottom:14px">
+                    <button class="ch-btn" id="savePrices" type="button">Save prices</button>
+                    <button class="ch-btn ghost" id="resetPrices" type="button">Restore defaults</button>
+                    <span class="ch-small ch-muted">A price of 0 makes the service free for members.</span>
+                </div>
+                <div class="ch-scroll">
+                    <table class="ch-table">
+                        <thead><tr><th>Service</th><th>Default</th><th>Current</th><th>New price</th><th>In stock</th></tr></thead>
+                        <tbody id="pricingBody"><tr><td colspan="5" class="ch-muted">Loading…</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ POOLS -->
+        <section class="admin-section" id="pane-pools">
+            <div class="toolbar">
+                <select class="ch-select" id="poolService"></select>
+                <input class="ch-input" id="poolLimit" type="number" min="10" max="1000" step="10" value="100">
+                <button class="ch-btn ghost sm" id="loadPool" type="button">Load pool</button>
+                <button class="ch-btn ghost sm" id="togglePoolPass" type="button">Show passwords</button>
+                <span class="ch-small ch-muted" id="poolCount"></span>
+            </div>
+            <div class="ch-card ch-scroll">
+                <table class="ch-table">
+                    <thead><tr><th>#</th><th>Account</th><th>Password / preview</th></tr></thead>
+                    <tbody id="poolBody"><tr><td colspan="3" class="ch-muted">Pick a service and load the pool.</td></tr></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ============================================================ SETTINGS -->
+        <section class="admin-section" id="pane-settings">
+            <div class="ch-card">
+                <h2>Admin key</h2>
+                <p class="ch-small ch-muted">Used on the “Admin key” tab of the login page.</p>
+                <div class="ch-row" style="margin:12px 0">
+                    <span class="key-cell" id="adminKeyValue">—</span>
+                    <button class="ch-btn ghost sm" id="copyAdminKey" type="button">Copy</button>
+                </div>
+                <div class="ch-inline-form">
+                    <div class="ch-field"><label for="newAdminKey">New admin key (optional)</label>
+                        <input class="ch-input" id="newAdminKey" type="text" placeholder="leave empty to generate"></div>
+                    <button class="ch-btn danger" id="rotateAdminKey" type="button">Rotate admin key</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="ch-modal" id="modal"><div class="ch-modal-box" id="modalBox"></div></div>
+
+    <script src="/platform.js"></script>
+    <script>
+        const $ = id => document.getElementById(id);
+
+        let SERVICES = [];
+        let DEFAULTS = {};
+        let MEMBERS = [];
+        let POOL = [];
+        let showPoolPasswords = false;
+
+        const STATUS_BADGE = {
+            active: 'good', disabled: 'bad',
+            open: 'warn', in_review: 'info', replaced: 'good', rejected: 'bad', closed: '',
+        };
+
+        // ------------------------------------------------------------ modal
+        function openModal(html) {
+            $('modalBox').innerHTML = html;
+            $('modal').classList.add('open');
+        }
+
+        function closeModal() {
+            $('modal').classList.remove('open');
+            $('modalBox').innerHTML = '';
+        }
+
+        $('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        // ------------------------------------------------------------ stats + tabs
+        async function loadStats() {
+            try {
+                const data = await CH.request('/api/admin/stats');
+                const s = data.stats || {};
+                SERVICES = data.services || [];
+                $('stMembers').textContent = s.members || 0;
+                $('stActive').textContent = s.activeMembers || 0;
+                $('stOutstanding').textContent = CH.money(s.outstandingBalance);
+                $('stRevenue').textContent = CH.money(s.revenue);
+                $('stRefunded').textContent = CH.money(s.refunded);
+                $('stNet').textContent = CH.money(s.net);
+                $('stGenerations').textContent = s.totalGenerated || 0;
+                $('stTickets').textContent = (s.tickets && s.tickets.open) || 0;
+                $('adminSub').textContent =
+                    `${s.members || 0} members · ${s.generations || 0} logged generations · ` +
+                    `${(s.tickets && s.tickets.total) || 0} tickets all-time`;
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        $('adminTabs').addEventListener('click', e => {
+            const tab = e.target.closest('.ch-tab');
+            if (!tab) return;
+            document.querySelectorAll('#adminTabs .ch-tab').forEach(t => t.classList.toggle('active', t === tab));
+            document.querySelectorAll('.admin-section').forEach(sec =>
+                sec.classList.toggle('active', sec.id === 'pane-' + tab.dataset.tab));
+            const name = tab.dataset.tab;
+            if (name === 'pricing') loadPricing();
+            if (name === 'pools') loadPoolOptions();
+            if (name === 'settings') loadConfig();
+            if (name === 'tickets') loadTickets();
+            if (name === 'members') loadMembers();
+        });
+
+        $('refreshAll').addEventListener('click', () => {
+            loadStats();
+            loadMembers();
+            loadTickets();
+        });
+
+        // ------------------------------------------------------------ members
+        async function loadMembers() {
+            const query = $('memberSearch').value.trim();
+            try {
+                const data = await CH.request('/api/admin/members?query=' + encodeURIComponent(query));
+                MEMBERS = data.members || [];
+                renderMembers();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        function renderMembers() {
+            $('memberCount').textContent = `${MEMBERS.length} member(s)`;
+            const body = $('membersBody');
+
+            if (!MEMBERS.length) {
+                body.innerHTML = '<tr><td colspan="8" class="ch-muted">No members yet — create the first key above.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = MEMBERS.map(m => `
+                <tr>
+                    <td>
+                        <strong>${CH.esc(m.name)}</strong>
+                        <div class="ch-small ch-muted">${CH.esc(m.note || '')}</div>
+                    </td>
+                    <td><span class="key-cell">${CH.esc(m.key)}</span></td>
+                    <td><strong>${CH.money(m.balance)}</strong></td>
+                    <td><span class="ch-badge ${STATUS_BADGE[m.status] || ''}">${CH.esc(m.status || 'active')}</span></td>
+                    <td>${m.totalGenerated || 0}</td>
+                    <td>${m.stats ? m.stats.openTickets : 0}${m.stats && m.stats.tickets ? ' / ' + m.stats.tickets : ''}</td>
+                    <td class="ch-small ch-muted">${CH.when(m.lastUsedAt)}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="ch-btn sm" data-topup="${CH.esc(m.id)}" type="button">₱ Top up</button>
+                            <button class="ch-btn ghost sm" data-detail="${CH.esc(m.id)}" type="button">Details</button>
+                            <button class="ch-btn ghost sm" data-newkey="${CH.esc(m.id)}" type="button">Rotate key</button>
+                            <button class="ch-btn ghost sm" data-status="${CH.esc(m.id)}" type="button">
+                                ${(m.status || 'active') === 'active' ? 'Disable' : 'Enable'}
+                            </button>
+                            <button class="ch-btn danger sm" data-delete="${CH.esc(m.id)}" type="button">Delete</button>
+                        </div>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function findMember(id) {
+            return MEMBERS.find(m => m.id === id) || { id, name: 'member' };
+        }
+
+        $('membersBody').addEventListener('click', async e => {
+            const topup = e.target.closest('[data-topup]');
+            const detail = e.target.closest('[data-detail]');
+            const newkey = e.target.closest('[data-newkey]');
+            const status = e.target.closest('[data-status]');
+            const del = e.target.closest('[data-delete]');
+
+            try {
+                if (topup) return openBalanceModal(findMember(topup.dataset.topup));
+                if (detail) return openMemberModal(detail.dataset.detail);
+
+                if (newkey) {
+                    const m = findMember(newkey.dataset.newkey);
+                    if (!confirm(`Issue a new access key for ${m.name}? The old key stops working immediately.`)) return;
+                    const data = await CH.request(`/api/admin/members/${encodeURIComponent(m.id)}/key/rotate`, { method: 'POST' });
+                    CH.toast(data.message || 'Key rotated', 'good');
+                    openModal(`
+                        <h3>New access key</h3>
+                        <p class="ch-small ch-muted">Send this to ${CH.esc(m.name)}.</p>
+                        <div class="key-cell" style="font-size:15px">${CH.esc(data.member.key)}</div>
+                        <div class="ch-row" style="margin-top:18px">
+                            <button class="ch-btn" data-close-modal type="button">Done</button>
+                        </div>`);
+                    return loadMembers();
+                }
+
+                if (status) {
+                    const m = findMember(status.dataset.status);
+                    const next = (m.status || 'active') === 'active' ? 'disabled' : 'active';
+                    await CH.request(`/api/admin/members/${encodeURIComponent(m.id)}`, {
+                        method: 'PATCH',
+                        body: { status: next },
+                    });
+                    CH.toast(`${m.name} is now ${next}`, 'good');
+                    return loadMembers();
+                }
+
+                if (del) {
+                    const m = findMember(del.dataset.delete);
+                    if (!confirm(`Delete ${m.name}? Balance and history are removed permanently.`)) return;
+                    const data = await CH.request(`/api/admin/members/${encodeURIComponent(m.id)}`, { method: 'DELETE' });
+                    CH.toast(data.message || 'Member removed', 'good');
+                    await loadMembers();
+                    return loadStats();
+                }
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        });
+
+        // ------------------------------------------------------------ member actions
+        $('createMember').addEventListener('click', async () => {
+            const payload = {
+                name: $('newName').value.trim(),
+                balance: Number($('newBalance').value) || 0,
+                note: $('newNote').value.trim(),
+            };
+            const customKey = $('newKey').value.trim();
+            if (customKey) payload.key = customKey;
+
+            if (!payload.name) {
+                CH.toast('Enter the member name first.', 'bad');
+                return;
+            }
+
+            try {
+                const data = await CH.request('/api/admin/members', { method: 'POST', body: payload });
+                CH.toast(data.message || 'Member created', 'good');
+                openModal(`
+                    <h3>Member created</h3>
+                    <p class="ch-small ch-muted">Give this key to ${CH.esc(data.member.name)} — they use it on the login page.</p>
+                    <div class="key-cell" style="font-size:15px">${CH.esc(data.member.key)}</div>
+                    <p class="ch-small ch-muted" style="margin-top:12px">
+                        Balance: ${CH.money(data.member.balance)} · Status: ${CH.esc(data.member.status)}
+                    </p>
+                    <div class="ch-row" style="margin-top:18px">
+                        <button class="ch-btn" data-close-modal type="button">Done</button>
+                    </div>`);
+
+                $('newName').value = '';
+                $('newKey').value = '';
+                $('newNote').value = '';
+                $('newBalance').value = '0';
+                await Promise.all([loadMembers(), loadStats()]);
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        });
+
+        $('memberSearchBtn').addEventListener('click', loadMembers);
+        $('memberSearch').addEventListener('keydown', e => { if (e.key === 'Enter') loadMembers(); });
+
+        function openBalanceModal(member) {
+            openModal(`
+                <h3>Adjust balance — ${CH.esc(member.name)}</h3>
+                <p class="ch-small ch-muted">Current balance: ${CH.money(member.balance)}</p>
+                <div class="ch-inline-form" style="margin:14px 0">
+                    <div class="ch-field"><label for="balAction">Action</label>
+                        <select class="ch-select" id="balAction">
+                            <option value="topup">Add (top-up)</option>
+                            <option value="debit">Subtract</option>
+                            <option value="set">Set exactly</option>
+                        </select>
+                    </div>
+                    <div class="ch-field"><label for="balAmount">Amount (₱)</label>
+                        <input class="ch-input" id="balAmount" type="number" min="0" step="0.01" value="50"></div>
+                </div>
+                <div class="ch-field"><label for="balNote">Note</label>
+                    <input class="ch-input" id="balNote" type="text" placeholder="GCash payment #1234"></div>
+                <div class="ch-row" style="margin-top:16px">
+                    <button class="ch-btn" data-apply-balance="${CH.esc(member.id)}" type="button">Apply</button>
+                    <button class="ch-btn ghost" data-close-modal type="button">Cancel</button>
+                </div>`);
+        }
+
+        async function openMemberModal(id) {
+            try {
+                const data = await CH.request(`/api/admin/members/${encodeURIComponent(id)}`);
+                const m = data.member;
+
+                const usage = (data.usage || []).slice(0, 12).map(u => `
+                    <div class="ch-list-item">
+                        <div>
+                            <strong>${CH.esc(u.service)}</strong>
+                            <span class="ch-muted">${CH.esc(u.label || '')}</span>
+                            <div class="ch-small ch-muted ch-mono">${CH.esc(u.login || '—')} · ${CH.when(u.at)}</div>
+                        </div>
+                        <div class="ch-row">
+                            ${u.ticketId ? `<span class="ch-badge info">${CH.esc(u.ticketId)}</span>` : ''}
+                            <span class="ch-badge">${CH.money(u.price)}</span>
+                        </div>
+                    </div>`).join('') || '<div class="ch-empty">No generations.</div>';
+
+                const txs = (data.transactions || []).slice(0, 12).map(t => `
+                    <div class="ch-list-item">
+                        <div>${CH.esc(t.note || t.type)}
+                            <div class="ch-small ch-muted">${CH.when(t.at)} · by ${CH.esc(t.by || 'system')}</div>
+                        </div>
+                        <div style="text-align:right">
+                            <div style="font-weight:700;color:${t.type === 'debit' ? '#fca5a5' : '#6ee7a2'}">
+                                ${t.type === 'debit' ? '−' : '+'}${CH.money(t.amount)}
+                            </div>
+                            <div class="ch-small ch-muted">bal ${CH.money(t.balanceAfter)}</div>
+                        </div>
+                    </div>`).join('') || '<div class="ch-empty">No transactions.</div>';
+
+                const tickets = (data.tickets || []).map(t => `
+                    <div class="ch-list-item">
+                        <div>${CH.esc(t.id)} · ${CH.esc(t.serviceLabel || t.service)} · ${CH.esc(t.account)}</div>
+                        <span class="ch-badge ${STATUS_BADGE[t.status] || ''}">${CH.esc(String(t.status).replace('_', ' '))}</span>
+                    </div>`).join('') || '<div class="ch-empty">No tickets.</div>';
+
+                openModal(`
+                    <h3>${CH.esc(m.name)}</h3>
+                    <div class="ch-row" style="margin-bottom:14px">
+                        <span class="key-cell">${CH.esc(m.key)}</span>
+                        <span class="ch-badge ${STATUS_BADGE[m.status] || ''}">${CH.esc(m.status)}</span>
+                        <span class="ch-badge">${CH.money(m.balance)}</span>
+                        <span class="ch-badge">${m.totalGenerated || 0} generated</span>
+                    </div>
+                    <p class="ch-small ch-muted">
+                        Created ${CH.when(m.createdAt)} · last used ${CH.when(m.lastUsedAt)} · spent ${CH.money(m.totalSpent)}
+                    </p>
+                    ${m.note ? `<p class="ch-small">📝 ${CH.esc(m.note)}</p>` : ''}
+                    <hr class="ch-hr">
+                    <h3 style="font-size:15px">Recent generations</h3>
+                    <div class="ch-list">${usage}</div>
+                    <hr class="ch-hr">
+                    <h3 style="font-size:15px">Balance movements</h3>
+                    <div class="ch-list">${txs}</div>
+                    <hr class="ch-hr">
+                    <h3 style="font-size:15px">Tickets</h3>
+                    <div class="ch-list">${tickets}</div>
+                    <div class="ch-row" style="margin-top:18px">
+                        <button class="ch-btn" data-close-modal type="button">Close</button>
+                    </div>`);
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        // ------------------------------------------------------------ tickets
+        async function loadTickets() {
+            const status = $('ticketFilter').value;
+            const query = $('ticketSearch').value.trim();
+            try {
+                const data = await CH.request(
+                    `/api/admin/tickets?status=${encodeURIComponent(status)}&query=${encodeURIComponent(query)}`);
+                renderTickets(data.tickets || [], data.counts || {});
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        function renderTickets(list, counts) {
+            $('ticketCount').textContent =
+                `${list.length} shown · ${counts.open || 0} open · ${counts.replaced || 0} replaced · ${counts.total || 0} total`;
+            const box = $('ticketsList');
+
+            if (!list.length) {
+                box.innerHTML = '<div class="ch-empty">No tickets match this filter.</div>';
+                return;
+            }
+
+            box.innerHTML = list.map(t => `
+                <div class="ch-card">
+                    <div class="ch-spread" style="align-items:flex-start">
+                        <div>
+                            <div class="key-cell">${CH.esc(t.id)}</div>
+                            <div style="margin-top:8px">
+                                <strong>${CH.esc(t.serviceLabel || t.service)}</strong>
+                                <span class="ch-muted">· ${CH.esc(t.account)}</span>
+                            </div>
+                            <div class="ch-small ch-muted">
+                                ${CH.esc(t.memberName)} (${CH.esc(t.memberKey)}) · opened ${CH.when(t.createdAt)}
+                            </div>
+                        </div>
+                        <div class="ch-row">
+                            <span class="ch-badge ${STATUS_BADGE[t.status] || ''}">${CH.esc(String(t.status).replace('_', ' '))}</span>
+                            <span class="ch-badge">${CH.money(t.charged)}</span>
+                            ${t.refunded ? '<span class="ch-badge good">refunded</span>' : ''}
+                            <button class="ch-btn sm" data-open-ticket="${CH.esc(t.id)}" type="button">Handle</button>
+                        </div>
+                    </div>
+                    <p class="ch-small" style="margin:10px 0 0">🙋 ${CH.esc(t.reason)}</p>
+                </div>`).join('');
+        }
+
+        $('ticketSearchBtn').addEventListener('click', loadTickets);
+        $('ticketSearch').addEventListener('keydown', e => { if (e.key === 'Enter') loadTickets(); });
+        $('ticketFilter').addEventListener('change', loadTickets);
+
+        $('ticketsList').addEventListener('click', e => {
+            const btn = e.target.closest('[data-open-ticket]');
+            if (btn) openTicketModal(btn.dataset.openTicket);
+        });
+
+        async function openTicketModal(id) {
+            try {
+                const data = await CH.request(`/api/admin/tickets/${encodeURIComponent(id)}`);
+                const t = data.ticket;
+                const m = data.member || {};
+
+                const thread = (t.messages || []).map(msg => `
+                    <div class="ch-msg ${msg.from === 'admin' ? 'admin' : 'member'}">
+                        <span class="meta">${msg.from === 'admin' ? '🛡️ Admin' : '🙋 ' + CH.esc(t.memberName)} · ${CH.when(msg.at)}</span>
+                        ${CH.esc(msg.text)}
+                    </div>`).join('') || '<div class="ch-empty">No messages.</div>';
+
+                openModal(`
+                    <h3>${CH.esc(t.id)} — ${CH.esc(t.serviceLabel || t.service)}</h3>
+                    <div class="ch-row" style="margin-bottom:12px">
+                        <span class="ch-badge ${STATUS_BADGE[t.status] || ''}">${CH.esc(String(t.status).replace('_', ' '))}</span>
+                        <span class="ch-badge">charged ${CH.money(t.charged)}</span>
+                        <span class="ch-badge">${CH.esc(m.name || t.memberName)} · bal ${CH.money(m.balance)}</span>
+                        ${t.refunded ? `<span class="ch-badge good">refunded ${CH.money(t.refundAmount)}</span>` : ''}
+                    </div>
+                    <p class="ch-small ch-muted">
+                        Account: <span class="mono-small">${CH.esc(t.account)}</span><br>
+                        Opened ${CH.when(t.createdAt)} · key ${CH.esc(t.memberKey || '')}
+                        ${t.usageId ? ` · generation ${CH.esc(t.usageId)}` : ''}
+                    </p>
+
+                    <hr class="ch-hr">
+                    <h3 style="font-size:15px">Conversation</h3>
+                    <div class="thread">${thread}</div>
+
+                    <div class="ch-field"><label for="replyText">Reply to the member</label>
+                        <textarea class="ch-textarea" id="replyText" placeholder="Explain the replacement / refund…"></textarea></div>
+                    <div class="ch-inline-form" style="margin-bottom:16px">
+                        <div class="ch-field"><label for="replyStatus">Set status (optional)</label>
+                            <select class="ch-select" id="replyStatus">
+                                <option value="">keep current</option>
+                                <option value="in_review">in review</option>
+                                <option value="open">open</option>
+                                <option value="rejected">rejected</option>
+                                <option value="closed">closed</option>
+                            </select>
+                        </div>
+                        <button class="ch-btn" data-reply-ticket="${CH.esc(t.id)}" type="button">Send reply</button>
+                    </div>
+
+                    <hr class="ch-hr">
+                    <h3 style="font-size:15px">Issue a replacement</h3>
+                    <div class="ch-inline-form">
+                        <div class="ch-field"><label for="replaceAccount">Account</label>
+                            <input class="ch-input" id="replaceAccount" type="text" placeholder="empty = pull from the pool"></div>
+                        <div class="ch-field"><label for="replacePassword">Password</label>
+                            <input class="ch-input" id="replacePassword" type="text" placeholder="optional"></div>
+                        <div class="ch-field"><label for="replaceNote">Note</label>
+                            <input class="ch-input" id="replaceNote" type="text" placeholder="fresh account from the pool"></div>
+                    </div>
+                    <label class="checkline">
+                        <input type="checkbox" id="replaceRefund"> Also refund ${CH.money(t.charged)} to the balance
+                    </label>
+                    <div class="ch-row">
+                        <button class="ch-btn ok" data-replace-ticket="${CH.esc(t.id)}" type="button">Give replacement</button>
+                        <button class="ch-btn violet" data-refund-ticket="${CH.esc(t.id)}" type="button"
+                            ${t.refunded ? 'disabled' : ''}>Refund only</button>
+                        <button class="ch-btn danger" data-status-ticket="${CH.esc(t.id)}" data-status-value="rejected" type="button">Reject</button>
+                        <button class="ch-btn ghost" data-status-ticket="${CH.esc(t.id)}" data-status-value="closed" type="button">Close</button>
+                    </div>
+
+                    <div class="ch-row" style="margin-top:18px">
+                        <button class="ch-btn ghost" data-close-modal type="button">Done</button>
+                    </div>`);
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        // ------------------------------------------------------------ modal actions
+        $('modalBox').addEventListener('click', async e => {
+            if (e.target.closest('[data-close-modal]')) return closeModal();
+
+            const bal = e.target.closest('[data-apply-balance]');
+            if (bal) {
+                const payload = {
+                    action: $('balAction').value,
+                    amount: Number($('balAmount').value) || 0,
+                    note: $('balNote').value.trim(),
+                };
+                if (!payload.amount && payload.action !== 'set') {
+                    CH.toast('Enter an amount greater than 0.', 'bad');
+                    return;
+                }
+                try {
+                    const data = await CH.request(
+                        `/api/admin/members/${encodeURIComponent(bal.dataset.applyBalance)}/balance`,
+                        { method: 'POST', body: payload });
+                    CH.toast(data.message || 'Balance updated', 'good');
+                    closeModal();
+                    await Promise.all([loadMembers(), loadStats()]);
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                }
+                return;
+            }
+
+            const reply = e.target.closest('[data-reply-ticket]');
+            if (reply) {
+                const id = reply.dataset.replyTicket;
+                const text = $('replyText').value.trim();
+                const status = $('replyStatus').value;
+                if (!text) { CH.toast('Write a message first.', 'bad'); return; }
+                try {
+                    await CH.request(`/api/admin/tickets/${encodeURIComponent(id)}/reply`,
+                        { method: 'POST', body: { text, status: status || undefined } });
+                    CH.toast('Reply sent to the member.', 'good');
+                    await openTicketModal(id);
+                    await loadTickets();
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                }
+                return;
+            }
+
+            const statusBtn = e.target.closest('[data-status-ticket]');
+            if (statusBtn) {
+                const id = statusBtn.dataset.statusTicket;
+                const status = statusBtn.dataset.statusValue;
+                const note = ($('replyText') && $('replyText').value.trim()) || '';
+                try {
+                    await CH.request(`/api/admin/tickets/${encodeURIComponent(id)}/status`,
+                        { method: 'POST', body: { status, note } });
+                    CH.toast(`Ticket marked ${status}.`, 'good');
+                    await openTicketModal(id);
+                    await loadTickets();
+                    await loadStats();
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                }
+                return;
+            }
+
+            const refundBtn = e.target.closest('[data-refund-ticket]');
+            if (refundBtn) {
+                const id = refundBtn.dataset.refundTicket;
+                if (!confirm(`Refund the full charge for ticket ${id}?`)) return;
+                try {
+                    const data = await CH.request(`/api/admin/tickets/${encodeURIComponent(id)}/refund`,
+                        { method: 'POST', body: {} });
+                    CH.toast(data.message || 'Refund issued', 'good');
+                    await openTicketModal(id);
+                    await Promise.all([loadTickets(), loadMembers(), loadStats()]);
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                }
+                return;
+            }
+
+            const replaceBtn = e.target.closest('[data-replace-ticket]');
+            if (replaceBtn) {
+                const id = replaceBtn.dataset.replaceTicket;
+                const account = $('replaceAccount').value.trim();
+                const payload = {
+                    refund: $('replaceRefund').checked,
+                    note: $('replaceNote').value.trim(),
+                };
+                if (account) {
+                    payload.mode = 'manual';
+                    payload.account = account;
+                    payload.password = $('replacePassword').value.trim();
+                } else {
+                    payload.mode = 'auto';
+                }
+
+                replaceBtn.disabled = true;
+                replaceBtn.textContent = account ? 'Saving…' : 'Pulling from the pool…';
+                try {
+                    const data = await CH.request(`/api/admin/tickets/${encodeURIComponent(id)}/replace`,
+                        { method: 'POST', body: payload });
+                    CH.toast(data.message || 'Replacement issued', 'good');
+                    if (data.member) CH.toast(`New balance ${CH.money(data.member.balance)}`, 'info');
+                    await openTicketModal(id);
+                    await Promise.all([loadTickets(), loadMembers(), loadStats()]);
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                } finally {
+                    replaceBtn.disabled = false;
+                }
+            }
+        });
+
+        // ------------------------------------------------------------ pricing
+        async function loadPricing() {
+            try {
+                const data = await CH.request('/api/admin/prices');
+                DEFAULTS = data.defaultPrices || {};
+                renderPricing(data.catalog || []);
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        function renderPricing(catalog) {
+            $('pricingBody').innerHTML = catalog.map(svc => `
+                <tr>
+                    <td>${svc.emoji} <strong>${CH.esc(svc.label)}</strong>
+                        <div class="ch-small ch-muted ch-mono">${CH.esc(svc.key)}</div></td>
+                    <td class="ch-muted">${CH.money(DEFAULTS[svc.key])}</td>
+                    <td><strong>${CH.money(svc.price)}</strong></td>
+                    <td><input class="ch-input" style="width:130px" type="number" min="0" step="0.5"
+                        data-price="${CH.esc(svc.key)}" value="${Number(svc.price) || 0}"></td>
+                    <td>${svc.available}</td>
+                </tr>`).join('');
+            $('pricingBody').dataset.catalog = 'loaded';
+        }
+
+        $('savePrices').addEventListener('click', async () => {
+            const prices = {};
+            document.querySelectorAll('[data-price]').forEach(input => {
+                prices[input.dataset.price] = Number(input.value) || 0;
+            });
+            if (!Object.keys(prices).length) { CH.toast('Load the price table first.', 'bad'); return; }
+
+            try {
+                const data = await CH.request('/api/admin/prices', { method: 'POST', body: { prices } });
+                CH.toast(data.message || 'Prices saved', 'good');
+                renderPricing(data.catalog || []);
+                await loadStats();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        });
+
+        $('resetPrices').addEventListener('click', async () => {
+            if (!confirm('Restore the default price for every service?')) return;
+            try {
+                const data = await CH.request('/api/admin/prices/reset', { method: 'POST' });
+                CH.toast(data.message || 'Defaults restored', 'good');
+                renderPricing(data.catalog || []);
+                await loadStats();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        });
+
+        // ------------------------------------------------------------ pools
+        async function loadPoolOptions() {
+            if ($('poolService').options.length) return;
+            if (!SERVICES.length) {
+                const data = await CH.request('/api/prices');
+                SERVICES = data.services || [];
+            }
+            $('poolService').innerHTML = SERVICES.map(s =>
+                `<option value="${CH.esc(s.key)}">${s.emoji} ${CH.esc(s.label)}</option>`).join('');
+        }
+
+        async function loadPool() {
+            const service = $('poolService').value;
+            if (!service) return;
+            const limit = Math.min(Math.max(Number($('poolLimit').value) || 100, 10), 1000);
+            try {
+                const data = await CH.request(`/api/admin/pool/${encodeURIComponent(service)}?limit=${limit}`);
+                POOL = data.entries || [];
+                $('poolCount').textContent = `${data.count} credential(s) in the pool · showing ${POOL.length}`;
+                renderPool();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        function renderPool() {
+            $('poolBody').innerHTML = POOL.map((entry, i) => `
+                <tr>
+                    <td class="ch-muted">${i + 1}</td>
+                    <td class="mono-small">${CH.esc(entry.account || '—')}</td>
+                    <td class="mono-small">${showPoolPasswords
+                        ? CH.esc(entry.password || entry.preview || '—')
+                        : CH.esc(entry.preview || '••••••')}</td>
+                </tr>`).join('') || '<tr><td colspan="3" class="ch-muted">This pool is empty.</td></tr>';
+        }
+
+        $('loadPool').addEventListener('click', loadPool);
+        $('poolService').addEventListener('change', () => { POOL = []; loadPool(); });
+        $('togglePoolPass').addEventListener('click', () => {
+            showPoolPasswords = !showPoolPasswords;
+            $('togglePoolPass').textContent = showPoolPasswords ? 'Hide passwords' : 'Show passwords';
+            renderPool();
+        });
+
+        // ------------------------------------------------------------ settings
+        async function loadConfig() {
+            try {
+                const data = await CH.request('/api/admin/config');
+                $('adminKeyValue').textContent = data.config.adminKey;
+                $('adminKeyValue').dataset.key = data.config.adminKey;
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        $('copyAdminKey').addEventListener('click', async () => {
+            const key = $('adminKeyValue').dataset.key || $('adminKeyValue').textContent;
+            try {
+                await navigator.clipboard.writeText(key);
+                CH.toast('Admin key copied to the clipboard.', 'good');
+            } catch (err) {
+                CH.toast('Copy manually: ' + key, 'info');
+            }
+        });
+
+        $('rotateAdminKey').addEventListener('click', async () => {
+            const newKey = $('newAdminKey').value.trim();
+            const message = newKey
+                ? 'Replace the admin key with the one you typed?'
+                : 'Generate a brand new admin key?';
+            if (!confirm(message)) return;
+
+            try {
+                const data = await CH.request('/api/admin/config/admin-key', {
+                    method: 'POST',
+                    body: newKey ? { newKey } : {},
+                });
+                $('adminKeyValue').textContent = data.adminKey;
+                $('adminKeyValue').dataset.key = data.adminKey;
+                $('newAdminKey').value = '';
+                CH.toast(data.message || 'Admin key updated', 'good');
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        });
+
+        // ------------------------------------------------------------ boot
+        CH.start({
+            requireRole: 'admin',
+            onReady: async () => {
+                $('newBalance').value = '0';
+                $('poolLimit').value = '100';
+                await loadStats();
+                await Promise.all([loadMembers(), loadTickets()]);
+                await loadPoolOptions();
+                loadConfig();
+            },
+        });
+    </script>
+</body>
+</html>

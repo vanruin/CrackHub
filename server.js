@@ -33,16 +33,87 @@ const {
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// ============ PLATFORM LAYER (access keys, balance, tickets) ============
+
+const auth = require('./backend/auth');
+const config = require('./backend/config');
+const { mountPlatformApi } = require('./backend/routes');
+
+// Live pool sizes (storefront + admin dashboard)
+const poolCounters = {
+    netflix: getNetflixAccountCount,
+    steam: getSteamAccountCount,
+    hbo: getHboCookieCount,
+    disney: getDisneyAccountCount,
+    crunchyroll: getCrunchyrollAccountCount,
+    paramount: getParamountAccountCount,
+    xbox: getXboxAccountCount,
+    moonton: getMoontonAccountCount,
+    garena: getGarenaAccountCount,
+    capcut: getCapcutAccountCount,
+};
+
+// Used to issue replacement accounts when a support ticket is accepted
+const generators = {
+    netflix: () => getRandomNetflixCookie('smart'),
+    steam: () => getRandomSteamAccount(null),
+    hbo: () => getRandomHboCookie(),
+    disney: () => getRandomDisneyAccount(),
+    crunchyroll: () => getRandomCrunchyrollAccount(),
+    paramount: () => getRandomParamountAccount(),
+    xbox: () => getRandomXboxAccount(),
+    moonton: () => getRandomMoontonAccount(),
+    garena: () => getRandomGarenaAccount(),
+    capcut: () => getRandomCapcutAccount(),
+};
+
 // Middleware
 app.use(cors());
-// Uploaded account files can hold thousands of lines — allow a large JSON body
-app.use(express.json({ limit: '25mb' }));
+
+// Same-origin guard for state-changing API calls: the session cookie is
+// SameSite=Lax, and this rejects forged cross-site POSTs before the body is
+// even parsed. Requests without an Origin header (curl / X-CrackHub-Key
+// clients) are allowed through.
+const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+app.use('/api', (req, res, next) => {
+    if (!UNSAFE_METHODS.has(req.method)) return next();
+    const origin = req.headers.origin;
+    if (!origin) return next();
+    try {
+        if (new URL(origin).host === req.headers.host) return next();
+    } catch (err) { /* malformed Origin header → fall through to 403 */ }
+    return res.status(403).json({
+        success: false,
+        code: 'BAD_ORIGIN',
+        error: 'Cross-origin request blocked.',
+    });
+});
+
+// JSON bodies: only the bulk credential upload needs the huge allowance —
+// everything else is capped early so oversized payloads are rejected fast.
+const jsonSmall = express.json({ limit: '256kb', strict: true });
+const jsonBig = express.json({ limit: '25mb', strict: true });
+app.use((req, res, next) => (req.path.startsWith('/api/accounts/') ? jsonBig : jsonSmall)(req, res, next));
+
+// The raw credential pools are never downloadable
+app.use('/Acccounts', (req, res) => {
+    res.status(403).json({
+        success: false,
+        error: 'Forbidden — credentials are only served through the generator.',
+    });
+});
+
+// Every page needs an access key (public/login.html is the only exception)
+app.use(auth.protectStaticPages);
 app.use(express.static('public'));
+
+// Member / ticket / admin APIs
+mountPlatformApi(app, { counters: poolCounters, generators });
 
 // ============ STEAM API ENDPOINTS ============
 
 // Get random Steam account (optionally filtered by game)
-app.post('/api/search-accounts', async (req, res) => {
+app.post('/api/search-accounts', auth.requireMember, async (req, res) => {
     try {
         const { term } = req.body || {};
         const result = await searchAccounts(term);
@@ -53,7 +124,7 @@ app.post('/api/search-accounts', async (req, res) => {
 });
 
 // Get a specific account by username (includes password)
-app.get('/api/steam-account/:username', async (req, res) => {
+app.get('/api/steam-account/:username', auth.requireMember, auth.billable('steam'), async (req, res) => {
     try {
         const result = await getAccountByUsername(req.params.username);
         if (!result.success) return res.status(404).json(result);
@@ -64,7 +135,7 @@ app.get('/api/steam-account/:username', async (req, res) => {
 });
 
 // Legacy: get first account matching a game (kept for compatibility)
-app.post('/api/get-random-steam-account', async (req, res) => {
+app.post('/api/get-random-steam-account', auth.requireMember, auth.billable('steam'), async (req, res) => {
     try {
         const game = (req.body && req.body.game) ? req.body.game : null;
         const result = await getRandomSteamAccount(game);
@@ -75,7 +146,7 @@ app.post('/api/get-random-steam-account', async (req, res) => {
 });
 
 // Count
-app.get('/api/steam-count', async (req, res) => {
+app.get('/api/steam-count', auth.requireMember, async (req, res) => {
     try {
         const count = await getSteamAccountCount();
         res.json({ success: true, count });
@@ -85,7 +156,7 @@ app.get('/api/steam-count', async (req, res) => {
 });
 
 // List all accounts (admin, no passwords)
-app.get('/api/steam-accounts', async (req, res) => {
+app.get('/api/steam-accounts', auth.requireAdmin, async (req, res) => {
     try {
         const accounts = await getAllSteamAccounts();
         res.json({ success: true, accounts });
@@ -95,7 +166,7 @@ app.get('/api/steam-accounts', async (req, res) => {
 });
 
 // Add account
-app.post('/api/steam-accounts', async (req, res) => {
+app.post('/api/steam-accounts', auth.requireAdmin, async (req, res) => {
     try {
         const { username, password, games, status } = req.body || {};
         if (!username || !password) {
@@ -109,7 +180,7 @@ app.post('/api/steam-accounts', async (req, res) => {
 });
 
 // Remove account by username
-app.delete('/api/steam-accounts/:username', async (req, res) => {
+app.delete('/api/steam-accounts/:username', auth.requireAdmin, async (req, res) => {
     try {
         const result = await removeSteamAccount(req.params.username);
         res.json(result);
@@ -124,7 +195,7 @@ app.delete('/api/steam-accounts/:username', async (req, res) => {
  * Parse raw account text and detect the format — no file writes.
  * Body: { text: "...", service?: string }
  */
-app.post('/api/accounts/parse', (req, res) => {
+app.post('/api/accounts/parse', auth.requireMember, (req, res) => {
     try {
         const { text, service } = req.body || {};
         if (!text || typeof text !== 'string' || !text.trim()) {
@@ -161,7 +232,7 @@ app.post('/api/accounts/parse', (req, res) => {
  * Parse text, then append accounts to the target service file.
  * Body: { text: "...", service: string, overwrite?: boolean }
  */
-app.post('/api/accounts/add', async (req, res) => {
+app.post('/api/accounts/add', auth.requireAdmin, async (req, res) => {
     try {
         const { text, service } = req.body || {};
         if (!service || !SERVICE_FILES[service]) {
@@ -203,7 +274,7 @@ app.post('/api/accounts/add', async (req, res) => {
 /**
  * Get account counts for all supported services.
  */
-app.get('/api/account-counts', async (req, res) => {
+app.get('/api/account-counts', auth.requireMember, async (req, res) => {
     try {
         const counts = {};
         for (const [svc, cfg] of Object.entries(SERVICE_FILES)) {
@@ -219,7 +290,7 @@ app.get('/api/account-counts', async (req, res) => {
 
 // ============ OTHER SERVICE ENDPOINTS ============
 
-app.post('/api/get-random-crunchyroll-account', async (req, res) => {
+app.post('/api/get-random-crunchyroll-account', auth.requireMember, auth.billable('crunchyroll'), async (req, res) => {
     try {
         const result = await getRandomCrunchyrollAccount();
         res.json(result);
@@ -228,7 +299,7 @@ app.post('/api/get-random-crunchyroll-account', async (req, res) => {
     }
 });
 
-app.post('/api/get-random-hbo-cookie', async (req, res) => {
+app.post('/api/get-random-hbo-cookie', auth.requireMember, auth.billable('hbo'), async (req, res) => {
     console.log('\n🍪 HBO API called');
     try {
         const result = await getRandomHboCookie();
@@ -240,7 +311,7 @@ app.post('/api/get-random-hbo-cookie', async (req, res) => {
     }
 });
 
-app.post('/api/get-random-paramount-account', async (req, res) => {
+app.post('/api/get-random-paramount-account', auth.requireMember, auth.billable('paramount'), async (req, res) => {
     console.log('\n⭐ Paramount+ API called');
     try {
         const result = await getRandomParamountAccount();
@@ -252,7 +323,7 @@ app.post('/api/get-random-paramount-account', async (req, res) => {
     }
 });
 
-app.post('/api/get-random-disney-account', async (req, res) => {
+app.post('/api/get-random-disney-account', auth.requireMember, auth.billable('disney'), async (req, res) => {
     console.log('\n✨ Disney+ API called');
     try {
         const result = await getRandomDisneyAccount();
@@ -264,7 +335,7 @@ app.post('/api/get-random-disney-account', async (req, res) => {
     }
 });
 
-app.post('/api/get-random-garena-account', async (req, res) => {
+app.post('/api/get-random-garena-account', auth.requireMember, auth.billable('garena'), async (req, res) => {
     console.log('\n🎮 Garena API called');
     try {
         const result = await getRandomGarenaAccount();
@@ -276,7 +347,7 @@ app.post('/api/get-random-garena-account', async (req, res) => {
     }
 });
 
-app.post('/api/get-random-moonton-account', async (req, res) => {
+app.post('/api/get-random-moonton-account', auth.requireMember, auth.billable('moonton'), async (req, res) => {
     console.log('\n🏆 Moonton API called');
     try {
         const result = await getRandomMoontonAccount();
@@ -288,7 +359,7 @@ app.post('/api/get-random-moonton-account', async (req, res) => {
     }
 });
 
-app.post('/api/get-random-netflix-cookie', async (req, res) => {
+app.post('/api/get-random-netflix-cookie', auth.requireMember, auth.billable('netflix'), async (req, res) => {
     console.log('\n🎬 Netflix API called');
     try {
         const method = (req.body && req.body.method) ? req.body.method : 'smart';
@@ -301,7 +372,7 @@ app.post('/api/get-random-netflix-cookie', async (req, res) => {
     }
 });
 
-app.post('/api/get-random-xbox-account', async (req, res) => {
+app.post('/api/get-random-xbox-account', auth.requireMember, auth.billable('xbox'), async (req, res) => {
     console.log('\n🎮 Xbox API called');
     try {
         const result = await getRandomXboxAccount();
@@ -313,7 +384,7 @@ app.post('/api/get-random-xbox-account', async (req, res) => {
     }
 });
 
-app.post('/api/get-random-capcut-account', async (req, res) => {
+app.post('/api/get-random-capcut-account', auth.requireMember, auth.billable('capcut'), async (req, res) => {
     console.log('\n✂️ CapCut API called');
     try {
         const result = await getRandomCapcutAccount();
@@ -326,6 +397,14 @@ app.post('/api/get-random-capcut-account', async (req, res) => {
 });
 
 // ============ TEST ENDPOINTS ============
+
+// Pool sizes are visible to signed-in members only.
+// (Mounted as plain middleware: app.use('/api/test-') would be segment-bound
+//  and app.use(/regex/) is mangled by path-to-regexp for group-less regexes.)
+app.use((req, res, next) => {
+    if (!req.path.startsWith('/api/test-')) return next();
+    return auth.requireMember(req, res, next);
+});
 
 app.get('/api/test-netflix', async (req, res) => {
     const count = await getNetflixAccountCount();
@@ -384,54 +463,64 @@ app.get('/api/health', (req, res) => {
 
 // ============ HTML ROUTES ============
 
-app.get('/', (req, res) => {
+// Public — the only page reachable without an access key
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Members — need a valid access key cookie (or admin session)
+app.get('/', auth.requireMemberPage, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
+app.get('/home', auth.requireMemberPage, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
+app.get('/support', auth.requireMemberPage, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'support.html'));
+});
+app.get('/guidelines', auth.requireMemberPage, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'guidelines.html'));
+});
+
+// Staff area — dashboard + the bulk credential tools.
+// NOTE: the short `/admin` alias was removed on purpose so the admin URL is
+// never advertised. /admin.html stays behind the staff-key page guard, and
+// /admin-login is the only public staff page.
+app.get('/admin-login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin-login.html'));
+});
+app.get('/tools', auth.requireAdminPage, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'intro.html'));
 });
-app.get('/netflix', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'netflix.html'));
-});
-app.get('/steam', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'steam.html'));
-});
-app.get('/crunchyroll', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'crunchyroll.html'));
-});
-app.get('/hbo', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'hbo.html'));
-});
-app.get('/paramount', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'paramount.html'));
-});
-app.get('/disney', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'disney.html'));
-});
-app.get('/capcut', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'capcut.html'));
-});
-app.get('/xbox', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'xbox.html'));
-});
-app.get('/moonton', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'moonton.html'));
-});
-app.get('/garena', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'garena.html'));
-});
+
+// Service pages — same guard as the .html files served from /public
+const SERVICE_PAGES = [
+    'netflix', 'steam', 'crunchyroll', 'hbo', 'paramount',
+    'disney', 'capcut', 'xbox', 'moonton', 'garena',
+];
+for (const page of SERVICE_PAGES) {
+    app.get(`/${page}`, auth.requireMemberPage, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', `${page}.html`));
+    });
+}
 
 // ============ START SERVER ============
 
 const server = app.listen(PORT, () => {
     console.log('\n' + '='.repeat(60));
-    console.log('🎮 MULTI-SERVICE ACCOUNT GENERATOR');
+    console.log('🎮 CRACKHUB — KEY GATED ACCOUNT GENERATOR');
     console.log('='.repeat(60));
-    console.log(`🚀 Server: http://localhost:${PORT}`);
-    console.log(`🎬 Netflix: http://localhost:${PORT}/netflix`);
-    console.log(`🎮 Steam: http://localhost:${PORT}/steam`);
-    console.log(`🍣 Crunchyroll: http://localhost:${PORT}/crunchyroll`);
-    console.log(`🍪 HBO Max: http://localhost:${PORT}/hbo`);
-    console.log(`⭐ Paramount+: http://localhost:${PORT}/paramount`);
-    console.log(`✨ Disney+: http://localhost:${PORT}/disney`);
-    console.log('='.repeat(60) + '\n');
+    console.log(`🚀 Server:   http://localhost:${PORT}`);
+    console.log(`🔑 Login:    http://localhost:${PORT}/login`);
+    console.log(`🛍️  Store:    http://localhost:${PORT}/`);
+    console.log(`🛡️  Admin:    http://localhost:${PORT}/admin.html`);
+    console.log(`🧾 Support:  http://localhost:${PORT}/support`);
+    console.log('='.repeat(60));
+    // Print the admin key once so the operator can sign in for the first time
+    // (the same value also lives in backend/data/config.json).
+    config.getAdminKey()
+        .then(key => console.log(`🔐 ADMIN KEY: ${key}\n`))
+        .catch(err => console.error('⚠️  Could not read the admin key:', err.message));
 }).on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
         console.log(`❌ Port ${PORT} is busy, trying port ${PORT + 1}...`);

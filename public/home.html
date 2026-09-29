@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrackHub — Store</title>
+    <link rel="stylesheet" href="/platform.css">
+    <style>
+        .hero-bar {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+            padding: 24px 26px;
+            border-radius: 20px;
+            background: linear-gradient(120deg, rgba(0, 212, 255, 0.16) 0%, rgba(123, 79, 255, 0.20) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 18px 46px rgba(0, 0, 0, 0.30);
+            margin-bottom: 24px;
+        }
+
+        .hero-bar::after {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -40px;
+            width: 260px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.35), transparent 70%);
+            filter: blur(10px);
+            pointer-events: none;
+        }
+
+        .hero-bar > * { position: relative; z-index: 1; }
+
+        .hero-bar h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -0.4px; }
+        .hero-bar p { margin: 0; color: var(--ch-muted); font-size: 14px; }
+
+        .balance-xl {
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--ch-accent);
+            line-height: 1;
+            text-shadow: 0 0 26px rgba(0, 212, 255, 0.45);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 30px 0 14px;
+        }
+
+        .section-title h2 { margin: 0; font-size: 18px; }
+        .activity-grid { display: grid; gap: 18px; grid-template-columns: 1.2fr 0.8fr; }
+        @media (max-width: 900px) { .activity-grid { grid-template-columns: 1fr; } }
+
+        .usage-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+        .key-chip {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12.5px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--ch-border);
+        }
+    </style>
+</head>
+<body class="ch-page">
+    <div class="ch-wrap">
+        <div class="hero-bar">
+            <div>
+                <h1 id="welcome">Welcome back</h1>
+                <p id="welcomeSub">Loading your account…</p>
+            </div>
+            <div style="text-align:right">
+                <div class="ch-stat-label">Available balance</div>
+                <div class="balance-xl" id="balanceValue">₱0.00</div>
+                <div class="ch-row" style="justify-content:flex-end;margin-top:8px">
+                    <span class="key-chip" id="keyChip">—</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ch-grid cols-4">
+            <div class="ch-card">
+                <div class="ch-stat-label">Accounts generated</div>
+                <div class="ch-stat-value" id="statGenerations">0</div>
+            </div>
+            <div class="ch-card">
+                <div class="ch-stat-label">Total spent</div>
+                <div class="ch-stat-value" id="statSpent">₱0.00</div>
+            </div>
+            <div class="ch-card">
+                <div class="ch-stat-label">Open tickets</div>
+                <div class="ch-stat-value" id="statTickets">0</div>
+            </div>
+            <div class="ch-card">
+                <div class="ch-stat-label">Accounts in stock</div>
+                <div class="ch-stat-value" id="statStock">0</div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <h2>🎯 Generate an account</h2>
+            <span class="ch-small ch-muted">Prices are charged only when an account is delivered</span>
+        </div>
+        <div class="ch-grid cols-3" id="serviceGrid">
+            <div class="ch-empty">Loading services…</div>
+        </div>
+
+        <div class="section-title">
+            <h2>🧾 Your activity</h2>
+            <a class="ch-btn ghost sm" href="/support">Report a broken account</a>
+        </div>
+
+        <div class="activity-grid">
+            <div class="ch-card">
+                <h3>Recent generations</h3>
+                <div id="usageList"><div class="ch-empty">Nothing generated yet.</div></div>
+            </div>
+            <div class="ch-card">
+                <h3>Recent balance movements</h3>
+                <div id="txList"><div class="ch-empty">No transactions yet.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/platform.js"></script>
+    <script>
+        const $ = id => document.getElementById(id);
+
+        function renderMember(member) {
+            if (!member) return;
+            $('welcome').textContent = `Welcome back, ${member.name}`;
+            $('welcomeSub').innerHTML = `Member since ${CH.when(member.createdAt)} · ` +
+                `key verified · <span class="ch-muted">every generation is charged from your balance</span>`;
+            $('balanceValue').textContent = CH.money(member.balance);
+            $('keyChip').textContent = member.key || '—';
+            $('statGenerations').textContent = member.totalGenerated || 0;
+            $('statSpent').textContent = CH.money(member.totalSpent);
+        }
+
+        function renderServices(services) {
+            const grid = $('serviceGrid');
+            if (!services || !services.length) {
+                grid.innerHTML = '<div class="ch-empty">No services configured yet.</div>';
+                return;
+            }
+
+            const stock = services.reduce((sum, s) => sum + (Number(s.available) || 0), 0);
+            $('statStock').textContent = stock;
+
+            grid.innerHTML = services.map(svc => {
+                const out = Number(svc.available) === 0;
+                return `
+                <div class="ch-service">
+                    <div class="top">
+                        <div>
+                            <div class="emoji">${svc.emoji}</div>
+                            <div class="name" style="color:${CH.esc(svc.color || '#fff')}">${CH.esc(svc.label)}</div>
+                        </div>
+                        <div class="price">${CH.money(svc.price)}</div>
+                    </div>
+                    <div class="credential">${CH.esc(svc.credential || '')}</div>
+                    <div class="foot">
+                        <span class="ch-badge ${out ? 'bad' : 'good'}">${out ? 'Out of stock' : svc.available + ' in stock'}</span>
+                        <a class="ch-btn sm ${out ? 'ghost' : ''}" href="${CH.esc(svc.path)}">Generate</a>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function loadServices() {
+            try {
+                const data = await CH.request('/api/prices');
+                renderServices(data.services);
+            } catch (err) {
+                $('serviceGrid').innerHTML = `<div class="ch-empty">${CH.esc(err.message)}</div>`;
+            }
+        }
+
+        function renderUsage(list) {
+            const box = $('usageList');
+            if (!list || !list.length) {
+                box.innerHTML = '<div class="ch-empty">Nothing generated yet — pick a service above.</div>';
+                return;
+            }
+
+            box.innerHTML = `<div class="ch-list">${list.slice(0, 8).map((u, i) => {
+                const label = u.label ? ` · ${CH.esc(u.label)}` : '';
+                const report = u.ticketId
+                    ? `<span class="ch-badge info">ticket ${CH.esc(u.ticketId)}</span>`
+                    : `<a class="ch-btn ghost sm" href="/support?usage=${encodeURIComponent(u.id)}&service=${encodeURIComponent(u.service)}&account=${encodeURIComponent(u.login || '')}">Report</a>`;
+                return `
+                <div class="ch-list-item ch-usage-item ${u.ticketId ? 'claimed' : ''}">
+                    <div>
+                        <div><strong>${CH.esc(u.service)}</strong><span class="ch-muted">${label}</span></div>
+                        <div class="ch-small ch-muted ch-mono">${CH.esc(u.login || '—')} · ${CH.when(u.at)}</div>
+                    </div>
+                    <div class="ch-row">
+                        <span class="ch-badge">${CH.money(u.price)}</span>
+                        ${report}
+                    </div>
+                </div>`;
+            }).join('')}</div>`;
+        }
+
+        function renderTx(list) {
+            const box = $('txList');
+            if (!list || !list.length) {
+                box.innerHTML = '<div class="ch-empty">No transactions yet.</div>';
+                return;
+            }
+
+            box.innerHTML = `<div class="ch-list">${list.slice(0, 8).map(tx => {
+                const credit = tx.type !== 'debit';
+                return `
+                <div class="ch-list-item">
+                    <div>
+                        <div>${CH.esc(tx.note || tx.type)}</div>
+                        <div class="ch-small ch-muted">${CH.when(tx.at)}</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-weight:700;color:${credit ? '#6ee7a2' : '#fca5a5'}">
+                            ${credit ? '+' : '−'}${CH.money(tx.amount)}
+                        </div>
+                        <div class="ch-small ch-muted">bal ${CH.money(tx.balanceAfter)}</div>
+                    </div>
+                </div>`;
+            }).join('')}</div>`;
+        }
+
+        CH.start({
+            requireRole: 'member',
+            onReady: async me => {
+                renderMember(me.member);
+                await Promise.all([loadServices(), loadUsage(), loadTx()]);
+            },
+        });
+
+        async function loadUsage() {
+            try {
+                const data = await CH.request('/api/member/usage');
+                renderUsage(data.usage);
+            } catch (err) { /* handled globally */ }
+        }
+
+        async function loadTx() {
+            try {
+                const [tx, tickets] = await Promise.all([
+                    CH.request('/api/member/transactions'),
+                    CH.request('/api/member/tickets'),
+                ]);
+                renderTx(tx.transactions);
+                const open = (tickets.tickets || []).filter(t => t.status === 'open' || t.status === 'in_review').length;
+                $('statTickets').textContent = open;
+            } catch (err) { /* handled globally */ }
+        }
+    </script>
+</body>
+</html>
