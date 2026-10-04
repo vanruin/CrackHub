@@ -93,7 +93,12 @@ app.use('/api', (req, res, next) => {
 // everything else is capped early so oversized payloads are rejected fast.
 const jsonSmall = express.json({ limit: '256kb', strict: true });
 const jsonBig = express.json({ limit: '25mb', strict: true });
-app.use((req, res, next) => (req.path.startsWith('/api/accounts/') ? jsonBig : jsonSmall)(req, res, next));
+const jsonReceipt = express.json({ limit: '6mb', strict: true });   // proof-of-payment screenshots
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api/accounts/')) return jsonBig(req, res, next);
+    if (req.path === '/api/member/subscription/receipt') return jsonReceipt(req, res, next);
+    return jsonSmall(req, res, next);
+});
 
 // The raw credential pools are never downloadable
 app.use('/Acccounts', (req, res) => {
@@ -106,6 +111,9 @@ app.use('/Acccounts', (req, res) => {
 // Every page needs an access key (public/login.html is the only exception)
 app.use(auth.protectStaticPages);
 app.use(express.static('public'));
+
+// Brand / payment assets (the subscription QR lives in Assets/crack.jpg)
+app.use('/assets', express.static(path.join(__dirname, 'Assets')));
 
 // Member / ticket / admin APIs
 mountPlatformApi(app, { counters: poolCounters, generators });

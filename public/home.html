@@ -42,10 +42,13 @@
         .balance-xl {
             font-size: 34px;
             font-weight: 800;
-            color: var(--ch-accent);
             line-height: 1;
-            text-shadow: 0 0 26px rgba(0, 212, 255, 0.45);
             font-variant-numeric: tabular-nums;
+            background: linear-gradient(135deg, #00d4ff 0%, #7b4fff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 18px rgba(0, 212, 255, 0.35));
         }
 
         .section-title {
@@ -56,20 +59,104 @@
             margin: 30px 0 14px;
         }
 
-        .section-title h2 { margin: 0; font-size: 18px; }
+        .section-title h2 {
+            margin: 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title h2::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #00d4ff, #7b4fff);
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+        }
         .activity-grid { display: grid; gap: 18px; grid-template-columns: 1.2fr 0.8fr; }
         @media (max-width: 900px) { .activity-grid { grid-template-columns: 1fr; } }
 
         .usage-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 
         .key-chip {
+            box-sizing: border-box;
+            max-width: 100%;
+            display: inline-flex;
+            align-items: center;
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             font-size: 12.5px;
-            padding: 5px 10px;
+            line-height: 1.45;
+            padding: 5px 12px;
             border-radius: 999px;
-            background: rgba(0, 0, 0, 0.35);
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.32);
+            color: #a9e9ff;
+            cursor: pointer;
+            overflow-wrap: anywhere;
+            transition: border-color 0.18s, background 0.18s, transform 0.15s;
+        }
+
+        .key-chip::after {
+            content: '⧉';
+            margin-left: 7px;
+            font-size: 11px;
+            line-height: 1;
+            flex: none;          /* glyph never squishes into the key text */
+            opacity: 0.6;
+        }
+
+        .key-chip:hover {
+            border-color: rgba(0, 212, 255, 0.65);
+            background: rgba(0, 212, 255, 0.14);
+            transform: translateY(-1px);
+        }
+
+        /* ------------------------------------------------ subscription */
+        .sub-qr {
+            display: block;
+            width: 100%;
+            max-width: 250px;
+            margin: 0 auto 14px;
+            border-radius: 14px;
+            border: 1px solid var(--ch-border);
+            background: #ffffff;
+        }
+
+        .sub-note {
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            background: rgba(245, 158, 11, 0.10);
+            font-size: 13.5px;
+            margin-bottom: 14px;
+        }
+
+        .drop {
+            display: block;
+            border: 1.5px dashed rgba(0, 212, 255, 0.40);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(0, 212, 255, 0.05);
+            transition: border-color 0.18s, background 0.18s;
+        }
+
+        .drop:hover { border-color: rgba(0, 212, 255, 0.75); background: rgba(0, 212, 255, 0.09); }
+        .drop input { display: none; }
+
+        .receipt-preview {
+            display: none;
+            width: 100%;
+            max-width: 240px;
+            margin: 12px auto 0;
+            border-radius: 12px;
             border: 1px solid var(--ch-border);
         }
+
+        .receipt-preview.show { display: block; }
     </style>
 </head>
 <body class="ch-page">
@@ -83,7 +170,11 @@
                 <div class="ch-stat-label">Available balance</div>
                 <div class="balance-xl" id="balanceValue">₱0.00</div>
                 <div class="ch-row" style="justify-content:flex-end;margin-top:8px">
-                    <span class="key-chip" id="keyChip">—</span>
+                    <span class="key-chip" id="keyChip" title="Click to copy your access key">—</span>
+                </div>
+                <div class="ch-row" style="justify-content:flex-end;margin-top:10px">
+                    <span class="ch-badge" id="subBadge">Subscription: —</span>
+                    <button class="ch-btn sm" id="subBtn" type="button">Subscribe</button>
                 </div>
             </div>
         </div>
@@ -132,9 +223,23 @@
         </div>
     </div>
 
+    <div class="ch-modal" id="subModal"><div class="ch-modal-box" id="subModalBox"></div></div>
+
     <script src="/platform.js"></script>
     <script>
         const $ = id => document.getElementById(id);
+
+        let myKey = '';
+
+        // The key chip is the member's "code holder": click it to copy the key.
+        $('keyChip').addEventListener('click', async () => {
+            if (!myKey) return;
+            const ok = await CH.copy(myKey);
+            CH.toast(
+                ok ? 'Access key copied to the clipboard.' : 'Could not copy — select the key and copy it manually.',
+                ok ? 'good' : 'bad'
+            );
+        });
 
         function renderMember(member) {
             if (!member) return;
@@ -142,6 +247,7 @@
             $('welcomeSub').innerHTML = `Member since ${CH.when(member.createdAt)} · ` +
                 `key verified · <span class="ch-muted">every generation is charged from your balance</span>`;
             $('balanceValue').textContent = CH.money(member.balance);
+            myKey = member.key || '';
             $('keyChip').textContent = member.key || '—';
             $('statGenerations').textContent = member.totalGenerated || 0;
             $('statSpent').textContent = CH.money(member.totalSpent);
@@ -220,7 +326,10 @@
             }
 
             box.innerHTML = `<div class="ch-list">${list.slice(0, 8).map(tx => {
-                const credit = tx.type !== 'debit';
+                const credit = tx.type === 'credit' || tx.type === 'refund';
+                const debit = tx.type === 'debit';
+                const color = credit ? '#6ee7a2' : (debit ? '#fca5a5' : '#67e8f9');
+                const sign = credit ? '+' : (debit ? '−' : '');
                 return `
                 <div class="ch-list-item">
                     <div>
@@ -228,8 +337,8 @@
                         <div class="ch-small ch-muted">${CH.when(tx.at)}</div>
                     </div>
                     <div style="text-align:right">
-                        <div style="font-weight:700;color:${credit ? '#6ee7a2' : '#fca5a5'}">
-                            ${credit ? '+' : '−'}${CH.money(tx.amount)}
+                        <div style="font-weight:700;color:${color}">
+                            ${sign}${CH.money(tx.amount)}
                         </div>
                         <div class="ch-small ch-muted">bal ${CH.money(tx.balanceAfter)}</div>
                     </div>
@@ -237,10 +346,199 @@
             }).join('')}</div>`;
         }
 
+        // -------------------------------------------------- subscription
+        const SUB_IMG = '/assets/crack.jpg';
+        let subState = null;
+        let receiptData = '';
+
+        function subBadgeInfo(sub) {
+            if (!sub || sub.status === 'none') return { text: 'No active plan', cls: 'bad' };
+            if (sub.status === 'expired') return { text: 'Expired', cls: 'bad' };
+            return { text: `${sub.daysLeft} day(s) left`, cls: 'good' };
+        }
+
+        function renderSubscription(state) {
+            subState = state;
+            const sub = (state && state.subscription) || {};
+            const plan = (state && state.plan) || {};
+            const info = subBadgeInfo(sub);
+            const badge = $('subBadge');
+            badge.className = 'ch-badge ' + info.cls;
+            badge.textContent = 'Subscription: ' + info.text;
+            $('subBtn').textContent = (sub.status === 'active' ? 'Renew · ' : 'Subscribe · ') + CH.money(plan.amount || 500);
+        }
+
+        async function loadSubscription(options) {
+            const opts = options || {};
+            try {
+                const state = await CH.request('/api/member/subscription');
+                renderSubscription(state);
+                if (opts.autoOpen && (!state.subscription || state.subscription.status !== 'active')) {
+                    openSubscribeModal(state);
+                }
+                return state;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function openSubscribeModal(state) {
+            state = state || subState;
+            const plan = (state && state.plan) || { amount: 500, label: 'CrackHub Premium', period: 'per month' };
+            const requests = (state && state.requests) || [];
+            const pending = requests.some(r => r.status === 'pending');
+
+            const history = requests.slice(0, 4).map(r => `
+                <div class="ch-list-item">
+                    <div>${CH.esc(r.reference || r.id)}
+                        <div class="ch-small ch-muted">${CH.when(r.createdAt)}</div>
+                    </div>
+                    <span class="ch-badge ${r.status === 'approved' ? 'good' : r.status === 'rejected' ? 'bad' : 'warn'}">${CH.esc(r.status)}</span>
+                </div>`).join('');
+
+            const body = pending ? `
+                <div class="sub-note">
+                    <strong>Receipt under review.</strong>
+                    The admin is verifying your ${CH.money(plan.amount)} payment — you'll be activated as soon as it's approved.
+                </div>
+                ${history ? `<hr class="ch-hr"><h3 style="font-size:15px">Your submissions</h3><div class="ch-list">${history}</div>` : ''}
+                <div class="ch-row" style="margin-top:18px">
+                    <button class="ch-btn ghost" data-sub-close type="button">Close</button>
+                </div>` : `
+                <p class="ch-small ch-muted">
+                    Scan the QR with your banking app and pay <strong>${CH.money(plan.amount)}</strong>
+                    (${CH.esc(plan.label || 'CrackHub Premium')} — ${CH.esc(plan.period || 'per month')}).
+                    Then attach a screenshot of your receipt below.
+                </p>
+                <img class="sub-qr" src="${SUB_IMG}" alt="CrackHub payment QR">
+                <label class="drop" id="dropZone">
+                    <input type="file" id="receiptFile" accept="image/*">
+                    <div id="dropText">📎 Tap to attach your payment receipt</div>
+                </label>
+                <img class="receipt-preview" id="receiptPreview" alt="Receipt preview">
+                <div class="ch-inline-form" style="margin-top:14px">
+                    <div class="ch-field"><label for="subMethod">Payment method</label>
+                        <select class="ch-select" id="subMethod">
+                            <option value="instapay">InstaPay</option>
+                            <option value="gcash">GCash</option>
+                            <option value="maya">Maya</option>
+                            <option value="bank">Bank transfer</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="ch-field"><label for="subReference">Reference number</label>
+                        <input class="ch-input" id="subReference" type="text" placeholder="e.g. 0123456789"></div>
+                </div>
+                <div class="ch-row" style="margin-top:16px">
+                    <button class="ch-btn" id="subSubmit" type="button">Send receipt</button>
+                    <button class="ch-btn ghost" data-sub-close type="button">Later</button>
+                </div>
+                ${history ? `<hr class="ch-hr"><h3 style="font-size:15px">Your submissions</h3><div class="ch-list">${history}</div>` : ''}`;
+
+            $('subModalBox').innerHTML =
+                `<h3>⭐ ${CH.esc(plan.label || 'CrackHub Premium')} — ${CH.money(plan.amount)} ${CH.esc(plan.period || 'per month')}</h3>${body}`;
+            $('subModal').classList.add('open');
+
+            if (!pending) wireReceiptForm();
+        }
+
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = reject;
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onerror = reject;
+                    img.onload = () => {
+                        const max = 1400;
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > max || height > max) {
+                            const scale = Math.min(max / width, max / height);
+                            width = Math.round(width * scale);
+                            height = Math.round(height * scale);
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        try {
+                            resolve(canvas.toDataURL('image/jpeg', 0.82));
+                        } catch (err) {
+                            resolve(String(reader.result));
+                        }
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function wireReceiptForm() {
+            receiptData = '';
+            const fileInput = $('receiptFile');
+            const preview = $('receiptPreview');
+            const dropText = $('dropText');
+
+            fileInput.addEventListener('change', async () => {
+                const file = fileInput.files && fileInput.files[0];
+                if (!file) return;
+                if (!/^image\//.test(file.type)) { CH.toast('Pick an image file.', 'bad'); return; }
+                if (file.size > 12 * 1024 * 1024) { CH.toast('That image is too large.', 'bad'); return; }
+                try {
+                    receiptData = await compressImage(file);
+                    preview.src = receiptData;
+                    preview.classList.add('show');
+                    dropText.textContent = '✅ ' + file.name;
+                } catch (err) {
+                    CH.toast('Could not read that image.', 'bad');
+                }
+            });
+
+            $('subSubmit').addEventListener('click', submitReceipt);
+        }
+
+        async function submitReceipt() {
+            if (!receiptData) { CH.toast('Attach a screenshot of your receipt first.', 'bad'); return; }
+            const btn = $('subSubmit');
+            btn.disabled = true;
+            btn.textContent = 'Sending…';
+            try {
+                await CH.request('/api/member/subscription/receipt', {
+                    method: 'POST',
+                    body: {
+                        receipt: receiptData,
+                        method: $('subMethod').value,
+                        reference: $('subReference').value.trim(),
+                        amount: (subState && subState.plan && subState.plan.amount) || 500,
+                    },
+                });
+                CH.toast('Receipt sent — the admin will verify it shortly.', 'good');
+                const state = await CH.request('/api/member/subscription');
+                renderSubscription(state);
+                openSubscribeModal(state);
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+                btn.disabled = false;
+                btn.textContent = 'Send receipt';
+            }
+        }
+
+        $('subBtn').addEventListener('click', () => loadSubscription({ autoOpen: true }));
+        $('subModal').addEventListener('click', e => {
+            if (e.target.id === 'subModal' || e.target.closest('[data-sub-close]')) {
+                $('subModal').classList.remove('open');
+            }
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') $('subModal').classList.remove('open');
+        });
+
         CH.start({
             requireRole: 'member',
             onReady: async me => {
                 renderMember(me.member);
+                loadSubscription({ autoOpen: true });
                 await Promise.all([loadServices(), loadUsage(), loadTx()]);
             },
         });

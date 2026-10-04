@@ -60,6 +60,25 @@ function pushTx(member, tx) {
     member.transactions = member.transactions.slice(-TX_LIMIT);
 }
 
+/** Normalised subscription view — never trusts a stale stored status. */
+function subscriptionView(member) {
+    const sub = member && member.subscription;
+    if (!sub || !sub.expiresAt) {
+        return { status: 'none', plan: null, planLabel: '', amount: 0, startedAt: null, expiresAt: null, daysLeft: 0 };
+    }
+    const expires = new Date(sub.expiresAt).getTime();
+    const active = Number.isFinite(expires) && expires > Date.now();
+    return {
+        status: active ? 'active' : 'expired',
+        plan: sub.plan || 'monthly',
+        planLabel: sub.planLabel || '',
+        amount: money2(sub.amount),
+        startedAt: sub.startedAt || null,
+        expiresAt: sub.expiresAt || null,
+        daysLeft: active ? Math.ceil((expires - Date.now()) / 86400000) : 0,
+    };
+}
+
 function publicView(member) {
     if (!member) return null;
     return {
@@ -69,6 +88,7 @@ function publicView(member) {
         balance: money2(member.balance),
         status: member.status || 'active',
         note: member.note || '',
+        subscription: subscriptionView(member),
         createdAt: member.createdAt,
         updatedAt: member.updatedAt,
         lastUsedAt: member.lastUsedAt || null,
@@ -160,6 +180,7 @@ async function createMember({ name, key, balance = 0, note = '', status = 'activ
             totalSpent: 0,
             totalGenerated: 0,
             generationsByService: {},
+            subscription: null,
             transactions: [],
             usage: [],
         };
@@ -441,6 +462,46 @@ async function findUsageByTicket(memberId, usageId) {
     return (member.usage || []).find(u => u.id === usageId) || null;
 }
 
+/**
+ * Activate or extend a member's subscription. Renewing early extends from the
+ * later of "now" and the current expiry, so paid days are never lost.
+ */
+async function activateSubscription(id, { days = 30, amount = 0, plan = 'monthly', planLabel = '', note = '', by = 'admin' } = {}) {
+    const span = Math.max(1, Math.floor(Number(days) || 30));
+
+    return mutate(async members => {
+        const member = members.find(m => m.id === id);
+        if (!member) throw new Error('Member not found');
+
+        const now = Date.now();
+        const currentExpiry = member.subscription && member.subscription.expiresAt
+            ? new Date(member.subscription.expiresAt).getTime()
+            : 0;
+        const extending = Number.isFinite(currentExpiry) && currentExpiry > now;
+        const base = extending ? currentExpiry : now;
+
+        member.subscription = {
+            plan,
+            planLabel: String(planLabel || '').slice(0, 40),
+            amount: money2(amount),
+            startedAt: extending && member.subscription.startedAt ? member.subscription.startedAt : nowIso(),
+            expiresAt: new Date(base + span * 86400000).toISOString(),
+            updatedAt: nowIso(),
+        };
+        member.updatedAt = nowIso();
+
+        pushTx(member, {
+            type: 'subscription',
+            amount: money2(amount),
+            balanceAfter: money2(member.balance),
+            note: String(note || `Subscription activated — ${span} day(s)`).slice(0, 200),
+            by,
+        });
+
+        return publicView(member);
+    });
+}
+
 module.exports = {
     generateKey,
     normalizeKey,
@@ -464,6 +525,7 @@ module.exports = {
     getTransactions,
     markUsageTicketed,
     findUsageByTicket,
+    activateSubscription,
 };
 
 

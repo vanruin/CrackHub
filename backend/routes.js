@@ -10,6 +10,7 @@ const config = require('./config');
 const members = require('./members');
 const tickets = require('./tickets');
 const pricing = require('./pricing');
+const subscriptions = require('./subscriptions');
 const accountPool = require('./accountPool');
 const { CATALOG, DEFAULT_PRICES, getservice } = require('./catalog');
 
@@ -196,6 +197,43 @@ function mountPlatformApi(app, options = {}) {
         res.json({ success: true, transactions: list });
     }));
 
+    // ------------------------------------------------- member: subscription
+    memberApi.get('/subscription', wrap(async (req, res) => {
+        const member = await members.getMember(req.member.id);
+        if (!member) return res.status(404).json({ success: false, error: 'Member no longer exists' });
+
+        const requests = await subscriptions.listForMember(member.id);
+        res.json({
+            success: true,
+            plan: subscriptions.PLAN,
+            subscription: members.publicView(member).subscription,
+            requests,
+            pending: requests.filter(r => r.status === 'pending').length,
+        });
+    }));
+
+    // The member uploads the proof-of-payment screenshot (base64 data URL).
+    memberApi.post('/subscription/receipt', wrap(async (req, res) => {
+        const body = req.body || {};
+        const member = await members.getMember(req.member.id);
+        if (!member) return res.status(404).json({ success: false, error: 'Member no longer exists' });
+
+        const request = await subscriptions.createRequest({
+            member,
+            amount: body.amount,
+            method: body.method,
+            reference: body.reference,
+            note: body.note,
+            receipt: body.receipt,
+        });
+
+        res.status(201).json({
+            success: true,
+            request,
+            message: 'Receipt received — the admin will verify your payment shortly.',
+        });
+    }));
+
     memberApi.get('/tickets', wrap(async (req, res) => {
         const list = await tickets.listTickets({ memberId: req.member.id });
         res.json({ success: true, tickets: list.map(ticketForMember) });
@@ -294,10 +332,11 @@ function mountPlatformApi(app, options = {}) {
     }
 
     adminApi.get('/stats', wrap(async (req, res) => {
-        const [list, catalog, ticketCounts] = await Promise.all([
+        const [list, catalog, ticketCounts, subCounts] = await Promise.all([
             members.listMembers(),
             pricing.getCatalog(poolCounter),
             tickets.counts(),
+            subscriptions.counts(),
         ]);
 
         const revenue = list.reduce((sum, m) => sum + (m.transactions || [])
@@ -319,6 +358,7 @@ function mountPlatformApi(app, options = {}) {
                 generations: list.reduce((sum, m) => sum + (m.usage || []).length, 0),
                 totalGenerated: list.reduce((sum, m) => sum + (m.totalGenerated || 0), 0),
                 tickets: ticketCounts,
+                subscriptions: subCounts,
             },
             services: catalog,
         });
@@ -506,6 +546,72 @@ function mountPlatformApi(app, options = {}) {
             member,
             message: `Replacement issued: ${replacement.account}${wantsRefund ? ` (₱${ticket.charged} refunded)` : ''}`,
         });
+    }));
+
+    // ------------------------------------------------- admin: subscriptions
+    adminApi.get('/subscriptions', wrap(async (req, res) => {
+        const list = await subscriptions.listRequests({
+            status: req.query.status || '',
+            query: req.query.query || '',
+        });
+        res.json({
+            success: true,
+            plan: subscriptions.PLAN,
+            requests: list,
+            counts: await subscriptions.counts(),
+        });
+    }));
+
+    adminApi.get('/subscriptions/:id', wrap(async (req, res) => {
+        const request = await subscriptions.getRequest(req.params.id);
+        if (!request) return res.status(404).json({ success: false, error: 'Subscription request not found' });
+        const member = await members.getMember(request.memberId);
+        res.json({ success: true, request, member: members.publicView(member) });
+    }));
+
+    adminApi.post('/subscriptions/:id/approve', wrap(async (req, res) => {
+        const body = req.body || {};
+        const request = await subscriptions.getRequest(req.params.id);
+        if (!request) return res.status(404).json({ success: false, error: 'Subscription request not found' });
+        if (request.status === 'approved') {
+            return res.status(409).json({ success: false, error: 'This receipt was already approved' });
+        }
+
+        const days = Number(body.days) > 0 ? Number(body.days) : subscriptions.PLAN.days;
+        const member = await members.activateSubscription(request.memberId, {
+            days,
+            amount: request.amount,
+            plan: request.plan,
+            planLabel: request.planLabel,
+            note: body.note || `Subscription approved — receipt ${request.id}`,
+            by: 'admin',
+        });
+
+        const updated = await subscriptions.setStatus(request.id, 'approved', {
+            note: body.note || 'Payment verified — subscription activated.',
+            by: 'admin',
+            startsAt: member.subscription.startedAt,
+            expiresAt: member.subscription.expiresAt,
+        });
+
+        res.json({
+            success: true,
+            request: updated,
+            member,
+            message: `Subscription active until ${new Date(member.subscription.expiresAt).toLocaleDateString()}`,
+        });
+    }));
+
+    adminApi.post('/subscriptions/:id/reject', wrap(async (req, res) => {
+        const body = req.body || {};
+        const existing = await subscriptions.getRequest(req.params.id);
+        if (!existing) return res.status(404).json({ success: false, error: 'Subscription request not found' });
+
+        const request = await subscriptions.setStatus(req.params.id, 'rejected', {
+            note: body.note || 'Receipt could not be verified.',
+            by: 'admin',
+        });
+        res.json({ success: true, request, message: 'Receipt rejected — the member can submit a new one.' });
     }));
 
     // ------------------------------------------------- admin: pricing

@@ -4,6 +4,15 @@
    in through platform.js/nav only).
    ========================================================================== */
 
+/* Every box includes padding + border in its width/height. Without this,
+   width:100% fields (the access-key inputs, all form controls) render wider
+   than their container and overlap the card box. */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 :root {
     --ch-bg: #0b0b14;
     --ch-bg-2: #16213e;
@@ -17,7 +26,10 @@
     --ch-good: #22c55e;
     --ch-warn: #f59e0b;
     --ch-bad: #ef4444;
+    --ch-accent-grad: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    --ch-violet-grad: linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%);
     --ch-radius: 16px;
+    --ch-shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
 }
 
 body.ch-page {
@@ -32,6 +44,38 @@ body.ch-page {
     padding: 96px 20px 60px;
 }
 
+/* --------------------------------------------------- global text & scrollbars */
+::selection {
+    background: rgba(0, 212, 255, 0.35);
+    color: #fff;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 212, 255, 0.45);
+    background-clip: padding-box;
+}
+
 /* --------------------------------------------------------------- nav bar */
 .ch-nav {
     position: fixed;
@@ -42,6 +86,7 @@ body.ch-page {
     backdrop-filter: blur(14px);
     background: rgba(11, 11, 20, 0.85);
     border-bottom: 1px solid var(--ch-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 body.ch-has-nav {
@@ -92,10 +137,15 @@ body.ch-has-nav {
     transition: all 0.2s;
 }
 
-.ch-links a:hover,
-.ch-links a.active {
+.ch-links a:hover {
     color: #fff !important;
     background: rgba(255, 255, 255, 0.08);
+}
+
+.ch-links a.active {
+    color: #fff !important;
+    background: rgba(0, 212, 255, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(0, 212, 255, 0.35);
 }
 
 .ch-right {
@@ -164,6 +214,8 @@ body.ch-has-nav {
     border: 1px solid var(--ch-border);
     border-radius: var(--ch-radius);
     padding: 20px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(6px);
 }
 
 .ch-card h2,
@@ -186,6 +238,8 @@ body.ch-has-nav {
 .ch-stat-value {
     font-size: 26px;
     font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.3px;
 }
 
 .ch-muted { color: var(--ch-muted); }
@@ -214,6 +268,7 @@ body.ch-has-nav {
 }
 
 .ch-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(0, 212, 255, 0.25); }
+.ch-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2); }
 .ch-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .ch-btn.ghost {
@@ -222,7 +277,7 @@ body.ch-has-nav {
     color: var(--ch-text) !important;
 }
 
-.ch-btn.ghost:hover:not(:disabled) { box-shadow: none; background: rgba(255, 255, 255, 0.12); }
+.ch-btn.ghost:hover:not(:disabled) { box-shadow: none; background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.22); }
 
 .ch-btn.danger { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: #fff !important; }
 .ch-btn.ok { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: #04240f !important; }
@@ -257,6 +312,9 @@ body.ch-has-nav {
 
 .ch-textarea { min-height: 96px; resize: vertical; }
 
+.ch-input::placeholder,
+.ch-textarea::placeholder { color: rgba(154, 164, 189, 0.65); }
+
 .ch-input:focus,
 .ch-select:focus,
 .ch-textarea:focus {
@@ -281,12 +339,17 @@ body.ch-has-nav {
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.15s, box-shadow 0.18s;
 }
 
+.ch-tab:hover { background: rgba(255, 255, 255, 0.09); color: var(--ch-text); }
+.ch-tab:active { transform: scale(0.97); }
+
 .ch-tab.active {
-    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    background: var(--ch-accent-grad);
     color: #04121c;
     border-color: transparent;
+    box-shadow: 0 6px 18px rgba(0, 212, 255, 0.28);
 }
 
 /* --------------------------------------------------------------- tables */
@@ -309,9 +372,12 @@ body.ch-has-nav {
     vertical-align: middle;
 }
 
+.ch-table tbody tr { transition: background 0.15s; }
+.ch-table tbody tr:hover { background: rgba(255, 255, 255, 0.035); }
 .ch-table tr:last-child td { border-bottom: 0; }
 .ch-table .actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .ch-scroll { overflow-x: auto; }
+.ch-scroll::-webkit-scrollbar { height: 10px; }
 
 /* --------------------------------------------------------------- badges */
 .ch-badge {
@@ -323,6 +389,7 @@ body.ch-has-nav {
     text-transform: uppercase;
     letter-spacing: 0.6px;
     background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--ch-text);
 }
 
@@ -344,6 +411,12 @@ body.ch-has-nav {
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--ch-border);
+    transition: border-color 0.18s, background 0.18s;
+}
+
+.ch-list-item:hover {
+    border-color: rgba(0, 212, 255, 0.28);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .ch-empty {
@@ -353,6 +426,7 @@ body.ch-has-nav {
     font-size: 14px;
     border: 1px dashed var(--ch-border);
     border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .ch-usage-item.claimed { opacity: 0.65; }
@@ -395,7 +469,8 @@ body.ch-has-nav {
     border-radius: 12px;
     font-size: 13.5px;
     font-weight: 600;
-    background: #141a2e;
+    background: rgba(20, 26, 46, 0.92);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--ch-border);
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
     animation: chToastIn 0.25s ease-out;
@@ -408,6 +483,11 @@ body.ch-has-nav {
 @keyframes chToastIn {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes chModalIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* --------------------------------------------------------------- modal */
@@ -426,6 +506,7 @@ body.ch-has-nav {
 .ch-modal.open { display: flex; }
 
 .ch-modal-box {
+    animation: chModalIn 0.25s cubic-bezier(0.2, 0.7, 0.3, 1);
     width: min(600px, 100%);
     max-height: 86vh;
     overflow: auto;
@@ -447,14 +528,20 @@ body.ch-has-nav {
     border: 1px solid var(--ch-border);
     border-radius: var(--ch-radius);
     padding: 18px;
-    transition: transform 0.2s, border-color 0.2s;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(6px);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-.ch-service:hover { transform: translateY(-4px); border-color: rgba(0, 212, 255, 0.4); }
+.ch-service:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 212, 255, 0.4);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
 .ch-service .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .ch-service .emoji { font-size: 26px; }
 .ch-service .name { font-weight: 800; font-size: 16px; }
-.ch-service .price { font-size: 22px; font-weight: 800; color: var(--ch-accent); }
+.ch-service .price { font-size: 22px; font-weight: 800; color: var(--ch-accent); font-variant-numeric: tabular-nums; }
 .ch-service .credential { font-size: 12.5px; color: var(--ch-muted); min-height: 34px; }
 .ch-service .foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 

@@ -54,6 +54,37 @@
         }, 4200);
     };
 
+    /** Copy text to the clipboard; resolves true on success. Falls back to a
+     *  hidden textarea + execCommand when the async clipboard API is blocked
+     *  (http origins, older browsers). */
+    CH.copy = async function (text) {
+        const value = String(text === undefined || text === null ? '' : text);
+        if (!value) return false;
+
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(value);
+                return true;
+            }
+        } catch (err) { /* fall through to the legacy path */ }
+
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = value;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.top = '-1000px';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            const ok = document.execCommand('copy');
+            ta.remove();
+            return ok;
+        } catch (err) {
+            return false;
+        }
+    };
+
     CH.isAdminPage = function () {
         return CH.state.adminPage === true || document.body.hasAttribute('data-ch-admin');
     };

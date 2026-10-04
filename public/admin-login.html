@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CrackHub — Staff Entrance</title>
+    <link rel="icon" type="image/png" href="/logos/logo.png">
     <link rel="stylesheet" href="/platform.css">
     <style>
         body.ch-staff-login {
@@ -64,6 +65,15 @@
             font-size: 26px;
             background: linear-gradient(135deg, #a78bfa, #7b4fff);
             box-shadow: 0 14px 34px rgba(123, 79, 255, 0.45);
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .shield img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .staff-banner .eyebrow {
@@ -175,7 +185,7 @@
 <body class="ch-page ch-staff-login">
     <div class="staff-wrap">
         <section class="staff-banner">
-            <div class="shield">🛡️</div>
+            <div class="shield"><img src="/logos/logo.png" alt="CrackHub logo"></div>
             <span class="eyebrow">Staff entrance</span>
             <h1>CrackHub Administration</h1>
             <p>This door is unlisted — members sign in at the store entrance.</p>

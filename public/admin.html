@@ -6,20 +6,72 @@
     <title>CrackHub — Admin panel</title>
     <link rel="stylesheet" href="/platform.css">
     <style>
-        .stat-card { background: var(--ch-card); border: 1px solid var(--ch-border); border-radius: var(--ch-border-radius, 16px); padding: 18px; }
-        .stat-card .ch-stat-value { font-size: 24px; }
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            background: var(--ch-card);
+            border: 1px solid var(--ch-border);
+            border-radius: var(--ch-radius);
+            padding: 18px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(6px);
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -46px;
+            right: -46px;
+            width: 130px;
+            height: 130px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.18), transparent 70%);
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 212, 255, 0.35);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+        }
+
+        .stat-card .ch-stat-value { font-size: 24px; font-variant-numeric: tabular-nums; }
 
         .admin-section { display: none; }
         .admin-section.active { display: block; }
 
         .key-cell {
+            box-sizing: border-box;
+            max-width: 100%;
             font-family: ui-monospace, Menlo, Consolas, monospace;
             font-size: 12.5px;
-            background: rgba(0, 0, 0, 0.35);
-            border: 1px solid var(--ch-border);
+            line-height: 1.45;
+            white-space: nowrap;
+            background: rgba(0, 212, 255, 0.07);
+            border: 1px solid rgba(0, 212, 255, 0.30);
             border-radius: 8px;
             padding: 3px 8px;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: #a9e9ff;
+            cursor: pointer;
+            vertical-align: middle;
+            transition: border-color 0.18s, background 0.18s, transform 0.15s;
+        }
+
+        .key-cell::after {
+            content: '⧉';
+            font-size: 11px;
+            line-height: 1;
+            flex: none;          /* glyph never squishes into the key text */
+            opacity: 0.55;
+        }
+
+        .key-cell:hover {
+            border-color: rgba(0, 212, 255, 0.65);
+            background: rgba(0, 212, 255, 0.13);
+            transform: translateY(-1px);
         }
 
         .mono-small {
@@ -59,6 +111,7 @@
             <div class="stat-card"><div class="ch-stat-label">Net</div><div class="ch-stat-value" id="stNet">₱0.00</div></div>
             <div class="stat-card"><div class="ch-stat-label">Generations</div><div class="ch-stat-value" id="stGenerations">0</div></div>
             <div class="stat-card"><div class="ch-stat-label">Open tickets</div><div class="ch-stat-value" id="stTickets">0</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Subscriptions pending</div><div class="ch-stat-value" id="stSubs">0</div></div>
         </div>
 
         <div class="ch-tabs" id="adminTabs">
@@ -66,6 +119,7 @@
             <button class="ch-tab" data-tab="tickets" type="button">Tickets</button>
             <button class="ch-tab" data-tab="pricing" type="button">Pricing</button>
             <button class="ch-tab" data-tab="pools" type="button">Pools</button>
+            <button class="ch-tab" data-tab="subscriptions" type="button">Subscriptions</button>
             <button class="ch-tab" data-tab="settings" type="button">Settings</button>
         </div>
 
@@ -157,6 +211,22 @@
             </div>
         </section>
 
+        <!-- ============================================================ SUBSCRIPTIONS -->
+        <section class="admin-section" id="pane-subscriptions">
+            <div class="toolbar">
+                <select class="ch-select" id="subFilter">
+                    <option value="pending">Pending review</option>
+                    <option value="all">All</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <input class="ch-input" id="subSearch" type="search" placeholder="Reference, member, key…">
+                <button class="ch-btn ghost sm" id="subSearchBtn" type="button">Search</button>
+                <span class="ch-small ch-muted" id="subCount"></span>
+            </div>
+            <div id="subsList" class="ch-list"><div class="ch-empty">Loading subscriptions…</div></div>
+        </section>
+
         <!-- ============================================================ SETTINGS -->
         <section class="admin-section" id="pane-settings">
             <div class="ch-card">
@@ -190,6 +260,7 @@
         const STATUS_BADGE = {
             active: 'good', disabled: 'bad',
             open: 'warn', in_review: 'info', replaced: 'good', rejected: 'bad', closed: '',
+            pending: 'warn', approved: 'good',
         };
 
         // ------------------------------------------------------------ modal
@@ -220,6 +291,7 @@
                 $('stNet').textContent = CH.money(s.net);
                 $('stGenerations').textContent = s.totalGenerated || 0;
                 $('stTickets').textContent = (s.tickets && s.tickets.open) || 0;
+                $('stSubs').textContent = (s.subscriptions && s.subscriptions.pending) || 0;
                 $('adminSub').textContent =
                     `${s.members || 0} members · ${s.generations || 0} logged generations · ` +
                     `${(s.tickets && s.tickets.total) || 0} tickets all-time`;
@@ -240,12 +312,14 @@
             if (name === 'settings') loadConfig();
             if (name === 'tickets') loadTickets();
             if (name === 'members') loadMembers();
+            if (name === 'subscriptions') loadSubscriptions();
         });
 
         $('refreshAll').addEventListener('click', () => {
             loadStats();
             loadMembers();
             loadTickets();
+            loadSubscriptions();
         });
 
         // ------------------------------------------------------------ members
@@ -614,6 +688,43 @@
         $('modalBox').addEventListener('click', async e => {
             if (e.target.closest('[data-close-modal]')) return closeModal();
 
+            const approve = e.target.closest('[data-approve-sub]');
+            if (approve) {
+                const id = approve.dataset.approveSub;
+                const note = ($('subAdminNote') && $('subAdminNote').value.trim()) || '';
+                approve.disabled = true;
+                approve.textContent = 'Activating…';
+                try {
+                    const data = await CH.request(`/api/admin/subscriptions/${encodeURIComponent(id)}/approve`,
+                        { method: 'POST', body: { note } });
+                    CH.toast(data.message || 'Subscription activated', 'good');
+                    await openSubscriptionModal(id);
+                    await Promise.all([loadSubscriptions(), loadMembers(), loadStats()]);
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                    approve.disabled = false;
+                    approve.textContent = 'Approve · activate';
+                }
+                return;
+            }
+
+            const rejectSub = e.target.closest('[data-reject-sub]');
+            if (rejectSub) {
+                const id = rejectSub.dataset.rejectSub;
+                const note = ($('subAdminNote') && $('subAdminNote').value.trim()) || '';
+                if (!confirm(`Reject receipt ${id}? The member can submit a new one.`)) return;
+                try {
+                    await CH.request(`/api/admin/subscriptions/${encodeURIComponent(id)}/reject`,
+                        { method: 'POST', body: { note } });
+                    CH.toast('Receipt rejected.', 'good');
+                    await openSubscriptionModal(id);
+                    await loadSubscriptions();
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                }
+                return;
+            }
+
             const bal = e.target.closest('[data-apply-balance]');
             if (bal) {
                 const payload = {
@@ -722,6 +833,99 @@
                 }
             }
         });
+
+        // ------------------------------------------------------------ subscriptions
+        async function loadSubscriptions() {
+            const status = $('subFilter').value;
+            const query = $('subSearch').value.trim();
+            try {
+                const data = await CH.request(
+                    `/api/admin/subscriptions?status=${encodeURIComponent(status)}&query=${encodeURIComponent(query)}`);
+                renderSubscriptions(data.requests || [], data.counts || {});
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        function renderSubscriptions(list, counts) {
+            $('subCount').textContent =
+                `${list.length} shown · ${counts.pending || 0} pending · ${counts.approved || 0} approved · ${counts.total || 0} total`;
+            const box = $('subsList');
+
+            if (!list.length) {
+                box.innerHTML = '<div class="ch-empty">No subscription receipts match this filter.</div>';
+                return;
+            }
+
+            box.innerHTML = list.map(r => `
+                <div class="ch-card">
+                    <div class="ch-spread" style="align-items:flex-start">
+                        <div>
+                            <div class="key-cell">${CH.esc(r.id)}</div>
+                            <div style="margin-top:8px">
+                                <strong>${CH.esc(r.planLabel || r.plan)}</strong>
+                                <span class="ch-muted">· ${CH.money(r.amount)} · ${CH.esc(r.method)}${r.reference ? ' · ref ' + CH.esc(r.reference) : ''}</span>
+                            </div>
+                            <div class="ch-small ch-muted">
+                                ${CH.esc(r.memberName)} (${CH.esc(r.memberKey)}) · submitted ${CH.when(r.createdAt)}
+                            </div>
+                        </div>
+                        <div class="ch-row">
+                            <span class="ch-badge ${STATUS_BADGE[r.status] || ''}">${CH.esc(r.status)}</span>
+                            ${r.hasReceipt ? '<span class="ch-badge info">receipt</span>' : ''}
+                            <button class="ch-btn sm" data-open-sub="${CH.esc(r.id)}" type="button">Review</button>
+                        </div>
+                    </div>
+                    ${r.note ? `<p class="ch-small" style="margin:10px 0 0">📝 ${CH.esc(r.note)}</p>` : ''}
+                </div>`).join('');
+        }
+
+        $('subSearchBtn').addEventListener('click', loadSubscriptions);
+        $('subSearch').addEventListener('keydown', e => { if (e.key === 'Enter') loadSubscriptions(); });
+        $('subFilter').addEventListener('change', loadSubscriptions);
+
+        $('subsList').addEventListener('click', e => {
+            const btn = e.target.closest('[data-open-sub]');
+            if (btn) openSubscriptionModal(btn.dataset.openSub);
+        });
+
+        async function openSubscriptionModal(id) {
+            try {
+                const data = await CH.request(`/api/admin/subscriptions/${encodeURIComponent(id)}`);
+                const r = data.request;
+                const m = data.member || {};
+
+                openModal(`
+                    <h3>${CH.esc(r.id)} — ${CH.esc(r.planLabel || r.plan)}</h3>
+                    <div class="ch-row" style="margin-bottom:12px">
+                        <span class="ch-badge ${STATUS_BADGE[r.status] || ''}">${CH.esc(r.status)}</span>
+                        <span class="ch-badge">${CH.money(r.amount)}</span>
+                        <span class="ch-badge">${CH.esc(m.name || r.memberName)} · bal ${CH.money(m.balance)}</span>
+                        ${r.expiresAt ? `<span class="ch-badge good">until ${CH.when(r.expiresAt)}</span>` : ''}
+                    </div>
+                    <p class="ch-small ch-muted">
+                        Key ${CH.esc(r.memberKey)} · method ${CH.esc(r.method)}${r.reference ? ` · ref ${CH.esc(r.reference)}` : ''}<br>
+                        Submitted ${CH.when(r.createdAt)}${r.reviewedAt ? ` · reviewed ${CH.when(r.reviewedAt)}` : ''}
+                    </p>
+                    ${r.note ? `<p class="ch-small">📝 ${CH.esc(r.note)}</p>` : ''}
+                    <hr class="ch-hr">
+                    <h3 style="font-size:15px">Payment receipt</h3>
+                    ${r.receipt
+                        ? `<img src="${r.receipt}" alt="Payment receipt" style="max-width:100%;border-radius:12px;border:1px solid var(--ch-border)">`
+                        : '<div class="ch-empty">No receipt attached.</div>'}
+                    <hr class="ch-hr">
+                    <div class="ch-field"><label for="subAdminNote">Note (optional)</label>
+                        <input class="ch-input" id="subAdminNote" type="text" placeholder="verified via GCash — ref matches"></div>
+                    <div class="ch-row">
+                        <button class="ch-btn ok" data-approve-sub="${CH.esc(r.id)}" type="button" ${r.status === 'approved' ? 'disabled' : ''}>Approve · activate</button>
+                        <button class="ch-btn danger" data-reject-sub="${CH.esc(r.id)}" type="button" ${r.status === 'rejected' ? 'disabled' : ''}>Reject</button>
+                        <button class="ch-btn ghost" data-close-modal type="button">Close</button>
+                    </div>
+                    ${r.adminNote ? `<p class="ch-small ch-muted" style="margin-top:12px">Admin note: ${CH.esc(r.adminNote)}</p>` : ''}`);
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
 
         // ------------------------------------------------------------ pricing
         async function loadPricing() {
@@ -861,6 +1065,21 @@
             } catch (err) {
                 CH.toast(err.message, 'bad');
             }
+        });
+
+        // ------------------------------------------------------------ key cells
+        // Every key-cell (member keys, rotated keys, modal keys, admin key) is a
+        // "code holder": click it to copy the key to the clipboard.
+        document.addEventListener('click', async e => {
+            const cell = e.target.closest('.key-cell');
+            if (!cell) return;
+            const key = (cell.dataset.key || cell.textContent || '').trim();
+            if (!key || key === '—') return;
+            const ok = await CH.copy(key);
+            CH.toast(
+                ok ? 'Key copied to the clipboard.' : 'Could not copy — select the key and copy it manually.',
+                ok ? 'good' : 'bad'
+            );
         });
 
         // ------------------------------------------------------------ boot
