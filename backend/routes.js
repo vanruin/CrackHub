@@ -1,5 +1,5 @@
 /**
- * Platform API — key login, members, balance, tickets, pricing.
+ * Platform API — key login, members, balance, tickets, subscriptions.
  * Mounted from server.js:  mountPlatformApi(app, { counters, generators })
  */
 
@@ -9,10 +9,10 @@ const auth = require('./auth');
 const config = require('./config');
 const members = require('./members');
 const tickets = require('./tickets');
-const pricing = require('./pricing');
+const { money } = require('./money');
 const subscriptions = require('./subscriptions');
 const accountPool = require('./accountPool');
-const { CATALOG, DEFAULT_PRICES, getservice } = require('./catalog');
+const { CATALOG, getservice, view: catalogView } = require('./catalog');
 
 /** async handler + consistent JSON error shape */
 function wrap(handler) {
@@ -145,9 +145,8 @@ function mountPlatformApi(app, options = {}) {
     }));
 
     // ========================================================= PUBLIC
-    app.get('/api/prices', wrap(async (req, res) => {
-        const catalog = await pricing.getCatalog(poolCounter);
-        res.json({ success: true, currency: '₱', unit: 'PHP', services: catalog });
+    app.get('/api/services', wrap(async (req, res) => {
+        res.json({ success: true, services: await catalogView(poolCounter) });
     }));
 
     // Pool counts are member-only — consistent with /api/test-* and /api/account-counts.
@@ -249,7 +248,7 @@ function mountPlatformApi(app, options = {}) {
 
         const usage = await members.getUsage(member.id);
         const entry = body.usageId ? usage.find(u => u.id === body.usageId) : null;
-        const charged = entry ? Number(entry.price) || 0 : await pricing.getPrice(svc.key);
+        const charged = entry ? Number(entry.price) || 0 : 0;
 
         const ticket = await tickets.createTicket({
             member,
@@ -267,7 +266,7 @@ function mountPlatformApi(app, options = {}) {
         res.status(201).json({
             success: true,
             ticket: ticketForMember(ticket),
-            message: 'Ticket opened — the admin will replace the account or refund the charge.',
+            message: 'Ticket opened — the admin will replace the account or refund anything that was charged.',
         });
     }));
 
@@ -334,7 +333,7 @@ function mountPlatformApi(app, options = {}) {
     adminApi.get('/stats', wrap(async (req, res) => {
         const [list, catalog, ticketCounts, subCounts] = await Promise.all([
             members.listMembers(),
-            pricing.getCatalog(poolCounter),
+            catalogView(poolCounter),
             tickets.counts(),
             subscriptions.counts(),
         ]);
@@ -351,10 +350,10 @@ function mountPlatformApi(app, options = {}) {
             stats: {
                 members: list.length,
                 activeMembers: list.filter(m => (m.status || 'active') === 'active').length,
-                outstandingBalance: pricing.money(list.reduce((sum, m) => sum + (Number(m.balance) || 0), 0)),
-                revenue: pricing.money(revenue),
-                refunded: pricing.money(refunded),
-                net: pricing.money(revenue - refunded),
+                outstandingBalance: money(list.reduce((sum, m) => sum + (Number(m.balance) || 0), 0)),
+                revenue: money(revenue),
+                refunded: money(refunded),
+                net: money(revenue - refunded),
                 generations: list.reduce((sum, m) => sum + (m.usage || []).length, 0),
                 totalGenerated: list.reduce((sum, m) => sum + (m.totalGenerated || 0), 0),
                 tickets: ticketCounts,
@@ -612,50 +611,6 @@ function mountPlatformApi(app, options = {}) {
             by: 'admin',
         });
         res.json({ success: true, request, message: 'Receipt rejected — the member can submit a new one.' });
-    }));
-
-    // ------------------------------------------------- admin: pricing
-    adminApi.get('/prices', wrap(async (req, res) => {
-        res.json({
-            success: true,
-            currency: '₱',
-            defaultPrices: DEFAULT_PRICES,
-            catalog: await pricing.getCatalog(poolCounter),
-        });
-    }));
-
-    adminApi.post('/prices', wrap(async (req, res) => {
-        const body = req.body || {};
-        const map = {};
-
-        if (body.service !== undefined && body.price !== undefined) {
-            map[body.service] = body.price;
-        } else if (body.prices && typeof body.prices === 'object') {
-            Object.assign(map, body.prices);
-        } else {
-            Object.entries(body).forEach(([key, value]) => {
-                if (key !== 'service' && key !== 'price') map[key] = value;
-            });
-        }
-
-        const known = Object.keys(map).filter(key => getservice(key));
-        if (!known.length) return res.status(400).json({ success: false, error: 'No valid service prices were provided' });
-
-        await pricing.setPrices(map);
-        res.json({
-            success: true,
-            catalog: await pricing.getCatalog(poolCounter),
-            message: `Prices updated for ${known.length} service(s)`,
-        });
-    }));
-
-    adminApi.post('/prices/reset', wrap(async (req, res) => {
-        await pricing.setPrices(DEFAULT_PRICES);
-        res.json({
-            success: true,
-            catalog: await pricing.getCatalog(poolCounter),
-            message: 'Prices restored to the catalog defaults',
-        });
     }));
 
     // ------------------------------------------------- admin: settings

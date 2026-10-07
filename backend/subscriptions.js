@@ -12,7 +12,7 @@
  */
 
 const store = require('./store');
-const { money } = require('./pricing');
+const { money } = require('./money');
 
 const STORE_NAME = 'subscriptions';
 const RECEIPT_LIMIT = 4 * 1024 * 1024;   // data-URL ceiling (~3 MB image)

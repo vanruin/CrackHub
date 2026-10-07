@@ -232,6 +232,90 @@
 
         .ch-btn.block { padding: 14px 18px; font-size: 15px; border-radius: 14px; }
 
+        /* ------------------------------------------------- Telegram prompt box */
+        .tg-box {
+            position: relative;
+            width: min(420px, 100%);
+            text-align: center;
+            padding: 32px 26px 26px;
+        }
+
+        .tg-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--ch-muted);
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+        }
+
+        .tg-close:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+
+        .tg-logo {
+            width: 76px;
+            height: 76px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2aabee, #229ed9);
+            box-shadow: 0 14px 34px rgba(34, 158, 217, 0.45);
+        }
+
+        .tg-logo svg { width: 40px; height: 40px; display: block; }
+
+        .tg-box h3 { margin: 0 0 8px; font-size: 20px; letter-spacing: -0.3px; }
+
+        .tg-box .tg-desc {
+            margin: 0 auto 22px;
+            max-width: 320px;
+            color: var(--ch-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .ch-btn.tg-open {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 14px;
+            border: none;
+            text-decoration: none;
+            background: linear-gradient(135deg, #2aabee, #229ed9);
+            color: #fff;
+            cursor: pointer;
+            transition: filter .15s, transform .15s;
+        }
+
+        .ch-btn.tg-open:hover { filter: brightness(1.07); transform: translateY(-1px); }
+        .ch-btn.tg-open:active { transform: translateY(0); }
+
+        .tg-later {
+            margin-top: 14px;
+            border: none;
+            background: none;
+            color: var(--ch-muted);
+            font-size: 12.5px;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .tg-later:hover { color: var(--ch-text); }
+
         @media (max-width: 860px) {
             .login-wrap { grid-template-columns: 1fr; }
             .hero { order: 2; }
@@ -246,7 +330,7 @@
             <div class="copy">
                 <span class="eyebrow">Member access</span>
                 <h1>Premium accounts,<br><span class="grad">generated on tap.</span></h1>
-                <p>Every key carries its own peso balance — you are only charged when a working account is delivered to you.</p>
+                <p>One monthly subscription unlocks every service — generate as often as you need.</p>
             </div>
             <ul class="feature-list">
                 <li><span class="ico">🎬</span><div><strong>Streaming vault</strong><small>Netflix, HBO Max, Disney+, Crunchyroll, Paramount+</small></div></li>
@@ -275,13 +359,29 @@
 
             <div class="login-error" id="loginError"></div>
 
-            <p class="login-hint" id="loginHint">No key yet? Ask the admin for one — keys look like <strong>CH-XXXX-XXXX-XXXX</strong> and hold a peso balance.</p>
+            <p class="login-hint" id="loginHint">No key yet? Ask the admin for one — keys look like <strong>CH-XXXX-XXXX-XXXX</strong>.</p>
 
             <div class="login-foot">
-                <span>Generation is billed from your balance only.</span>
+                <span>Everything is covered by your monthly subscription.</span>
                 <span>© CrackHub</span>
             </div>
         </section>
+    </div>
+
+    <!-- Telegram invite prompt (pops up once per session) -->
+    <div class="ch-modal" id="tgModal" role="dialog" aria-modal="true" aria-labelledby="tgTitle">
+        <div class="ch-modal-box tg-box">
+            <button class="tg-close" id="tgClose" type="button" aria-label="Close">&times;</button>
+            <div class="tg-logo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+            </div>
+            <h3 id="tgTitle">Join us on Telegram</h3>
+            <p class="tg-desc">Get restock alerts, key drops and instant support — join the CrackHub channel on Telegram.</p>
+            <a class="ch-btn tg-open" id="tgOpen" href="#" target="_blank" rel="noopener noreferrer">✈ Open Telegram</a>
+            <button class="tg-later" id="tgLater" type="button">Maybe later</button>
+        </div>
     </div>
 
     <script>
@@ -364,6 +464,43 @@
                 if (!data || !data.success) return;
                 window.location.href = nextUrl || (data.role === 'admin' ? '/admin.html' : '/');
             } catch (err) { /* stay on the form */ }
+        })();
+
+        // ------------------------------------------------------------ Telegram prompt
+        // Swap this for your channel/group invite link.
+        const TELEGRAM_URL = 'https://t.me/your_channel';
+
+        const tgModal = document.getElementById('tgModal');
+        const tgOpen = document.getElementById('tgOpen');
+        const TG_SEEN_KEY = 'chTgPromptSeen';
+
+        tgOpen.href = TELEGRAM_URL;
+
+        function closeTgPrompt() {
+            tgModal.classList.remove('open');
+            try { sessionStorage.setItem(TG_SEEN_KEY, '1'); } catch (err) { /* private mode */ }
+            keyInput.focus();
+        }
+
+        function openTgPrompt() {
+            tgModal.classList.add('open');
+            tgOpen.focus();
+        }
+
+        document.getElementById('tgClose').addEventListener('click', closeTgPrompt);
+        document.getElementById('tgLater').addEventListener('click', closeTgPrompt);
+        tgModal.addEventListener('click', e => { if (e.target === tgModal) closeTgPrompt(); });
+        tgOpen.addEventListener('click', closeTgPrompt);
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && tgModal.classList.contains('open')) closeTgPrompt();
+        });
+
+        // Pop up once per browser session, after the page has settled.
+        (function maybeShowTgPrompt() {
+            let seen = false;
+            try { seen = sessionStorage.getItem(TG_SEEN_KEY) === '1'; } catch (err) { /* private mode */ }
+            if (seen) return;
+            setTimeout(openTgPrompt, 600);
         })();
 
         keyInput.focus();

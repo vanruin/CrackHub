@@ -57,7 +57,7 @@
         <div class="ch-head">
             <div>
                 <h1>🧾 Support desk</h1>
-                <p>Report an account that did not work. The admin replaces it or refunds the charge to your balance.</p>
+                <p>Report an account that did not work. The admin replaces it — or refunds anything that was charged, back to your balance.</p>
             </div>
             <button class="ch-btn" id="newTicketBtn" type="button">New ticket</button>
         </div>
@@ -134,7 +134,7 @@
         function renderServiceOptions() {
             const select = $('ticketService');
             select.innerHTML = SERVICES.map(svc =>
-                `<option value="${CH.esc(svc.key)}">${svc.emoji} ${CH.esc(svc.label)} — ${CH.money(svc.price)}</option>`
+                `<option value="${CH.esc(svc.key)}">${svc.emoji} ${CH.esc(svc.label)}</option>`
             ).join('');
 
             if (params.get('service')) select.value = params.get('service');
@@ -154,7 +154,7 @@
                 if (entry) {
                     $('ticketService').value = entry.service;
                     $('ticketAccount').value = entry.login || '';
-                    $('ticketHint').textContent = `Charged ${CH.money(entry.price)} — a replacement or refund is decided by the admin.`;
+                    $('ticketHint').textContent = 'A replacement or refund is decided by the admin.';
                 }
             }
         }
@@ -201,7 +201,7 @@
                         </div>
                         <div class="ch-row">
                             <span class="ch-badge ${STATUS_BADGE[t.status] || ''}">${CH.esc(String(t.status).replace('_', ' '))}</span>
-                            <span class="ch-badge">${CH.money(t.charged)}</span>
+                            ${t.charged > 0 ? `<span class="ch-badge">${CH.money(t.charged)}</span>` : ''}
                             ${t.refunded ? `<span class="ch-badge good">refunded ${CH.money(t.refundAmount)}</span>` : ''}
                         </div>
                     </div>
@@ -239,12 +239,12 @@
         }
 
         async function boot() {
-            const [prices] = await Promise.all([
-                CH.request('/api/prices'),
+            const [catalog] = await Promise.all([
+                CH.request('/api/services'),
                 loadUsage(),
                 loadTickets(),
             ]);
-            SERVICES = prices.services || [];
+            SERVICES = catalog.services || [];
             renderServiceOptions();
             renderUsageOptions();
 
@@ -269,7 +269,7 @@
             if (!entry) return;
             $('ticketService').value = entry.service;
             $('ticketAccount').value = entry.login || '';
-            $('ticketHint').textContent = `Charged ${CH.money(entry.price)}.`;
+            $('ticketHint').textContent = 'Linked to this generation.';
         });
 
         $('submitTicket').addEventListener('click', async () => {

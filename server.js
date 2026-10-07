@@ -132,7 +132,7 @@ app.post('/api/search-accounts', auth.requireMember, async (req, res) => {
 });
 
 // Get a specific account by username (includes password)
-app.get('/api/steam-account/:username', auth.requireMember, auth.billable('steam'), async (req, res) => {
+app.get('/api/steam-account/:username', auth.requireMember, auth.generation('steam'), async (req, res) => {
     try {
         const result = await getAccountByUsername(req.params.username);
         if (!result.success) return res.status(404).json(result);
@@ -143,7 +143,7 @@ app.get('/api/steam-account/:username', auth.requireMember, auth.billable('steam
 });
 
 // Legacy: get first account matching a game (kept for compatibility)
-app.post('/api/get-random-steam-account', auth.requireMember, auth.billable('steam'), async (req, res) => {
+app.post('/api/get-random-steam-account', auth.requireMember, auth.generation('steam'), async (req, res) => {
     try {
         const game = (req.body && req.body.game) ? req.body.game : null;
         const result = await getRandomSteamAccount(game);
@@ -298,7 +298,7 @@ app.get('/api/account-counts', auth.requireMember, async (req, res) => {
 
 // ============ OTHER SERVICE ENDPOINTS ============
 
-app.post('/api/get-random-crunchyroll-account', auth.requireMember, auth.billable('crunchyroll'), async (req, res) => {
+app.post('/api/get-random-crunchyroll-account', auth.requireMember, auth.generation('crunchyroll'), async (req, res) => {
     try {
         const result = await getRandomCrunchyrollAccount();
         res.json(result);
@@ -307,7 +307,7 @@ app.post('/api/get-random-crunchyroll-account', auth.requireMember, auth.billabl
     }
 });
 
-app.post('/api/get-random-hbo-cookie', auth.requireMember, auth.billable('hbo'), async (req, res) => {
+app.post('/api/get-random-hbo-cookie', auth.requireMember, auth.generation('hbo'), async (req, res) => {
     console.log('\n🍪 HBO API called');
     try {
         const result = await getRandomHboCookie();
@@ -319,7 +319,7 @@ app.post('/api/get-random-hbo-cookie', auth.requireMember, auth.billable('hbo'),
     }
 });
 
-app.post('/api/get-random-paramount-account', auth.requireMember, auth.billable('paramount'), async (req, res) => {
+app.post('/api/get-random-paramount-account', auth.requireMember, auth.generation('paramount'), async (req, res) => {
     console.log('\n⭐ Paramount+ API called');
     try {
         const result = await getRandomParamountAccount();
@@ -331,7 +331,7 @@ app.post('/api/get-random-paramount-account', auth.requireMember, auth.billable(
     }
 });
 
-app.post('/api/get-random-disney-account', auth.requireMember, auth.billable('disney'), async (req, res) => {
+app.post('/api/get-random-disney-account', auth.requireMember, auth.generation('disney'), async (req, res) => {
     console.log('\n✨ Disney+ API called');
     try {
         const result = await getRandomDisneyAccount();
@@ -343,7 +343,7 @@ app.post('/api/get-random-disney-account', auth.requireMember, auth.billable('di
     }
 });
 
-app.post('/api/get-random-garena-account', auth.requireMember, auth.billable('garena'), async (req, res) => {
+app.post('/api/get-random-garena-account', auth.requireMember, auth.generation('garena'), async (req, res) => {
     console.log('\n🎮 Garena API called');
     try {
         const result = await getRandomGarenaAccount();
@@ -355,7 +355,7 @@ app.post('/api/get-random-garena-account', auth.requireMember, auth.billable('ga
     }
 });
 
-app.post('/api/get-random-moonton-account', auth.requireMember, auth.billable('moonton'), async (req, res) => {
+app.post('/api/get-random-moonton-account', auth.requireMember, auth.generation('moonton'), async (req, res) => {
     console.log('\n🏆 Moonton API called');
     try {
         const result = await getRandomMoontonAccount();
@@ -367,7 +367,7 @@ app.post('/api/get-random-moonton-account', auth.requireMember, auth.billable('m
     }
 });
 
-app.post('/api/get-random-netflix-cookie', auth.requireMember, auth.billable('netflix'), async (req, res) => {
+app.post('/api/get-random-netflix-cookie', auth.requireMember, auth.generation('netflix'), async (req, res) => {
     console.log('\n🎬 Netflix API called');
     try {
         const method = (req.body && req.body.method) ? req.body.method : 'smart';
@@ -380,7 +380,7 @@ app.post('/api/get-random-netflix-cookie', auth.requireMember, auth.billable('ne
     }
 });
 
-app.post('/api/get-random-xbox-account', auth.requireMember, auth.billable('xbox'), async (req, res) => {
+app.post('/api/get-random-xbox-account', auth.requireMember, auth.generation('xbox'), async (req, res) => {
     console.log('\n🎮 Xbox API called');
     try {
         const result = await getRandomXboxAccount();
@@ -392,7 +392,7 @@ app.post('/api/get-random-xbox-account', auth.requireMember, auth.billable('xbox
     }
 });
 
-app.post('/api/get-random-capcut-account', auth.requireMember, auth.billable('capcut'), async (req, res) => {
+app.post('/api/get-random-capcut-account', auth.requireMember, auth.generation('capcut'), async (req, res) => {
     console.log('\n✂️ CapCut API called');
     try {
         const result = await getRandomCapcutAccount();

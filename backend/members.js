@@ -8,7 +8,7 @@
 
 const crypto = require('crypto');
 const store = require('./store');
-const { money, trimHistory } = require('./pricing');
+const { money, trimHistory } = require('./money');
 
 const STORE_NAME = 'members';
 const TX_LIMIT = 300;
@@ -326,109 +326,23 @@ function recordUsage(member, { service, price, login, label, meta }) {
 }
 
 /**
- * Debit a successful generation. Throws `code = 'INSUFFICIENT_FUNDS'`
- * (status 402) when the member cannot pay.
+ * Record a delivered account: usage history + generation stats.
+ * Generations are covered by the monthly subscription, so nothing is charged.
  */
-async function charge(id, { service, price = 0, login = '', label = '', meta = {} } = {}) {
-    const cost = money2(price);
-
+async function recordGeneration(id, { service, login = '', label = '', meta = {} } = {}) {
     return mutate(async members => {
         const member = members.find(m => m.id === id);
         if (!member) throw new Error('Member not found');
 
-        if (cost > 0) {
-            const before = money2(member.balance);
-            if (before < cost) {
-                const err = new Error(`Insufficient balance — ₱${cost} required, your balance is ₱${before}. Add balance to continue.`);
-                err.code = 'INSUFFICIENT_FUNDS';
-                err.status = 402;
-                throw err;
-            }
-            member.balance = money2(before - cost);
-            member.totalSpent = money2(money2(member.totalSpent) + cost);
-            member.totalGenerated = (member.totalGenerated || 0) + 1;
-            member.generationsByService = member.generationsByService || {};
-            member.generationsByService[service] = (member.generationsByService[service] || 0) + 1;
-        }
+        member.totalGenerated = (member.totalGenerated || 0) + 1;
+        member.generationsByService = member.generationsByService || {};
+        member.generationsByService[service] = (member.generationsByService[service] || 0) + 1;
 
         member.updatedAt = nowIso();
-        recordUsage(member, { service, price: cost, login, label, meta });
-
-        if (cost > 0) {
-            pushTx(member, {
-                type: 'debit',
-                amount: cost,
-                balanceAfter: money2(member.balance),
-                note: `${service} generation${login ? ` — ${login}` : ''}`,
-                by: 'system',
-            });
-        }
+        recordUsage(member, { service, price: 0, login, label, meta });
 
         const last = member.usage[member.usage.length - 1] || {};
-        return { charged: cost, balance: money2(member.balance), usageId: last.id || null };
-    });
-}
-
-/**
- * Debit a generation BEFORE the generator runs (race-safe balance gate).
- * Runs inside the store lock, so two parallel requests can never spend past
- * the balance. Only the transaction is written here — the usage entry is
- * added by recordGeneration() once an account was actually delivered, and
- * refund() reverses the debit when generation fails.
- */
-async function debit(id, { service, price = 0, note = '' } = {}) {
-    const cost = money2(price);
-
-    return mutate(async members => {
-        const member = members.find(m => m.id === id);
-        if (!member) throw new Error('Member not found');
-
-        if (cost > 0) {
-            const before = money2(member.balance);
-            if (before < cost) {
-                const err = new Error(`Insufficient balance — ₱${cost} required, your balance is ₱${before}. Add balance to continue.`);
-                err.code = 'INSUFFICIENT_FUNDS';
-                err.status = 402;
-                throw err;
-            }
-            member.balance = money2(before - cost);
-            member.totalSpent = money2(money2(member.totalSpent) + cost);
-            pushTx(member, {
-                type: 'debit',
-                amount: cost,
-                balanceAfter: money2(member.balance),
-                note: String(note || `${service} generation`).slice(0, 200),
-                by: 'system',
-            });
-        }
-
-        member.updatedAt = nowIso();
-        return { charged: cost, balance: money2(member.balance) };
-    });
-}
-
-/**
- * Settle a debit() taken by billable(): record the delivered account in the
- * usage history and count it against the member's generation stats.
- */
-async function recordGeneration(id, { service, price = 0, login = '', label = '', meta = {} } = {}) {
-    const cost = money2(price);
-
-    return mutate(async members => {
-        const member = members.find(m => m.id === id);
-        if (!member) throw new Error('Member not found');
-
-        if (cost > 0) {
-            member.totalGenerated = (member.totalGenerated || 0) + 1;
-            member.generationsByService = member.generationsByService || {};
-            member.generationsByService[service] = (member.generationsByService[service] || 0) + 1;
-        }
-
-        member.updatedAt = nowIso();
-        recordUsage(member, { service, price: cost, login, label, meta });
-
-        const last = member.usage[member.usage.length - 1] || {};
-        return { recorded: cost, balance: money2(member.balance), usageId: last.id || null };
+        return { recorded: 0, balance: money2(member.balance), usageId: last.id || null };
     });
 }
 
@@ -518,8 +432,6 @@ module.exports = {
     deleteMember,
     adjustBalance,
     refund,
-    charge,
-    debit,
     recordGeneration,
     getUsage,
     getTransactions,

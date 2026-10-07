@@ -541,7 +541,6 @@ body.ch-has-nav {
 .ch-service .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .ch-service .emoji { font-size: 26px; }
 .ch-service .name { font-weight: 800; font-size: 16px; }
-.ch-service .price { font-size: 22px; font-weight: 800; color: var(--ch-accent); font-variant-numeric: tabular-nums; }
 .ch-service .credential { font-size: 12.5px; color: var(--ch-muted); min-height: 34px; }
 .ch-service .foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 

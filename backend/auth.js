@@ -1,5 +1,5 @@
 /**
- * Access control + per-generation billing.
+ * Access control + generation guards.
  *
  * A member authenticates with an access KEY. The key can be sent as
  *   - the `ch_access` cookie (set by POST /api/auth/login)  → page access
@@ -12,7 +12,6 @@ const cookie = require('cookie');
 
 const config = require('./config');
 const members = require('./members');
-const pricing = require('./pricing');
 const { getservice } = require('./catalog');
 
 const COOKIE_NAME = 'ch_access';
@@ -190,7 +189,7 @@ async function requireAdmin(req, res, next) {
     }
 }
 
-// ------------------------------------------------------------ billing
+// ------------------------------------------------------ generation tracking
 
 function defaultExtract(body) {
     const d = (body && body.data) || {};
@@ -209,13 +208,11 @@ function defaultExtract(body) {
 }
 
 /**
- * Bill `service` per generation with a hard, non-bypassable balance limit.
- * Flow: pre-flight 402 → per-member rate limit → atomic debit (inside the
- * store lock, so parallel requests can never spend past the balance) →
- * the generator runs → a delivered account is recorded, a failed run is
- * refunded automatically. The client never sees a negative balance.
+ * Guard `service` generations: per-member rate limit + usage recording.
+ * Everything is covered by the monthly subscription, so nothing is charged —
+ * a delivered account is only written to the member's usage history.
  */
-function billable(service, options = {}) {
+function generation(service, options = {}) {
     const svc = getservice(service);
 
     // Sliding-window limiter per member — blunts payload spam / pool draining.
@@ -232,25 +229,12 @@ function billable(service, options = {}) {
         return list.length > MAX_PER_WINDOW;
     }
 
-    return async function billing(req, res, next) {
+    return async function trackGeneration(req, res, next) {
         try {
-            if (!svc) return next(new Error(`Unknown billable service: ${service}`));
+            if (!svc) return next(new Error(`Unknown service: ${service}`));
             if (req.admin) return next();          // admin key = free test runs
             const member = req.member;
             if (!member) return next();            // no member attached
-
-            const price = await pricing.getPrice(svc.key);
-            if (price <= 0) return next();         // free service
-
-            if (Number(member.balance) < price) {
-                return res.status(402).json({
-                    success: false,
-                    code: 'INSUFFICIENT_BALANCE',
-                    error: `Insufficient balance — ${svc.label} costs ₱${price} and your balance is ₱${member.balance}. Ask your admin to add balance.`,
-                    price,
-                    balance: Number(member.balance),
-                });
-            }
 
             if (tooFast(member.id)) {
                 res.setHeader('Retry-After', '60');
@@ -258,40 +242,12 @@ function billable(service, options = {}) {
                     success: false,
                     code: 'RATE_LIMITED',
                     error: 'Too many generations in the last minute — give it a moment and try again.',
-                    price,
                     balance: Number(member.balance),
                 });
             }
 
-            // ── atomic debit: taken BEFORE the generator runs, under the
-            //    store lock — the balance can never go negative. ──
-            const charge = await members.debit(member.id, {
-                service: svc.key,
-                price,
-                note: `${svc.label} generation`,
-            });
-            let settled = false;
-
-            const refund = async why => {
-                if (settled || !(charge.charged > 0)) { settled = true; return null; }
-                settled = true;
-                try {
-                    const back = await members.refund(member.id, {
-                        amount: charge.charged,
-                        note: `${svc.label} generation failed — auto refund (${String(why).slice(0, 80)})`,
-                        by: 'system',
-                    });
-                    res.setHeader('X-CrackHub-Charged', '0');
-                    res.setHeader('X-CrackHub-Balance', String(back.balance));
-                    return back;
-                } catch (err) {
-                    console.error(`⚠️  billing(${svc.key}) refund failed:`, err.message);
-                    return null;
-                }
-            };
-
-            res.setHeader('X-CrackHub-Charged', String(charge.charged));
-            res.setHeader('X-CrackHub-Balance', String(charge.balance));
+            res.setHeader('X-CrackHub-Charged', '0');
+            res.setHeader('X-CrackHub-Balance', String(Number(member.balance) || 0));
 
             const originalJson = res.json.bind(res);
 
@@ -302,14 +258,11 @@ function billable(service, options = {}) {
                         const info = (options.extract || defaultExtract)(body);
                         const record = await members.recordGeneration(member.id, {
                             service: svc.key,
-                            price: charge.charged,
                             login: info.login,
                             label: info.label,
                             meta: info.meta,
                         });
-                        settled = true;
 
-                        res.setHeader('X-CrackHub-Charged', String(charge.charged));
                         res.setHeader('X-CrackHub-Balance', String(record.balance));
                         if (record.usageId) res.setHeader('X-CrackHub-Usage-Id', String(record.usageId));
 
@@ -317,27 +270,14 @@ function billable(service, options = {}) {
                             body.billing = {
                                 service: svc.key,
                                 label: svc.label,
-                                charged: charge.charged,
+                                charged: 0,
                                 balance: record.balance,
                                 usageId: record.usageId,
                             };
                         }
-                    } else {
-                        // No account was delivered → hand the money straight back.
-                        const back = await refund('no account delivered');
-                        if (back && body && typeof body === 'object') {
-                            body.billing = {
-                                service: svc.key,
-                                label: svc.label,
-                                charged: 0,
-                                refunded: charge.charged,
-                                balance: back.balance,
-                            };
-                        }
                     }
                 } catch (err) {
-                    console.error(`⚠️  billing(${svc.key}) could not settle:`, err.message);
-                    await refund(err.message);
+                    console.error(`⚠️  generation(${svc.key}) could not record the account:`, err.message);
                     if (body && typeof body === 'object' && !body.billing) {
                         body.billing = { service: svc.key, charged: 0, error: err.message };
                     }
@@ -345,23 +285,8 @@ function billable(service, options = {}) {
                 return originalJson(body);
             };
 
-            // Safety net: a handler that died before calling res.json() still
-            // gets its pre-debit refunded instead of silently keeping it.
-            res.on('finish', () => {
-                if (settled || res.statusCode < 400) return;
-                refund(`http ${res.statusCode}`).catch(() => {});
-            });
-
             return next();
         } catch (err) {
-            // debit() refused — a concurrent run emptied the balance first.
-            if (err && err.code === 'INSUFFICIENT_FUNDS') {
-                return res.status(402).json({
-                    success: false,
-                    code: 'INSUFFICIENT_BALANCE',
-                    error: err.message,
-                });
-            }
             return next(err);
         }
     };
@@ -458,7 +383,7 @@ module.exports = {
     requireMemberPage,
     requireAdminPage,
     protectStaticPages,
-    billable,
+    generation,
 };
 
 

@@ -6,7 +6,7 @@
  */
 
 const store = require('./store');
-const { money } = require('./pricing');
+const { money } = require('./money');
 
 const STORE_NAME = 'tickets';
 const MESSAGE_LIMIT = 50;

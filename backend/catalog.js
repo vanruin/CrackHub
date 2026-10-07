@@ -1,8 +1,8 @@
 /**
- * Service catalog — single source of truth for the paid platforms.
- * `defaultPrice` is the amount charged (in PHP) per SUCCESSFUL generation.
- * Prices can be overridden at runtime through backend/data/pricing.json
- * (managed from the admin panel).
+ * Service catalog — single source of truth for the platforms.
+ * Everything here is covered by the monthly subscription, so entries carry
+ * no price. `view()` shapes the catalog for the storefront by adding the
+ * live pool size.
  */
 
 const CATALOG = [
@@ -16,7 +16,6 @@ const CATALOG = [
         type: 'json',
         validated: true,      // the backend verifies the cookie before returning it
         credential: 'login + password + QR login link',
-        defaultPrice: 5,
     },
     {
         key: 'steam',
@@ -28,7 +27,6 @@ const CATALOG = [
         type: 'json',
         validated: false,
         credential: 'username + password + shared access token',
-        defaultPrice: 3,
     },
     {
         key: 'hbo',
@@ -40,7 +38,6 @@ const CATALOG = [
         type: 'txt',
         validated: false,
         credential: 'cookie set (Netscape + JSON)',
-        defaultPrice: 4,
     },
     {
         key: 'disney',
@@ -52,7 +49,6 @@ const CATALOG = [
         type: 'txt',
         validated: false,
         credential: 'email + password',
-        defaultPrice: 4,
     },
     {
         key: 'crunchyroll',
@@ -64,7 +60,6 @@ const CATALOG = [
         type: 'txt',
         validated: false,
         credential: 'email + password',
-        defaultPrice: 3,
     },
     {
         key: 'paramount',
@@ -76,7 +71,6 @@ const CATALOG = [
         type: 'txt',
         validated: false,
         credential: 'email + password',
-        defaultPrice: 3,
     },
     {
         key: 'xbox',
@@ -88,7 +82,6 @@ const CATALOG = [
         type: 'txt',
         validated: false,
         credential: 'email + password',
-        defaultPrice: 5,
     },
     {
         key: 'moonton',
@@ -100,7 +93,6 @@ const CATALOG = [
         type: 'txt',
         validated: false,
         credential: 'email + password',
-        defaultPrice: 2,
     },
     {
         key: 'garena',
@@ -112,7 +104,6 @@ const CATALOG = [
         type: 'txt',
         validated: false,
         credential: 'email + password',
-        defaultPrice: 2,
     },
     {
         key: 'capcut',
@@ -124,7 +115,6 @@ const CATALOG = [
         type: 'txt',
         validated: false,
         credential: 'email + password',
-        defaultPrice: 2,
     },
 ];
 
@@ -133,13 +123,20 @@ const BY_KEY = CATALOG.reduce((acc, svc) => {
     return acc;
 }, {});
 
-const DEFAULT_PRICES = CATALOG.reduce((acc, svc) => {
-    acc[svc.key] = svc.defaultPrice;
-    return acc;
-}, {});
+async function view(poolCounter) {
+    return Promise.all(CATALOG.map(async svc => ({
+        key: svc.key,
+        label: svc.label,
+        emoji: svc.emoji,
+        color: svc.color,
+        path: svc.path,
+        credential: svc.credential,
+        available: poolCounter ? await poolCounter(svc.key) : 0,
+    })));
+}
 
 function getservice(key) {
     return BY_KEY[String(key || '').toLowerCase().trim()] || null;
 }
 
-module.exports = { CATALOG, DEFAULT_PRICES, getservice };
+module.exports = { CATALOG, getservice, view };

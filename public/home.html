@@ -200,7 +200,7 @@
 
         <div class="section-title">
             <h2>🎯 Generate an account</h2>
-            <span class="ch-small ch-muted">Prices are charged only when an account is delivered</span>
+            <span class="ch-small ch-muted">Included with your monthly subscription</span>
         </div>
         <div class="ch-grid cols-3" id="serviceGrid">
             <div class="ch-empty">Loading services…</div>
@@ -245,7 +245,7 @@
             if (!member) return;
             $('welcome').textContent = `Welcome back, ${member.name}`;
             $('welcomeSub').innerHTML = `Member since ${CH.when(member.createdAt)} · ` +
-                `key verified · <span class="ch-muted">every generation is charged from your balance</span>`;
+                `key verified · <span class="ch-muted">covered by your monthly subscription</span>`;
             $('balanceValue').textContent = CH.money(member.balance);
             myKey = member.key || '';
             $('keyChip').textContent = member.key || '—';
@@ -272,7 +272,6 @@
                             <div class="emoji">${svc.emoji}</div>
                             <div class="name" style="color:${CH.esc(svc.color || '#fff')}">${CH.esc(svc.label)}</div>
                         </div>
-                        <div class="price">${CH.money(svc.price)}</div>
                     </div>
                     <div class="credential">${CH.esc(svc.credential || '')}</div>
                     <div class="foot">
@@ -285,7 +284,7 @@
 
         async function loadServices() {
             try {
-                const data = await CH.request('/api/prices');
+                const data = await CH.request('/api/services');
                 renderServices(data.services);
             } catch (err) {
                 $('serviceGrid').innerHTML = `<div class="ch-empty">${CH.esc(err.message)}</div>`;
@@ -311,7 +310,6 @@
                         <div class="ch-small ch-muted ch-mono">${CH.esc(u.login || '—')} · ${CH.when(u.at)}</div>
                     </div>
                     <div class="ch-row">
-                        <span class="ch-badge">${CH.money(u.price)}</span>
                         ${report}
                     </div>
                 </div>`;

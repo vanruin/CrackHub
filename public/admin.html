@@ -117,7 +117,6 @@
         <div class="ch-tabs" id="adminTabs">
             <button class="ch-tab active" data-tab="members" type="button">Members</button>
             <button class="ch-tab" data-tab="tickets" type="button">Tickets</button>
-            <button class="ch-tab" data-tab="pricing" type="button">Pricing</button>
             <button class="ch-tab" data-tab="pools" type="button">Pools</button>
             <button class="ch-tab" data-tab="subscriptions" type="button">Subscriptions</button>
             <button class="ch-tab" data-tab="settings" type="button">Settings</button>
@@ -174,24 +173,6 @@
                 <span class="ch-small ch-muted" id="ticketCount"></span>
             </div>
             <div id="ticketsList" class="ch-list"><div class="ch-empty">Loading tickets…</div></div>
-        </section>
-
-        <!-- ============================================================ PRICING -->
-        <section class="admin-section" id="pane-pricing">
-            <div class="ch-card">
-                <h2>Price per successful generation (₱)</h2>
-                <div class="ch-row" style="margin-bottom:14px">
-                    <button class="ch-btn" id="savePrices" type="button">Save prices</button>
-                    <button class="ch-btn ghost" id="resetPrices" type="button">Restore defaults</button>
-                    <span class="ch-small ch-muted">A price of 0 makes the service free for members.</span>
-                </div>
-                <div class="ch-scroll">
-                    <table class="ch-table">
-                        <thead><tr><th>Service</th><th>Default</th><th>Current</th><th>New price</th><th>In stock</th></tr></thead>
-                        <tbody id="pricingBody"><tr><td colspan="5" class="ch-muted">Loading…</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
         </section>
 
         <!-- ============================================================ POOLS -->
@@ -252,7 +233,6 @@
         const $ = id => document.getElementById(id);
 
         let SERVICES = [];
-        let DEFAULTS = {};
         let MEMBERS = [];
         let POOL = [];
         let showPoolPasswords = false;
@@ -307,7 +287,6 @@
             document.querySelectorAll('.admin-section').forEach(sec =>
                 sec.classList.toggle('active', sec.id === 'pane-' + tab.dataset.tab));
             const name = tab.dataset.tab;
-            if (name === 'pricing') loadPricing();
             if (name === 'pools') loadPoolOptions();
             if (name === 'settings') loadConfig();
             if (name === 'tickets') loadTickets();
@@ -502,7 +481,6 @@
                         </div>
                         <div class="ch-row">
                             ${u.ticketId ? `<span class="ch-badge info">${CH.esc(u.ticketId)}</span>` : ''}
-                            <span class="ch-badge">${CH.money(u.price)}</span>
                         </div>
                     </div>`).join('') || '<div class="ch-empty">No generations.</div>';
 
@@ -592,7 +570,7 @@
                         </div>
                         <div class="ch-row">
                             <span class="ch-badge ${STATUS_BADGE[t.status] || ''}">${CH.esc(String(t.status).replace('_', ' '))}</span>
-                            <span class="ch-badge">${CH.money(t.charged)}</span>
+                            ${t.charged > 0 ? `<span class="ch-badge">${CH.money(t.charged)}</span>` : ''}
                             ${t.refunded ? '<span class="ch-badge good">refunded</span>' : ''}
                             <button class="ch-btn sm" data-open-ticket="${CH.esc(t.id)}" type="button">Handle</button>
                         </div>
@@ -626,7 +604,7 @@
                     <h3>${CH.esc(t.id)} — ${CH.esc(t.serviceLabel || t.service)}</h3>
                     <div class="ch-row" style="margin-bottom:12px">
                         <span class="ch-badge ${STATUS_BADGE[t.status] || ''}">${CH.esc(String(t.status).replace('_', ' '))}</span>
-                        <span class="ch-badge">charged ${CH.money(t.charged)}</span>
+                        ${t.charged > 0 ? `<span class="ch-badge">charged ${CH.money(t.charged)}</span>` : ''}
                         <span class="ch-badge">${CH.esc(m.name || t.memberName)} · bal ${CH.money(m.balance)}</span>
                         ${t.refunded ? `<span class="ch-badge good">refunded ${CH.money(t.refundAmount)}</span>` : ''}
                     </div>
@@ -666,7 +644,7 @@
                             <input class="ch-input" id="replaceNote" type="text" placeholder="fresh account from the pool"></div>
                     </div>
                     <label class="checkline">
-                        <input type="checkbox" id="replaceRefund"> Also refund ${CH.money(t.charged)} to the balance
+                        <input type="checkbox" id="replaceRefund"> ${t.charged > 0 ? `Also refund ${CH.money(t.charged)} to the balance` : 'Also refund to the balance'}
                     </label>
                     <div class="ch-row">
                         <button class="ch-btn ok" data-replace-ticket="${CH.esc(t.id)}" type="button">Give replacement</button>
@@ -927,65 +905,11 @@
             }
         }
 
-        // ------------------------------------------------------------ pricing
-        async function loadPricing() {
-            try {
-                const data = await CH.request('/api/admin/prices');
-                DEFAULTS = data.defaultPrices || {};
-                renderPricing(data.catalog || []);
-            } catch (err) {
-                CH.toast(err.message, 'bad');
-            }
-        }
-
-        function renderPricing(catalog) {
-            $('pricingBody').innerHTML = catalog.map(svc => `
-                <tr>
-                    <td>${svc.emoji} <strong>${CH.esc(svc.label)}</strong>
-                        <div class="ch-small ch-muted ch-mono">${CH.esc(svc.key)}</div></td>
-                    <td class="ch-muted">${CH.money(DEFAULTS[svc.key])}</td>
-                    <td><strong>${CH.money(svc.price)}</strong></td>
-                    <td><input class="ch-input" style="width:130px" type="number" min="0" step="0.5"
-                        data-price="${CH.esc(svc.key)}" value="${Number(svc.price) || 0}"></td>
-                    <td>${svc.available}</td>
-                </tr>`).join('');
-            $('pricingBody').dataset.catalog = 'loaded';
-        }
-
-        $('savePrices').addEventListener('click', async () => {
-            const prices = {};
-            document.querySelectorAll('[data-price]').forEach(input => {
-                prices[input.dataset.price] = Number(input.value) || 0;
-            });
-            if (!Object.keys(prices).length) { CH.toast('Load the price table first.', 'bad'); return; }
-
-            try {
-                const data = await CH.request('/api/admin/prices', { method: 'POST', body: { prices } });
-                CH.toast(data.message || 'Prices saved', 'good');
-                renderPricing(data.catalog || []);
-                await loadStats();
-            } catch (err) {
-                CH.toast(err.message, 'bad');
-            }
-        });
-
-        $('resetPrices').addEventListener('click', async () => {
-            if (!confirm('Restore the default price for every service?')) return;
-            try {
-                const data = await CH.request('/api/admin/prices/reset', { method: 'POST' });
-                CH.toast(data.message || 'Defaults restored', 'good');
-                renderPricing(data.catalog || []);
-                await loadStats();
-            } catch (err) {
-                CH.toast(err.message, 'bad');
-            }
-        });
-
         // ------------------------------------------------------------ pools
         async function loadPoolOptions() {
             if ($('poolService').options.length) return;
             if (!SERVICES.length) {
-                const data = await CH.request('/api/prices');
+                const data = await CH.request('/api/services');
                 SERVICES = data.services || [];
             }
             $('poolService').innerHTML = SERVICES.map(s =>
