@@ -1,5 +1,5 @@
 /**
- * Platform API — key login, members, balance, tickets, subscriptions.
+ * Platform API — key login, members, balance, tickets, cash-ins, pricing.
  * Mounted from server.js:  mountPlatformApi(app, { counters, generators })
  */
 
@@ -10,7 +10,8 @@ const config = require('./config');
 const members = require('./members');
 const tickets = require('./tickets');
 const { money } = require('./money');
-const subscriptions = require('./subscriptions');
+const cashins = require('./cashins');
+const pricing = require('./pricing');
 const accountPool = require('./accountPool');
 const { CATALOG, getservice, view: catalogView } = require('./catalog');
 
@@ -146,7 +147,8 @@ function mountPlatformApi(app, options = {}) {
 
     // ========================================================= PUBLIC
     app.get('/api/services', wrap(async (req, res) => {
-        res.json({ success: true, services: await catalogView(poolCounter) });
+        const prices = await pricing.getAll();
+        res.json({ success: true, services: await catalogView(poolCounter, prices) });
     }));
 
     // Pool counts are member-only — consistent with /api/test-* and /api/account-counts.
@@ -196,31 +198,31 @@ function mountPlatformApi(app, options = {}) {
         res.json({ success: true, transactions: list });
     }));
 
-    // ------------------------------------------------- member: subscription
-    memberApi.get('/subscription', wrap(async (req, res) => {
+    // ------------------------------------------------- member: cash-ins
+    // The member picks a denomination, scans the QR in Assets/prices with
+    // GCash and attaches the receipt — the admin approves it into balance.
+    memberApi.get('/cashin', wrap(async (req, res) => {
         const member = await members.getMember(req.member.id);
         if (!member) return res.status(404).json({ success: false, error: 'Member no longer exists' });
 
-        const requests = await subscriptions.listForMember(member.id);
+        const requests = await cashins.listForMember(member.id);
         res.json({
             success: true,
-            plan: subscriptions.PLAN,
-            subscription: members.publicView(member).subscription,
+            balance: members.publicView(member).balance,
+            denominations: cashins.DENOMINATIONS,
             requests,
             pending: requests.filter(r => r.status === 'pending').length,
         });
     }));
 
-    // The member uploads the proof-of-payment screenshot (base64 data URL).
-    memberApi.post('/subscription/receipt', wrap(async (req, res) => {
+    memberApi.post('/cashin', wrap(async (req, res) => {
         const body = req.body || {};
         const member = await members.getMember(req.member.id);
         if (!member) return res.status(404).json({ success: false, error: 'Member no longer exists' });
 
-        const request = await subscriptions.createRequest({
+        const request = await cashins.createRequest({
             member,
             amount: body.amount,
-            method: body.method,
             reference: body.reference,
             note: body.note,
             receipt: body.receipt,
@@ -229,7 +231,7 @@ function mountPlatformApi(app, options = {}) {
         res.status(201).json({
             success: true,
             request,
-            message: 'Receipt received — the admin will verify your payment shortly.',
+            message: 'Cash-in received — the admin will verify your GCash receipt shortly.',
         });
     }));
 
@@ -331,12 +333,13 @@ function mountPlatformApi(app, options = {}) {
     }
 
     adminApi.get('/stats', wrap(async (req, res) => {
-        const [list, catalog, ticketCounts, subCounts] = await Promise.all([
+        const [list, prices, ticketCounts, cashinCounts] = await Promise.all([
             members.listMembers(),
-            catalogView(poolCounter),
+            pricing.getAll(),
             tickets.counts(),
-            subscriptions.counts(),
+            cashins.counts(),
         ]);
+        const catalog = await catalogView(poolCounter, prices);
 
         const revenue = list.reduce((sum, m) => sum + (m.transactions || [])
             .filter(t => t.type === 'debit')
@@ -357,7 +360,7 @@ function mountPlatformApi(app, options = {}) {
                 generations: list.reduce((sum, m) => sum + (m.usage || []).length, 0),
                 totalGenerated: list.reduce((sum, m) => sum + (m.totalGenerated || 0), 0),
                 tickets: ticketCounts,
-                subscriptions: subCounts,
+                cashIns: cashinCounts,
             },
             services: catalog,
         });
@@ -547,70 +550,87 @@ function mountPlatformApi(app, options = {}) {
         });
     }));
 
-    // ------------------------------------------------- admin: subscriptions
-    adminApi.get('/subscriptions', wrap(async (req, res) => {
-        const list = await subscriptions.listRequests({
+    // ------------------------------------------------- admin: cash-ins
+    adminApi.get('/cashins', wrap(async (req, res) => {
+        const list = await cashins.listRequests({
             status: req.query.status || '',
             query: req.query.query || '',
         });
         res.json({
             success: true,
-            plan: subscriptions.PLAN,
+            denominations: cashins.DENOMINATIONS,
             requests: list,
-            counts: await subscriptions.counts(),
+            counts: await cashins.counts(),
         });
     }));
 
-    adminApi.get('/subscriptions/:id', wrap(async (req, res) => {
-        const request = await subscriptions.getRequest(req.params.id);
-        if (!request) return res.status(404).json({ success: false, error: 'Subscription request not found' });
+    adminApi.get('/cashins/:id', wrap(async (req, res) => {
+        const request = await cashins.getRequest(req.params.id);
+        if (!request) return res.status(404).json({ success: false, error: 'Cash-in request not found' });
         const member = await members.getMember(request.memberId);
         res.json({ success: true, request, member: members.publicView(member) });
     }));
 
-    adminApi.post('/subscriptions/:id/approve', wrap(async (req, res) => {
+    adminApi.post('/cashins/:id/approve', wrap(async (req, res) => {
         const body = req.body || {};
-        const request = await subscriptions.getRequest(req.params.id);
-        if (!request) return res.status(404).json({ success: false, error: 'Subscription request not found' });
+        const request = await cashins.getRequest(req.params.id);
+        if (!request) return res.status(404).json({ success: false, error: 'Cash-in request not found' });
         if (request.status === 'approved') {
-            return res.status(409).json({ success: false, error: 'This receipt was already approved' });
+            return res.status(409).json({ success: false, error: 'This cash-in was already approved' });
         }
 
-        const days = Number(body.days) > 0 ? Number(body.days) : subscriptions.PLAN.days;
-        const member = await members.activateSubscription(request.memberId, {
-            days,
+        // Credit the member's balance with the paid amount…
+        const member = await members.adjustBalance(request.memberId, {
+            action: 'add',
             amount: request.amount,
-            plan: request.plan,
-            planLabel: request.planLabel,
-            note: body.note || `Subscription approved — receipt ${request.id}`,
+            note: `Cash-in approved — ${request.id}${request.reference ? ` · ref ${request.reference}` : ''}`,
             by: 'admin',
         });
 
-        const updated = await subscriptions.setStatus(request.id, 'approved', {
-            note: body.note || 'Payment verified — subscription activated.',
+        // …then mark the request so it can never credit twice.
+        const updated = await cashins.setStatus(request.id, 'approved', {
+            note: body.note || 'GCash payment verified — balance credited.',
             by: 'admin',
-            startsAt: member.subscription.startedAt,
-            expiresAt: member.subscription.expiresAt,
+            creditedTo: member.balance,
         });
 
         res.json({
             success: true,
             request: updated,
             member,
-            message: `Subscription active until ${new Date(member.subscription.expiresAt).toLocaleDateString()}`,
+            message: `₱${money(request.amount)} credited — new balance ₱${money(member.balance)}`,
         });
     }));
 
-    adminApi.post('/subscriptions/:id/reject', wrap(async (req, res) => {
+    adminApi.post('/cashins/:id/reject', wrap(async (req, res) => {
         const body = req.body || {};
-        const existing = await subscriptions.getRequest(req.params.id);
-        if (!existing) return res.status(404).json({ success: false, error: 'Subscription request not found' });
+        const existing = await cashins.getRequest(req.params.id);
+        if (!existing) return res.status(404).json({ success: false, error: 'Cash-in request not found' });
+        if (existing.status === 'approved') {
+            return res.status(409).json({ success: false, error: 'This cash-in was already approved' });
+        }
 
-        const request = await subscriptions.setStatus(req.params.id, 'rejected', {
+        const request = await cashins.setStatus(req.params.id, 'rejected', {
             note: body.note || 'Receipt could not be verified.',
             by: 'admin',
         });
-        res.json({ success: true, request, message: 'Receipt rejected — the member can submit a new one.' });
+        res.json({ success: true, request, message: 'Cash-in rejected — the member can submit a new one.' });
+    }));
+
+    // ------------------------------------------------- admin: pricing
+    adminApi.get('/pricing', wrap(async (req, res) => {
+        res.json({ success: true, prices: await pricing.list() });
+    }));
+
+    adminApi.post('/pricing', wrap(async (req, res) => {
+        const body = req.body || {};
+        const patch = body.prices && typeof body.prices === 'object' ? body.prices : body;
+        await pricing.setPrices(patch);
+        res.json({
+            success: true,
+            prices: await pricing.list(),
+            message: 'Service prices updated — members see them on the store right away.',
+        });
     }));
 
     // ------------------------------------------------- admin: settings

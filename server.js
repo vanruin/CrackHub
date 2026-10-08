@@ -93,10 +93,10 @@ app.use('/api', (req, res, next) => {
 // everything else is capped early so oversized payloads are rejected fast.
 const jsonSmall = express.json({ limit: '256kb', strict: true });
 const jsonBig = express.json({ limit: '25mb', strict: true });
-const jsonReceipt = express.json({ limit: '6mb', strict: true });   // proof-of-payment screenshots
+const jsonReceipt = express.json({ limit: '6mb', strict: true });   // GCash cash-in receipts
 app.use((req, res, next) => {
     if (req.path.startsWith('/api/accounts/')) return jsonBig(req, res, next);
-    if (req.path === '/api/member/subscription/receipt') return jsonReceipt(req, res, next);
+    if (req.path === '/api/member/cashin') return jsonReceipt(req, res, next);
     return jsonSmall(req, res, next);
 });
 
@@ -112,7 +112,7 @@ app.use('/Acccounts', (req, res) => {
 app.use(auth.protectStaticPages);
 app.use(express.static('public'));
 
-// Brand / payment assets (the subscription QR lives in Assets/crack.jpg)
+// Brand / payment assets (the GCash cash-in QRs live in Assets/prices)
 app.use('/assets', express.static(path.join(__dirname, 'Assets')));
 
 // Member / ticket / admin APIs

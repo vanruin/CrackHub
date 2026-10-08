@@ -1,5 +1,5 @@
 /**
- * Money + history helpers shared by members, tickets and subscriptions.
+ * Money + history helpers shared by members, tickets and cash-ins.
  * Amounts are stored as numbers rounded to whole centavos, never negative.
  */
 

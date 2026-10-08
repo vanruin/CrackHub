@@ -113,7 +113,7 @@
             transform: translateY(-1px);
         }
 
-        /* ------------------------------------------------ subscription */
+        /* ------------------------------------------------ cash-in */
         .sub-qr {
             display: block;
             width: 100%;
@@ -173,8 +173,8 @@
                     <span class="key-chip" id="keyChip" title="Click to copy your access key">—</span>
                 </div>
                 <div class="ch-row" style="justify-content:flex-end;margin-top:10px">
-                    <span class="ch-badge" id="subBadge">Subscription: —</span>
-                    <button class="ch-btn sm" id="subBtn" type="button">Subscribe</button>
+                    <span class="ch-badge" id="cashBadge" hidden>Cash-in under review</span>
+                    <button class="ch-btn sm" id="cashBtn" type="button">💰 Cash in</button>
                 </div>
             </div>
         </div>
@@ -200,7 +200,7 @@
 
         <div class="section-title">
             <h2>🎯 Generate an account</h2>
-            <span class="ch-small ch-muted">Included with your monthly subscription</span>
+            <span class="ch-small ch-muted">Each generation is charged from your balance</span>
         </div>
         <div class="ch-grid cols-3" id="serviceGrid">
             <div class="ch-empty">Loading services…</div>
@@ -245,7 +245,7 @@
             if (!member) return;
             $('welcome').textContent = `Welcome back, ${member.name}`;
             $('welcomeSub').innerHTML = `Member since ${CH.when(member.createdAt)} · ` +
-                `key verified · <span class="ch-muted">covered by your monthly subscription</span>`;
+                `key verified · <span class="ch-muted">pay per generation from your balance</span>`;
             $('balanceValue').textContent = CH.money(member.balance);
             myKey = member.key || '';
             $('keyChip').textContent = member.key || '—';
@@ -276,6 +276,7 @@
                     <div class="credential">${CH.esc(svc.credential || '')}</div>
                     <div class="foot">
                         <span class="ch-badge ${out ? 'bad' : 'good'}">${out ? 'Out of stock' : svc.available + ' in stock'}</span>
+                        <span class="ch-badge info" title="Charged from your balance per generation">${CH.money(svc.price)} / gen</span>
                         <a class="ch-btn sm ${out ? 'ghost' : ''}" href="${CH.esc(svc.path)}">Generate</a>
                     </div>
                 </div>`;
@@ -344,51 +345,42 @@
             }).join('')}</div>`;
         }
 
-        // -------------------------------------------------- subscription
-        const SUB_IMG = '/assets/crack.jpg';
-        let subState = null;
+        // -------------------------------------------------- cash-in
+        const DEFAULT_DENOMS = [50, 100, 500, 1000].map(amount => ({ amount, qr: `/assets/prices/${amount}.PNG` }));
+        let cashState = null;
+        let cashAmount = 50;
         let receiptData = '';
 
-        function subBadgeInfo(sub) {
-            if (!sub || sub.status === 'none') return { text: 'No active plan', cls: 'bad' };
-            if (sub.status === 'expired') return { text: 'Expired', cls: 'bad' };
-            return { text: `${sub.daysLeft} day(s) left`, cls: 'good' };
+        function renderCashBadge(state) {
+            const badge = $('cashBadge');
+            badge.hidden = !(Number(state && state.pending) > 0);
+            badge.className = 'ch-badge warn';
+            badge.textContent = 'Cash-in under review';
         }
 
-        function renderSubscription(state) {
-            subState = state;
-            const sub = (state && state.subscription) || {};
-            const plan = (state && state.plan) || {};
-            const info = subBadgeInfo(sub);
-            const badge = $('subBadge');
-            badge.className = 'ch-badge ' + info.cls;
-            badge.textContent = 'Subscription: ' + info.text;
-            $('subBtn').textContent = (sub.status === 'active' ? 'Renew · ' : 'Subscribe · ') + CH.money(plan.amount || 500);
-        }
-
-        async function loadSubscription(options) {
+        async function loadCashin(options) {
             const opts = options || {};
             try {
-                const state = await CH.request('/api/member/subscription');
-                renderSubscription(state);
-                if (opts.autoOpen && (!state.subscription || state.subscription.status !== 'active')) {
-                    openSubscribeModal(state);
-                }
+                const state = await CH.request('/api/member/cashin');
+                cashState = state;
+                renderCashBadge(state);
+                if (opts.autoOpen) openCashinModal(state);
                 return state;
             } catch (err) {
                 return null;
             }
         }
 
-        function openSubscribeModal(state) {
-            state = state || subState;
-            const plan = (state && state.plan) || { amount: 500, label: 'CrackHub Premium', period: 'per month' };
+        function openCashinModal(state) {
+            state = state || cashState;
+            const denominations = (state && state.denominations) || DEFAULT_DENOMS;
             const requests = (state && state.requests) || [];
             const pending = requests.some(r => r.status === 'pending');
+            const selected = denominations.find(d => Number(d.amount) === cashAmount) || denominations[0];
 
             const history = requests.slice(0, 4).map(r => `
                 <div class="ch-list-item">
-                    <div>${CH.esc(r.reference || r.id)}
+                    <div>${CH.money(r.amount)}${r.reference ? ' · ref ' + CH.esc(r.reference) : ''}
                         <div class="ch-small ch-muted">${CH.when(r.createdAt)}</div>
                     </div>
                     <span class="ch-badge ${r.status === 'approved' ? 'good' : r.status === 'rejected' ? 'bad' : 'warn'}">${CH.esc(r.status)}</span>
@@ -396,48 +388,39 @@
 
             const body = pending ? `
                 <div class="sub-note">
-                    <strong>Receipt under review.</strong>
-                    The admin is verifying your ${CH.money(plan.amount)} payment — you'll be activated as soon as it's approved.
+                    <strong>Cash-in under review.</strong>
+                    The admin is verifying your GCash receipt — the amount lands in your balance as soon as it's approved.
                 </div>
                 ${history ? `<hr class="ch-hr"><h3 style="font-size:15px">Your submissions</h3><div class="ch-list">${history}</div>` : ''}
                 <div class="ch-row" style="margin-top:18px">
                     <button class="ch-btn ghost" data-sub-close type="button">Close</button>
                 </div>` : `
                 <p class="ch-small ch-muted">
-                    Scan the QR with your banking app and pay <strong>${CH.money(plan.amount)}</strong>
-                    (${CH.esc(plan.label || 'CrackHub Premium')} — ${CH.esc(plan.period || 'per month')}).
-                    Then attach a screenshot of your receipt below.
+                    Pick an amount, scan the QR with your <strong>GCash</strong> app and pay that exact amount.
+                    Then attach a screenshot of the receipt below — the admin approves it into your balance.
                 </p>
-                <img class="sub-qr" src="${SUB_IMG}" alt="CrackHub payment QR">
+                <div class="ch-row" id="denomRow" style="margin:14px 0">
+                    ${denominations.map(d => `
+                        <button class="ch-btn sm ${Number(d.amount) === cashAmount ? '' : 'ghost'}" data-denom="${Number(d.amount)}" type="button">₱${Number(d.amount)}</button>`).join('')}
+                </div>
+                <img class="sub-qr" id="cashQr" src="${CH.esc(selected.qr)}" alt="GCash QR for ${CH.money(cashAmount)}">
                 <label class="drop" id="dropZone">
                     <input type="file" id="receiptFile" accept="image/*">
-                    <div id="dropText">📎 Tap to attach your payment receipt</div>
+                    <div id="dropText">📎 Tap to attach your GCash receipt</div>
                 </label>
                 <img class="receipt-preview" id="receiptPreview" alt="Receipt preview">
-                <div class="ch-inline-form" style="margin-top:14px">
-                    <div class="ch-field"><label for="subMethod">Payment method</label>
-                        <select class="ch-select" id="subMethod">
-                            <option value="instapay">InstaPay</option>
-                            <option value="gcash">GCash</option>
-                            <option value="maya">Maya</option>
-                            <option value="bank">Bank transfer</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="ch-field"><label for="subReference">Reference number</label>
-                        <input class="ch-input" id="subReference" type="text" placeholder="e.g. 0123456789"></div>
-                </div>
+                <div class="ch-field" style="margin-top:14px"><label for="cashReference">GCash reference number (optional)</label>
+                    <input class="ch-input" id="cashReference" type="text" placeholder="e.g. 0123456789"></div>
                 <div class="ch-row" style="margin-top:16px">
-                    <button class="ch-btn" id="subSubmit" type="button">Send receipt</button>
+                    <button class="ch-btn" id="cashSubmit" type="button">Send cash-in</button>
                     <button class="ch-btn ghost" data-sub-close type="button">Later</button>
                 </div>
                 ${history ? `<hr class="ch-hr"><h3 style="font-size:15px">Your submissions</h3><div class="ch-list">${history}</div>` : ''}`;
 
-            $('subModalBox').innerHTML =
-                `<h3>⭐ ${CH.esc(plan.label || 'CrackHub Premium')} — ${CH.money(plan.amount)} ${CH.esc(plan.period || 'per month')}</h3>${body}`;
+            $('subModalBox').innerHTML = `<h3>💰 Cash in ${CH.money(cashAmount)}</h3>${body}`;
             $('subModal').classList.add('open');
 
-            if (!pending) wireReceiptForm();
+            if (!pending) wireCashinForm(denominations);
         }
 
         function compressImage(file) {
@@ -472,7 +455,7 @@
             });
         }
 
-        function wireReceiptForm() {
+        function wireCashinForm(denominations) {
             receiptData = '';
             const fileInput = $('receiptFile');
             const preview = $('receiptPreview');
@@ -493,36 +476,47 @@
                 }
             });
 
-            $('subSubmit').addEventListener('click', submitReceipt);
+            // Switching the amount swaps the QR without dropping the receipt.
+            $('denomRow').addEventListener('click', e => {
+                const btn = e.target.closest('[data-denom]');
+                if (!btn) return;
+                cashAmount = Number(btn.dataset.denom);
+                const denom = denominations.find(d => Number(d.amount) === cashAmount) || denominations[0];
+                $('cashQr').src = denom.qr;
+                $('cashQr').alt = `GCash QR for ${CH.money(cashAmount)}`;
+                $('subModalBox').querySelector('h3').textContent = `💰 Cash in ${CH.money(cashAmount)}`;
+                $('denomRow').querySelectorAll('[data-denom]').forEach(b =>
+                    b.classList.toggle('ghost', Number(b.dataset.denom) !== cashAmount));
+            });
+
+            $('cashSubmit').addEventListener('click', submitCashin);
         }
 
-        async function submitReceipt() {
-            if (!receiptData) { CH.toast('Attach a screenshot of your receipt first.', 'bad'); return; }
-            const btn = $('subSubmit');
+        async function submitCashin() {
+            if (!receiptData) { CH.toast('Attach your GCash receipt first.', 'bad'); return; }
+            const btn = $('cashSubmit');
             btn.disabled = true;
             btn.textContent = 'Sending…';
             try {
-                await CH.request('/api/member/subscription/receipt', {
+                await CH.request('/api/member/cashin', {
                     method: 'POST',
                     body: {
+                        amount: cashAmount,
                         receipt: receiptData,
-                        method: $('subMethod').value,
-                        reference: $('subReference').value.trim(),
-                        amount: (subState && subState.plan && subState.plan.amount) || 500,
+                        reference: ($('cashReference') && $('cashReference').value.trim()) || '',
                     },
                 });
-                CH.toast('Receipt sent — the admin will verify it shortly.', 'good');
-                const state = await CH.request('/api/member/subscription');
-                renderSubscription(state);
-                openSubscribeModal(state);
+                CH.toast('Cash-in sent — the admin will verify your GCash receipt shortly.', 'good');
+                const state = await loadCashin();
+                openCashinModal(state);
             } catch (err) {
                 CH.toast(err.message, 'bad');
                 btn.disabled = false;
-                btn.textContent = 'Send receipt';
+                btn.textContent = 'Send cash-in';
             }
         }
 
-        $('subBtn').addEventListener('click', () => loadSubscription({ autoOpen: true }));
+        $('cashBtn').addEventListener('click', () => loadCashin({ autoOpen: true }));
         $('subModal').addEventListener('click', e => {
             if (e.target.id === 'subModal' || e.target.closest('[data-sub-close]')) {
                 $('subModal').classList.remove('open');
@@ -536,7 +530,7 @@
             requireRole: 'member',
             onReady: async me => {
                 renderMember(me.member);
-                loadSubscription({ autoOpen: true });
+                loadCashin();
                 await Promise.all([loadServices(), loadUsage(), loadTx()]);
             },
         });

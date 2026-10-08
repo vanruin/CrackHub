@@ -111,14 +111,16 @@
             <div class="stat-card"><div class="ch-stat-label">Net</div><div class="ch-stat-value" id="stNet">₱0.00</div></div>
             <div class="stat-card"><div class="ch-stat-label">Generations</div><div class="ch-stat-value" id="stGenerations">0</div></div>
             <div class="stat-card"><div class="ch-stat-label">Open tickets</div><div class="ch-stat-value" id="stTickets">0</div></div>
-            <div class="stat-card"><div class="ch-stat-label">Subscriptions pending</div><div class="ch-stat-value" id="stSubs">0</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Cash-ins pending</div><div class="ch-stat-value" id="stCashIns">0</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Cash-ins approved</div><div class="ch-stat-value" id="stCashIn">₱0.00</div></div>
         </div>
 
         <div class="ch-tabs" id="adminTabs">
             <button class="ch-tab active" data-tab="members" type="button">Members</button>
             <button class="ch-tab" data-tab="tickets" type="button">Tickets</button>
             <button class="ch-tab" data-tab="pools" type="button">Pools</button>
-            <button class="ch-tab" data-tab="subscriptions" type="button">Subscriptions</button>
+            <button class="ch-tab" data-tab="cashins" type="button">Cash-ins</button>
+            <button class="ch-tab" data-tab="pricing" type="button">Pricing</button>
             <button class="ch-tab" data-tab="settings" type="button">Settings</button>
         </div>
 
@@ -192,20 +194,38 @@
             </div>
         </section>
 
-        <!-- ============================================================ SUBSCRIPTIONS -->
-        <section class="admin-section" id="pane-subscriptions">
+        <!-- ============================================================ CASH-INS -->
+        <section class="admin-section" id="pane-cashins">
             <div class="toolbar">
-                <select class="ch-select" id="subFilter">
+                <select class="ch-select" id="cashFilter">
                     <option value="pending">Pending review</option>
                     <option value="all">All</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
                 </select>
-                <input class="ch-input" id="subSearch" type="search" placeholder="Reference, member, key…">
-                <button class="ch-btn ghost sm" id="subSearchBtn" type="button">Search</button>
-                <span class="ch-small ch-muted" id="subCount"></span>
+                <input class="ch-input" id="cashSearch" type="search" placeholder="Reference, member, key…">
+                <button class="ch-btn ghost sm" id="cashSearchBtn" type="button">Search</button>
+                <span class="ch-small ch-muted" id="cashCount"></span>
             </div>
-            <div id="subsList" class="ch-list"><div class="ch-empty">Loading subscriptions…</div></div>
+            <div id="cashList" class="ch-list"><div class="ch-empty">Loading cash-ins…</div></div>
+        </section>
+
+        <!-- ============================================================ PRICING -->
+        <section class="admin-section" id="pane-pricing">
+            <div class="ch-card" style="margin-bottom:18px">
+                <h2>Service prices</h2>
+                <p class="ch-small ch-muted">What each generation costs the member. Changes apply immediately — the store shows these prices right away.</p>
+            </div>
+            <div class="toolbar">
+                <button class="ch-btn" id="savePrices" type="button">Save prices</button>
+                <span class="ch-small ch-muted" id="priceHint">Prices are charged from the member's balance per generation.</span>
+            </div>
+            <div class="ch-card ch-scroll">
+                <table class="ch-table">
+                    <thead><tr><th>Service</th><th>Price per generation (₱)</th></tr></thead>
+                    <tbody id="pricingBody"><tr><td colspan="2" class="ch-muted">Loading prices…</td></tr></tbody>
+                </table>
+            </div>
         </section>
 
         <!-- ============================================================ SETTINGS -->
@@ -271,7 +291,8 @@
                 $('stNet').textContent = CH.money(s.net);
                 $('stGenerations').textContent = s.totalGenerated || 0;
                 $('stTickets').textContent = (s.tickets && s.tickets.open) || 0;
-                $('stSubs').textContent = (s.subscriptions && s.subscriptions.pending) || 0;
+                $('stCashIns').textContent = (s.cashIns && s.cashIns.pending) || 0;
+                $('stCashIn').textContent = CH.money((s.cashIns && s.cashIns.approvedTotal) || 0);
                 $('adminSub').textContent =
                     `${s.members || 0} members · ${s.generations || 0} logged generations · ` +
                     `${(s.tickets && s.tickets.total) || 0} tickets all-time`;
@@ -291,14 +312,15 @@
             if (name === 'settings') loadConfig();
             if (name === 'tickets') loadTickets();
             if (name === 'members') loadMembers();
-            if (name === 'subscriptions') loadSubscriptions();
+            if (name === 'cashins') loadCashIns();
+            if (name === 'pricing') loadPricing();
         });
 
         $('refreshAll').addEventListener('click', () => {
             loadStats();
             loadMembers();
             loadTickets();
-            loadSubscriptions();
+            loadCashIns();
         });
 
         // ------------------------------------------------------------ members
@@ -666,37 +688,37 @@
         $('modalBox').addEventListener('click', async e => {
             if (e.target.closest('[data-close-modal]')) return closeModal();
 
-            const approve = e.target.closest('[data-approve-sub]');
+            const approve = e.target.closest('[data-approve-cash]');
             if (approve) {
-                const id = approve.dataset.approveSub;
-                const note = ($('subAdminNote') && $('subAdminNote').value.trim()) || '';
+                const id = approve.dataset.approveCash;
+                const note = ($('cashAdminNote') && $('cashAdminNote').value.trim()) || '';
                 approve.disabled = true;
-                approve.textContent = 'Activating…';
+                approve.textContent = 'Crediting…';
                 try {
-                    const data = await CH.request(`/api/admin/subscriptions/${encodeURIComponent(id)}/approve`,
+                    const data = await CH.request(`/api/admin/cashins/${encodeURIComponent(id)}/approve`,
                         { method: 'POST', body: { note } });
-                    CH.toast(data.message || 'Subscription activated', 'good');
-                    await openSubscriptionModal(id);
-                    await Promise.all([loadSubscriptions(), loadMembers(), loadStats()]);
+                    CH.toast(data.message || 'Cash-in approved', 'good');
+                    await openCashinModal(id);
+                    await Promise.all([loadCashIns(), loadMembers(), loadStats()]);
                 } catch (err) {
                     CH.toast(err.message, 'bad');
                     approve.disabled = false;
-                    approve.textContent = 'Approve · activate';
+                    approve.textContent = 'Approve · credit balance';
                 }
                 return;
             }
 
-            const rejectSub = e.target.closest('[data-reject-sub]');
-            if (rejectSub) {
-                const id = rejectSub.dataset.rejectSub;
-                const note = ($('subAdminNote') && $('subAdminNote').value.trim()) || '';
-                if (!confirm(`Reject receipt ${id}? The member can submit a new one.`)) return;
+            const rejectCash = e.target.closest('[data-reject-cash]');
+            if (rejectCash) {
+                const id = rejectCash.dataset.rejectCash;
+                const note = ($('cashAdminNote') && $('cashAdminNote').value.trim()) || '';
+                if (!confirm(`Reject cash-in ${id}? No balance is credited and the member can submit a new one.`)) return;
                 try {
-                    await CH.request(`/api/admin/subscriptions/${encodeURIComponent(id)}/reject`,
+                    await CH.request(`/api/admin/cashins/${encodeURIComponent(id)}/reject`,
                         { method: 'POST', body: { note } });
-                    CH.toast('Receipt rejected.', 'good');
-                    await openSubscriptionModal(id);
-                    await loadSubscriptions();
+                    CH.toast('Cash-in rejected.', 'good');
+                    await openCashinModal(id);
+                    await loadCashIns();
                 } catch (err) {
                     CH.toast(err.message, 'bad');
                 }
@@ -812,26 +834,27 @@
             }
         });
 
-        // ------------------------------------------------------------ subscriptions
-        async function loadSubscriptions() {
-            const status = $('subFilter').value;
-            const query = $('subSearch').value.trim();
+        // ------------------------------------------------------------ cash-ins
+        async function loadCashIns() {
+            const status = $('cashFilter').value;
+            const query = $('cashSearch').value.trim();
             try {
                 const data = await CH.request(
-                    `/api/admin/subscriptions?status=${encodeURIComponent(status)}&query=${encodeURIComponent(query)}`);
-                renderSubscriptions(data.requests || [], data.counts || {});
+                    `/api/admin/cashins?status=${encodeURIComponent(status)}&query=${encodeURIComponent(query)}`);
+                renderCashIns(data.requests || [], data.counts || {});
             } catch (err) {
                 CH.toast(err.message, 'bad');
             }
         }
 
-        function renderSubscriptions(list, counts) {
-            $('subCount').textContent =
-                `${list.length} shown · ${counts.pending || 0} pending · ${counts.approved || 0} approved · ${counts.total || 0} total`;
-            const box = $('subsList');
+        function renderCashIns(list, counts) {
+            $('cashCount').textContent =
+                `${list.length} shown · ${counts.pending || 0} pending · ${counts.approved || 0} approved · ` +
+                `${CH.money(counts.approvedTotal || 0)} credited`;
+            const box = $('cashList');
 
             if (!list.length) {
-                box.innerHTML = '<div class="ch-empty">No subscription receipts match this filter.</div>';
+                box.innerHTML = '<div class="ch-empty">No cash-in requests match this filter.</div>';
                 return;
             }
 
@@ -841,8 +864,8 @@
                         <div>
                             <div class="key-cell">${CH.esc(r.id)}</div>
                             <div style="margin-top:8px">
-                                <strong>${CH.esc(r.planLabel || r.plan)}</strong>
-                                <span class="ch-muted">· ${CH.money(r.amount)} · ${CH.esc(r.method)}${r.reference ? ' · ref ' + CH.esc(r.reference) : ''}</span>
+                                <strong>${CH.money(r.amount)}</strong>
+                                <span class="ch-muted">· GCash${r.reference ? ' · ref ' + CH.esc(r.reference) : ''}</span>
                             </div>
                             <div class="ch-small ch-muted">
                                 ${CH.esc(r.memberName)} (${CH.esc(r.memberKey)}) · submitted ${CH.when(r.createdAt)}
@@ -851,59 +874,108 @@
                         <div class="ch-row">
                             <span class="ch-badge ${STATUS_BADGE[r.status] || ''}">${CH.esc(r.status)}</span>
                             ${r.hasReceipt ? '<span class="ch-badge info">receipt</span>' : ''}
-                            <button class="ch-btn sm" data-open-sub="${CH.esc(r.id)}" type="button">Review</button>
+                            <button class="ch-btn sm" data-open-cash="${CH.esc(r.id)}" type="button">Review</button>
                         </div>
                     </div>
                     ${r.note ? `<p class="ch-small" style="margin:10px 0 0">📝 ${CH.esc(r.note)}</p>` : ''}
                 </div>`).join('');
         }
 
-        $('subSearchBtn').addEventListener('click', loadSubscriptions);
-        $('subSearch').addEventListener('keydown', e => { if (e.key === 'Enter') loadSubscriptions(); });
-        $('subFilter').addEventListener('change', loadSubscriptions);
+        $('cashSearchBtn').addEventListener('click', loadCashIns);
+        $('cashSearch').addEventListener('keydown', e => { if (e.key === 'Enter') loadCashIns(); });
+        $('cashFilter').addEventListener('change', loadCashIns);
 
-        $('subsList').addEventListener('click', e => {
-            const btn = e.target.closest('[data-open-sub]');
-            if (btn) openSubscriptionModal(btn.dataset.openSub);
+        $('cashList').addEventListener('click', e => {
+            const btn = e.target.closest('[data-open-cash]');
+            if (btn) openCashinModal(btn.dataset.openCash);
         });
 
-        async function openSubscriptionModal(id) {
+        async function openCashinModal(id) {
             try {
-                const data = await CH.request(`/api/admin/subscriptions/${encodeURIComponent(id)}`);
+                const data = await CH.request(`/api/admin/cashins/${encodeURIComponent(id)}`);
                 const r = data.request;
                 const m = data.member || {};
 
                 openModal(`
-                    <h3>${CH.esc(r.id)} — ${CH.esc(r.planLabel || r.plan)}</h3>
+                    <h3>${CH.esc(r.id)} — ${CH.money(r.amount)} cash-in</h3>
                     <div class="ch-row" style="margin-bottom:12px">
                         <span class="ch-badge ${STATUS_BADGE[r.status] || ''}">${CH.esc(r.status)}</span>
-                        <span class="ch-badge">${CH.money(r.amount)}</span>
+                        <span class="ch-badge">${CH.money(r.amount)} · GCash</span>
                         <span class="ch-badge">${CH.esc(m.name || r.memberName)} · bal ${CH.money(m.balance)}</span>
-                        ${r.expiresAt ? `<span class="ch-badge good">until ${CH.when(r.expiresAt)}</span>` : ''}
                     </div>
                     <p class="ch-small ch-muted">
-                        Key ${CH.esc(r.memberKey)} · method ${CH.esc(r.method)}${r.reference ? ` · ref ${CH.esc(r.reference)}` : ''}<br>
+                        Key ${CH.esc(r.memberKey)}${r.reference ? ` · ref ${CH.esc(r.reference)}` : ''}<br>
                         Submitted ${CH.when(r.createdAt)}${r.reviewedAt ? ` · reviewed ${CH.when(r.reviewedAt)}` : ''}
                     </p>
                     ${r.note ? `<p class="ch-small">📝 ${CH.esc(r.note)}</p>` : ''}
                     <hr class="ch-hr">
-                    <h3 style="font-size:15px">Payment receipt</h3>
+                    <h3 style="font-size:15px">GCash receipt</h3>
                     ${r.receipt
-                        ? `<img src="${r.receipt}" alt="Payment receipt" style="max-width:100%;border-radius:12px;border:1px solid var(--ch-border)">`
+                        ? `<img src="${r.receipt}" alt="GCash receipt" style="max-width:100%;border-radius:12px;border:1px solid var(--ch-border)">`
                         : '<div class="ch-empty">No receipt attached.</div>'}
                     <hr class="ch-hr">
-                    <div class="ch-field"><label for="subAdminNote">Note (optional)</label>
-                        <input class="ch-input" id="subAdminNote" type="text" placeholder="verified via GCash — ref matches"></div>
+                    <div class="ch-field"><label for="cashAdminNote">Note (optional)</label>
+                        <input class="ch-input" id="cashAdminNote" type="text" placeholder="verified via GCash — ref matches"></div>
                     <div class="ch-row">
-                        <button class="ch-btn ok" data-approve-sub="${CH.esc(r.id)}" type="button" ${r.status === 'approved' ? 'disabled' : ''}>Approve · activate</button>
-                        <button class="ch-btn danger" data-reject-sub="${CH.esc(r.id)}" type="button" ${r.status === 'rejected' ? 'disabled' : ''}>Reject</button>
+                        <button class="ch-btn ok" data-approve-cash="${CH.esc(r.id)}" type="button" ${r.status === 'approved' ? 'disabled' : ''}>Approve · credit balance</button>
+                        <button class="ch-btn danger" data-reject-cash="${CH.esc(r.id)}" type="button" ${r.status === 'rejected' ? 'disabled' : ''}>Reject</button>
                         <button class="ch-btn ghost" data-close-modal type="button">Close</button>
                     </div>
-                    ${r.adminNote ? `<p class="ch-small ch-muted" style="margin-top:12px">Admin note: ${CH.esc(r.adminNote)}</p>` : ''}`);
+                    ${r.adminNote ? `<p class="ch-small ch-muted" style="margin-top:12px">Admin note: ${CH.esc(r.adminNote)}</p>` : ''}
+                    ${r.creditedTo !== null && r.creditedTo !== undefined ? `<p class="ch-small ch-muted">Credited balance: ${CH.money(r.creditedTo)}</p>` : ''}`);
             } catch (err) {
                 CH.toast(err.message, 'bad');
             }
         }
+
+        // ------------------------------------------------------------ pricing
+        let PRICES = [];
+
+        async function loadPricing() {
+            try {
+                const data = await CH.request('/api/admin/pricing');
+                PRICES = data.prices || [];
+                renderPricing();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        function renderPricing() {
+            const body = $('pricingBody');
+            if (!PRICES.length) {
+                body.innerHTML = '<tr><td colspan="2" class="ch-muted">No services configured.</td></tr>';
+                return;
+            }
+            body.innerHTML = PRICES.map(p => `
+                <tr>
+                    <td>${CH.esc(p.emoji)} ${CH.esc(p.label)} <span class="ch-muted mono-small">${CH.esc(p.key)}</span></td>
+                    <td><input class="ch-input price-input" type="number" min="0" step="0.5" value="${Number(p.price)}"
+                         data-price-key="${CH.esc(p.key)}" style="max-width:160px"></td>
+                </tr>`).join('');
+        }
+
+        $('savePrices').addEventListener('click', async () => {
+            const prices = {};
+            document.querySelectorAll('[data-price-key]').forEach(input => {
+                prices[input.dataset.priceKey] = Number(input.value);
+            });
+            if (!Object.keys(prices).length) { CH.toast('Nothing to save yet.', 'bad'); return; }
+            if (Object.values(prices).some(v => !Number.isFinite(v) || v < 0)) {
+                CH.toast('Prices must be 0 or more.', 'bad');
+                return;
+            }
+
+            try {
+                const data = await CH.request('/api/admin/pricing', { method: 'POST', body: { prices } });
+                PRICES = data.prices || PRICES;
+                renderPricing();
+                CH.toast(data.message || 'Prices saved.', 'good');
+                await loadStats();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        });
 
         // ------------------------------------------------------------ pools
         async function loadPoolOptions() {

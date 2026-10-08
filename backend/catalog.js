@@ -1,8 +1,8 @@
 /**
  * Service catalog — single source of truth for the platforms.
- * Everything here is covered by the monthly subscription, so entries carry
- * no price. `view()` shapes the catalog for the storefront by adding the
- * live pool size.
+ * The live per-service price lives in backend/data/pricing.json
+ * (admin-editable, defaults come from pricing.js). `view()` shapes the
+ * catalog for the storefront by adding the live pool size and price.
  */
 
 const CATALOG = [
@@ -123,7 +123,7 @@ const BY_KEY = CATALOG.reduce((acc, svc) => {
     return acc;
 }, {});
 
-async function view(poolCounter) {
+async function view(poolCounter, prices = {}) {
     return Promise.all(CATALOG.map(async svc => ({
         key: svc.key,
         label: svc.label,
@@ -131,6 +131,7 @@ async function view(poolCounter) {
         color: svc.color,
         path: svc.path,
         credential: svc.credential,
+        price: Number.isFinite(Number(prices[svc.key])) ? Number(prices[svc.key]) : 0,
         available: poolCounter ? await poolCounter(svc.key) : 0,
     })));
 }

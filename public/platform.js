@@ -195,7 +195,7 @@
                 return res;
             }
             if (res.status === 402) {
-                CH.toast('Not enough balance — ask the admin to add funds.', 'bad');
+                CH.toast('Not enough balance — cash in to add funds.', 'bad');
                 return res;
             }
 

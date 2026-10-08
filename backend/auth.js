@@ -12,6 +12,7 @@ const cookie = require('cookie');
 
 const config = require('./config');
 const members = require('./members');
+const pricing = require('./pricing');
 const { getservice } = require('./catalog');
 
 const COOKIE_NAME = 'ch_access';
@@ -209,8 +210,8 @@ function defaultExtract(body) {
 
 /**
  * Guard `service` generations: per-member rate limit + usage recording.
- * Everything is covered by the monthly subscription, so nothing is charged —
- * a delivered account is only written to the member's usage history.
+ * Every generation is charged at the service's live price, debited from the
+ * member's balance (402 when the balance cannot cover it).
  */
 function generation(service, options = {}) {
     const svc = getservice(service);
@@ -246,8 +247,22 @@ function generation(service, options = {}) {
                 });
             }
 
+            // Charge the live price of the service — refuse before delivering
+            // an account the member cannot pay for.
+            const price = await pricing.priceFor(svc.key);
+            const balance = Number(member.balance) || 0;
+            if (price > 0 && balance < price) {
+                return res.status(402).json({
+                    success: false,
+                    code: 'INSUFFICIENT_FUNDS',
+                    error: `Not enough balance — ${svc.label} costs ₱${price} and your balance is ₱${balance}. Cash in to add funds.`,
+                    price,
+                    balance,
+                });
+            }
+
             res.setHeader('X-CrackHub-Charged', '0');
-            res.setHeader('X-CrackHub-Balance', String(Number(member.balance) || 0));
+            res.setHeader('X-CrackHub-Balance', String(balance));
 
             const originalJson = res.json.bind(res);
 
@@ -258,6 +273,7 @@ function generation(service, options = {}) {
                         const info = (options.extract || defaultExtract)(body);
                         const record = await members.recordGeneration(member.id, {
                             service: svc.key,
+                            price,
                             login: info.login,
                             label: info.label,
                             meta: info.meta,
@@ -270,7 +286,7 @@ function generation(service, options = {}) {
                             body.billing = {
                                 service: svc.key,
                                 label: svc.label,
-                                charged: 0,
+                                charged: record.recorded,
                                 balance: record.balance,
                                 usageId: record.usageId,
                             };
@@ -278,6 +294,15 @@ function generation(service, options = {}) {
                     }
                 } catch (err) {
                     console.error(`⚠️  generation(${svc.key}) could not record the account:`, err.message);
+                    if (err.status === 402 || err.code === 'INSUFFICIENT_FUNDS') {
+                        // balance changed under us — report the failed charge
+                        res.status(402);
+                        if (body && typeof body === 'object') {
+                            body.success = false;
+                            body.code = 'INSUFFICIENT_FUNDS';
+                            body.error = err.message;
+                        }
+                    }
                     if (body && typeof body === 'object' && !body.billing) {
                         body.billing = { service: svc.key, charged: 0, error: err.message };
                     }

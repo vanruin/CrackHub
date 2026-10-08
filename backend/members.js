@@ -60,25 +60,6 @@ function pushTx(member, tx) {
     member.transactions = member.transactions.slice(-TX_LIMIT);
 }
 
-/** Normalised subscription view — never trusts a stale stored status. */
-function subscriptionView(member) {
-    const sub = member && member.subscription;
-    if (!sub || !sub.expiresAt) {
-        return { status: 'none', plan: null, planLabel: '', amount: 0, startedAt: null, expiresAt: null, daysLeft: 0 };
-    }
-    const expires = new Date(sub.expiresAt).getTime();
-    const active = Number.isFinite(expires) && expires > Date.now();
-    return {
-        status: active ? 'active' : 'expired',
-        plan: sub.plan || 'monthly',
-        planLabel: sub.planLabel || '',
-        amount: money2(sub.amount),
-        startedAt: sub.startedAt || null,
-        expiresAt: sub.expiresAt || null,
-        daysLeft: active ? Math.ceil((expires - Date.now()) / 86400000) : 0,
-    };
-}
-
 function publicView(member) {
     if (!member) return null;
     return {
@@ -88,7 +69,6 @@ function publicView(member) {
         balance: money2(member.balance),
         status: member.status || 'active',
         note: member.note || '',
-        subscription: subscriptionView(member),
         createdAt: member.createdAt,
         updatedAt: member.updatedAt,
         lastUsedAt: member.lastUsedAt || null,
@@ -180,7 +160,6 @@ async function createMember({ name, key, balance = 0, note = '', status = 'activ
             totalSpent: 0,
             totalGenerated: 0,
             generationsByService: {},
-            subscription: null,
             transactions: [],
             usage: [],
         };
@@ -327,22 +306,47 @@ function recordUsage(member, { service, price, login, label, meta }) {
 
 /**
  * Record a delivered account: usage history + generation stats.
- * Generations are covered by the monthly subscription, so nothing is charged.
+ * The service's current price is debited from the member's balance —
+ * a 402 (INSUFFICIENT_FUNDS) is thrown when the balance cannot cover it.
  */
-async function recordGeneration(id, { service, login = '', label = '', meta = {} } = {}) {
+async function recordGeneration(id, { service, price = 0, login = '', label = '', meta = {} } = {}) {
+    const charge = money2(price);
+
     return mutate(async members => {
         const member = members.find(m => m.id === id);
         if (!member) throw new Error('Member not found');
+
+        if (charge > 0) {
+            // raw arithmetic first — money() clamps negatives to 0, which would
+            // hide an insufficient balance instead of rejecting it.
+            const before = Number(member.balance) || 0;
+            const after = Math.round((before - charge) * 100) / 100;
+            if (after < 0) {
+                const err = new Error(`Not enough balance — this costs ₱${charge} but you have ₱${money2(before)}. Cash in first.`);
+                err.code = 'INSUFFICIENT_FUNDS';
+                err.status = 402;
+                throw err;
+            }
+            member.balance = money2(after);
+            member.totalSpent = money2(money2(member.totalSpent) + charge);
+            pushTx(member, {
+                type: 'debit',
+                amount: charge,
+                balanceAfter: money2(after),
+                note: `Generation — ${service}`,
+                by: 'member',
+            });
+        }
 
         member.totalGenerated = (member.totalGenerated || 0) + 1;
         member.generationsByService = member.generationsByService || {};
         member.generationsByService[service] = (member.generationsByService[service] || 0) + 1;
 
         member.updatedAt = nowIso();
-        recordUsage(member, { service, price: 0, login, label, meta });
+        recordUsage(member, { service, price: charge, login, label, meta });
 
         const last = member.usage[member.usage.length - 1] || {};
-        return { recorded: 0, balance: money2(member.balance), usageId: last.id || null };
+        return { recorded: charge, balance: money2(member.balance), usageId: last.id || null };
     });
 }
 
@@ -376,46 +380,6 @@ async function findUsageByTicket(memberId, usageId) {
     return (member.usage || []).find(u => u.id === usageId) || null;
 }
 
-/**
- * Activate or extend a member's subscription. Renewing early extends from the
- * later of "now" and the current expiry, so paid days are never lost.
- */
-async function activateSubscription(id, { days = 30, amount = 0, plan = 'monthly', planLabel = '', note = '', by = 'admin' } = {}) {
-    const span = Math.max(1, Math.floor(Number(days) || 30));
-
-    return mutate(async members => {
-        const member = members.find(m => m.id === id);
-        if (!member) throw new Error('Member not found');
-
-        const now = Date.now();
-        const currentExpiry = member.subscription && member.subscription.expiresAt
-            ? new Date(member.subscription.expiresAt).getTime()
-            : 0;
-        const extending = Number.isFinite(currentExpiry) && currentExpiry > now;
-        const base = extending ? currentExpiry : now;
-
-        member.subscription = {
-            plan,
-            planLabel: String(planLabel || '').slice(0, 40),
-            amount: money2(amount),
-            startedAt: extending && member.subscription.startedAt ? member.subscription.startedAt : nowIso(),
-            expiresAt: new Date(base + span * 86400000).toISOString(),
-            updatedAt: nowIso(),
-        };
-        member.updatedAt = nowIso();
-
-        pushTx(member, {
-            type: 'subscription',
-            amount: money2(amount),
-            balanceAfter: money2(member.balance),
-            note: String(note || `Subscription activated — ${span} day(s)`).slice(0, 200),
-            by,
-        });
-
-        return publicView(member);
-    });
-}
-
 module.exports = {
     generateKey,
     normalizeKey,
@@ -437,7 +401,6 @@ module.exports = {
     getTransactions,
     markUsageTicketed,
     findUsageByTicket,
-    activateSubscription,
 };
 
 
