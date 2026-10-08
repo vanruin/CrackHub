@@ -203,7 +203,7 @@ app.delete('/api/steam-accounts/:username', auth.requireAdmin, async (req, res) 
  * Parse raw account text and detect the format — no file writes.
  * Body: { text: "...", service?: string }
  */
-app.post('/api/accounts/parse', auth.requireMember, (req, res) => {
+app.post('/api/accounts/parse', auth.requireAdmin, (req, res) => {
     try {
         const { text, service } = req.body || {};
         if (!text || typeof text !== 'string' || !text.trim()) {
