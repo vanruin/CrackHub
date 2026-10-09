@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-29T08:01:50.804Z",
+  "updatedAt": "2026-10-09T02:42:26.528Z",
   "members": [
     {
       "id": "MBR_3A27D08FC6C5",
@@ -9,7 +9,7 @@
       "status": "active",
       "note": "",
       "createdAt": "2026-09-29T08:01:50.804Z",
-      "updatedAt": "2026-09-29T08:01:50.804Z",
+      "updatedAt": "2026-10-09T02:42:26.505Z",
       "lastUsedAt": null,
       "totalSpent": 0,
       "totalGenerated": 0,
@@ -22,6 +22,15 @@
           "amount": 100,
           "balanceAfter": 100,
           "note": "Initial balance (member created)",
+          "by": "admin"
+        },
+        {
+          "id": "TX_D0D73883FA6A",
+          "at": "2026-10-09T02:42:26.528Z",
+          "type": "credit",
+          "amount": 0,
+          "balanceAfter": 100,
+          "note": "Balance added by admin",
           "by": "admin"
         }
       ],

@@ -251,6 +251,8 @@ function generation(service, options = {}) {
             // an account the member cannot pay for.
             const price = await pricing.priceFor(svc.key);
             const balance = Number(member.balance) || 0;
+
+            // Reject empty, pending, and anything that can't cover the price.
             if (price > 0 && balance < price) {
                 return res.status(402).json({
                     success: false,
@@ -261,8 +263,12 @@ function generation(service, options = {}) {
                 });
             }
 
-            res.setHeader('X-CrackHub-Charged', '0');
-            res.setHeader('X-CrackHub-Balance', String(balance));
+            // Mandatory wallet debit on every generation — even admin sessions
+            // no longer bypass the charge here; permission is separate from payment.
+            const chargeResult = await members.chargeGeneration(member.id, price);
+
+            res.setHeader('X-CrackHub-Charged', '1');
+            res.setHeader('X-CrackHub-Balance', String(chargeResult.balance));
 
             const originalJson = res.json.bind(res);
 
