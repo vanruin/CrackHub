@@ -531,6 +531,10 @@
             onReady: async me => {
                 renderMember(me.member);
                 loadCashin();
+                // ?cashin=1 — deep link from the "INSUFFICIENT BALANCE" popup
+                if (new URLSearchParams(window.location.search).has('cashin')) {
+                    loadCashin({ autoOpen: true });
+                }
                 await Promise.all([loadServices(), loadUsage(), loadTx()]);
             },
         });

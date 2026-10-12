@@ -127,6 +127,51 @@
         if (el && CH.state.role !== 'admin') el.textContent = CH.money(value);
     };
 
+    /**
+     * Blocking "INSUFFICIENT BALANCE" popup — shown when a member clicks
+     * Generate but their approved balance cannot cover the platform's price.
+     * Reuses the shared .ch-modal markup from platform.css.
+     */
+    CH.showInsufficientBalance = function (info) {
+        const data = info || {};
+        const price = Number(data.price);
+        const balance = Number(data.balance);
+
+        let modal = document.getElementById('chFundsModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.className = 'ch-modal';
+            modal.id = 'chFundsModal';
+            modal.innerHTML = `
+                <div class="ch-modal-box ch-funds-box">
+                    <div class="ch-funds-icon">⛔</div>
+                    <h3>INSUFFICIENT BALANCE</h3>
+                    <p class="ch-funds-msg" id="chFundsMsg"></p>
+                    <p class="ch-funds-hint">Pending cash-ins are not counted until the admin approves them.</p>
+                    <div class="ch-funds-actions">
+                        <button class="ch-btn ghost" id="chFundsClose" type="button">Close</button>
+                        <a class="ch-btn" id="chFundsCashin" href="/?cashin=1">💰 Cash in</a>
+                    </div>
+                </div>`;
+            document.body.appendChild(modal);
+            modal.querySelector('#chFundsClose').addEventListener('click', () => modal.classList.remove('open'));
+            modal.addEventListener('click', (ev) => {
+                if (ev.target === modal) modal.classList.remove('open');
+            });
+            document.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Escape') modal.classList.remove('open');
+            });
+        }
+
+        let message = data.error || 'You do not have enough balance for this platform.';
+        if (!data.error && Number.isFinite(price) && Number.isFinite(balance)) {
+            message = `This platform costs ${CH.money(price)} but your balance is only ${CH.money(balance)}.`;
+        }
+        modal.querySelector('#chFundsMsg').textContent = message;
+        if (Number.isFinite(balance)) CH.setBalance(balance);
+        modal.classList.add('open');
+    };
+
     // ------------------------------------------------------------ nav
     const LINKS = [
         { href: '/', label: 'Store' },
@@ -195,7 +240,10 @@
                 return res;
             }
             if (res.status === 402) {
-                CH.toast('Not enough balance — cash in to add funds.', 'bad');
+                // Parse the billing error so the popup can show price vs balance.
+                res.clone().json().then(data => {
+                    CH.showInsufficientBalance(data || {});
+                }).catch(() => CH.showInsufficientBalance(null));
                 return res;
             }
 

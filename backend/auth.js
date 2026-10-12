@@ -13,6 +13,7 @@ const cookie = require('cookie');
 const config = require('./config');
 const members = require('./members');
 const pricing = require('./pricing');
+const { money } = require('./money');
 const { getservice } = require('./catalog');
 
 const COOKIE_NAME = 'ch_access';
@@ -248,27 +249,27 @@ function generation(service, options = {}) {
             }
 
             // Charge the live price of the service — refuse before delivering
-            // an account the member cannot pay for.
+            // an account the member cannot pay for. Only the approved balance
+            // counts: a cash-in that is still pending is worth nothing here.
             const price = await pricing.priceFor(svc.key);
             const balance = Number(member.balance) || 0;
 
-            // Reject empty, pending, and anything that can't cover the price.
             if (price > 0 && balance < price) {
                 return res.status(402).json({
                     success: false,
                     code: 'INSUFFICIENT_FUNDS',
-                    error: `Not enough balance — ${svc.label} costs ₱${price} and your balance is ₱${balance}. Cash in to add funds.`,
+                    error: `Not enough balance — ${svc.label} costs ₱${money(price)} and your balance is ₱${money(balance)}. Cash in to add funds.`,
                     price,
                     balance,
                 });
             }
 
-            // Mandatory wallet debit on every generation — even admin sessions
-            // no longer bypass the charge here; permission is separate from payment.
-            const chargeResult = await members.chargeGeneration(member.id, price);
-
-            res.setHeader('X-CrackHub-Charged', '1');
-            res.setHeader('X-CrackHub-Balance', String(chargeResult.balance));
+            // The wallet debit happens when the account is delivered:
+            // recordGeneration() inside the patched res.json() below charges
+            // the live price atomically and flips the reply into a 402 if the
+            // balance was spent elsewhere in the meantime.
+            res.setHeader('X-CrackHub-Charged', '0');
+            res.setHeader('X-CrackHub-Balance', String(balance));
 
             const originalJson = res.json.bind(res);
 
@@ -285,6 +286,7 @@ function generation(service, options = {}) {
                             meta: info.meta,
                         });
 
+                        res.setHeader('X-CrackHub-Charged', '1');
                         res.setHeader('X-CrackHub-Balance', String(record.balance));
                         if (record.usageId) res.setHeader('X-CrackHub-Usage-Id', String(record.usageId));
 
@@ -307,6 +309,10 @@ function generation(service, options = {}) {
                             body.success = false;
                             body.code = 'INSUFFICIENT_FUNDS';
                             body.error = err.message;
+                            delete body.data;   // never hand over an account that was not paid for
+                            delete body.cookies;
+                            delete body.token;
+                            delete body.qrCode;
                         }
                     }
                     if (body && typeof body === 'object' && !body.billing) {
