@@ -12,6 +12,9 @@ const tickets = require('./tickets');
 const { money } = require('./money');
 const cashins = require('./cashins');
 const pricing = require('./pricing');
+const tutorials = require('./tutorials');
+const slides = require('./slides');
+const inquiries = require('./inquiries');
 const accountPool = require('./accountPool');
 const { CATALOG, getservice, view: catalogView } = require('./catalog');
 
@@ -295,6 +298,50 @@ function mountPlatformApi(app, options = {}) {
         res.json({ success: true, ticket: ticketForMember(ticket) });
     }));
 
+    // ------------------------------------------------- member: tutorials
+    // The admin publishes screenshots / a video here from the Tutorials tab.
+    memberApi.get('/tutorials', wrap(async (req, res) => {
+        res.json({ success: true, tutorials: await tutorials.listTutorials() });
+    }));
+
+    memberApi.get('/tutorials/:id', wrap(async (req, res) => {
+        const tutorial = await tutorials.getTutorial(req.params.id);
+        if (!tutorial) return res.status(404).json({ success: false, error: 'Tutorial not found' });
+        res.json({ success: true, tutorial });
+    }));
+
+    // ------------------------------------------------- member: showcase
+    // Only the active slides at the top of the store — admin drafts stay hidden.
+    memberApi.get('/slides', wrap(async (req, res) => {
+        res.json({ success: true, slides: await slides.listSlides({ activeOnly: true }) });
+    }));
+
+    // ------------------------------------------------- member: inquiries
+    memberApi.get('/inquiries', wrap(async (req, res) => {
+        const list = await inquiries.listInquiries({ memberId: req.member.id });
+        res.json({ success: true, inquiries: list.map(inquiries.summaryForMember) });
+    }));
+
+    memberApi.post('/inquiries', wrap(async (req, res) => {
+        const body = req.body || {};
+        const slide = await slides.getSlide(body.slideId);
+        if (!slide || !slide.active) {
+            return res.status(404).json({ success: false, error: 'That listing is no longer available' });
+        }
+
+        const inquiry = await inquiries.createInquiry({
+            member: req.member,
+            slide,
+            message: body.message,
+        });
+
+        res.status(201).json({
+            success: true,
+            inquiry,
+            message: 'Inquiry sent — the admin will get back to you shortly.',
+        });
+    }));
+
     app.use('/api/member', auth.requireMember, memberApi);
 
     // ========================================================= ADMIN
@@ -333,11 +380,12 @@ function mountPlatformApi(app, options = {}) {
     }
 
     adminApi.get('/stats', wrap(async (req, res) => {
-        const [list, prices, ticketCounts, cashinCounts] = await Promise.all([
+        const [list, prices, ticketCounts, cashinCounts, inquiryCounts] = await Promise.all([
             members.listMembers(),
             pricing.getAll(),
             tickets.counts(),
             cashins.counts(),
+            inquiries.counts(),
         ]);
         const catalog = await catalogView(poolCounter, prices);
 
@@ -361,6 +409,7 @@ function mountPlatformApi(app, options = {}) {
                 totalGenerated: list.reduce((sum, m) => sum + (m.totalGenerated || 0), 0),
                 tickets: ticketCounts,
                 cashIns: cashinCounts,
+                inquiries: inquiryCounts,
             },
             services: catalog,
         });
@@ -658,6 +707,91 @@ function mountPlatformApi(app, options = {}) {
             adminKey,
             message: next ? 'Admin key updated — keep it somewhere safe' : 'A new admin key was generated',
         });
+    }));
+
+    // ------------------------------------------------- admin: tutorials
+    adminApi.get('/tutorials', wrap(async (req, res) => {
+        res.json({
+            success: true,
+            tutorials: await tutorials.listTutorials(),
+            counts: await tutorials.counts(),
+        });
+    }));
+
+    adminApi.post('/tutorials', wrap(async (req, res) => {
+        const body = req.body || {};
+        const tutorial = await tutorials.createTutorial({
+            title: body.title,
+            note: body.note,
+            images: body.images,
+            video: body.video,
+        });
+        res.status(201).json({
+            success: true,
+            tutorial,
+            message: 'Tutorial published — members see it in the Tutorial Area right away.',
+        });
+    }));
+
+    adminApi.delete('/tutorials/:id', wrap(async (req, res) => {
+        const removed = await tutorials.removeTutorial(req.params.id);
+        res.json({ success: true, removed, message: `“${removed.title}” deleted` });
+    }));
+
+    // ------------------------------------------------- admin: showcase slides
+    adminApi.get('/slides', wrap(async (req, res) => {
+        res.json({
+            success: true,
+            slides: await slides.listSlides(),
+            counts: await slides.counts(),
+        });
+    }));
+
+    adminApi.post('/slides', wrap(async (req, res) => {
+        const body = req.body || {};
+        const slide = await slides.createSlide(body);
+        res.status(201).json({
+            success: true,
+            slide,
+            message: 'Slide published — it is now sliding at the top of the store.',
+        });
+    }));
+
+    adminApi.post('/slides/:id', wrap(async (req, res) => {
+        const slide = await slides.updateSlide(req.params.id, req.body || {});
+        res.json({ success: true, slide, message: 'Slide updated.' });
+    }));
+
+    adminApi.delete('/slides/:id', wrap(async (req, res) => {
+        const removed = await slides.removeSlide(req.params.id);
+        res.json({ success: true, removed, message: `“${removed.title}” deleted` });
+    }));
+
+    // ------------------------------------------------- admin: inquiries
+    adminApi.get('/inquiries', wrap(async (req, res) => {
+        const list = await inquiries.listInquiries({
+            status: req.query.status || '',
+            query: req.query.query || req.query.q || '',
+        });
+        res.json({ success: true, inquiries: list, counts: await inquiries.counts() });
+    }));
+
+    adminApi.get('/inquiries/:id', wrap(async (req, res) => {
+        const inquiry = await inquiries.getInquiry(req.params.id);
+        if (!inquiry) return res.status(404).json({ success: false, error: 'Inquiry not found' });
+        res.json({ success: true, inquiry });
+    }));
+
+    adminApi.post('/inquiries/:id/reply', wrap(async (req, res) => {
+        const text = String((req.body && req.body.text) || '').trim();
+        const inquiry = await inquiries.reply(req.params.id, { text });
+        res.json({ success: true, inquiry, message: 'Reply sent to the member.' });
+    }));
+
+    adminApi.post('/inquiries/:id/status', wrap(async (req, res) => {
+        const status = (req.body && req.body.status) || '';
+        const inquiry = await inquiries.setStatus(req.params.id, status);
+        res.json({ success: true, inquiry, message: `Inquiry marked as ${inquiry.status}.` });
     }));
 
     app.use('/api/admin', auth.requireAdmin, adminApi);

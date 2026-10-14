@@ -113,11 +113,15 @@
             <div class="stat-card"><div class="ch-stat-label">Open tickets</div><div class="ch-stat-value" id="stTickets">0</div></div>
             <div class="stat-card"><div class="ch-stat-label">Cash-ins pending</div><div class="ch-stat-value" id="stCashIns">0</div></div>
             <div class="stat-card"><div class="ch-stat-label">Cash-ins approved</div><div class="ch-stat-value" id="stCashIn">₱0.00</div></div>
+            <div class="stat-card"><div class="ch-stat-label">Open inquiries</div><div class="ch-stat-value" id="stInquiries">0</div></div>
         </div>
 
         <div class="ch-tabs" id="adminTabs">
             <button class="ch-tab active" data-tab="members" type="button">Members</button>
             <button class="ch-tab" data-tab="tickets" type="button">Tickets</button>
+            <button class="ch-tab" data-tab="showcase" type="button">Showcase</button>
+            <button class="ch-tab" data-tab="tutorials" type="button">Tutorials</button>
+            <button class="ch-tab" data-tab="inquiries" type="button">Inquiries</button>
             <button class="ch-tab" data-tab="pools" type="button">Pools</button>
             <button class="ch-tab" data-tab="cashins" type="button">Cash-ins</button>
             <button class="ch-tab" data-tab="pricing" type="button">Pricing</button>
@@ -228,6 +232,84 @@
             </div>
         </section>
 
+        <!-- ============================================================ SHOWCASE -->
+        <section class="admin-section" id="pane-showcase">
+            <div class="ch-card" style="margin-bottom:18px">
+                <h2>New showcase slide</h2>
+                <p class="ch-small ch-muted">Slides slide across the top of the store. Members tap one to see the details and hit <strong>Inquire</strong> — it lands in the Inquiries tab.</p>
+                <div class="ch-inline-form" style="margin-top:12px">
+                    <div class="ch-field"><label for="slideTitle">Title</label>
+                        <input class="ch-input" id="slideTitle" type="text" placeholder="Netflix — 1 month account"></div>
+                    <div class="ch-field"><label for="slideSubtitle">Subtitle</label>
+                        <input class="ch-input" id="slideSubtitle" type="text" placeholder="Full access · warranty"></div>
+                    <div class="ch-field" style="flex:0 1 150px"><label for="slidePrice">Price (₱)</label>
+                        <input class="ch-input" id="slidePrice" type="number" min="0" step="0.01" placeholder="optional"></div>
+                    <div class="ch-field" style="flex:0 1 120px"><label for="slideOrder">Order</label>
+                        <input class="ch-input" id="slideOrder" type="number" step="1" placeholder="0"></div>
+                </div>
+                <div class="ch-field" style="margin-top:12px"><label for="slideDetails">Details</label>
+                    <textarea class="ch-textarea" id="slideDetails" placeholder="Everything the buyer should know — duration, region, warranty, how to claim…"></textarea></div>
+                <label class="ch-pick" style="margin-top:12px">
+                    <input type="file" id="slideImage" accept="image/*">
+                    <span id="slideImageText">🖼️ Choose the slide picture</span>
+                </label>
+                <img id="slideImagePreview" alt="" style="display:none;margin-top:12px;max-width:260px;border-radius:12px;border:1px solid var(--ch-border)">
+                <div class="ch-row" style="margin-top:16px">
+                    <button class="ch-btn" id="createSlide" type="button">Publish slide</button>
+                    <label class="checkline" style="margin:0"><input type="checkbox" id="slideActive" checked> Active (shown on the store)</label>
+                    <span class="ch-small ch-muted" id="slideCount"></span>
+                </div>
+            </div>
+            <div id="slideList" class="ch-list"><div class="ch-empty">Loading slides…</div></div>
+        </section>
+
+        <!-- ============================================================ TUTORIALS -->
+        <section class="admin-section" id="pane-tutorials">
+            <div class="ch-card" style="margin-bottom:18px">
+                <h2>Publish a tutorial</h2>
+                <p class="ch-small ch-muted">Members see it in the Tutorial Area of the store. Attach <strong>multiple screenshots</strong> and/or <strong>one video</strong>.</p>
+                <div class="ch-inline-form" style="margin-top:12px">
+                    <div class="ch-field"><label for="tutTitle">Title</label>
+                        <input class="ch-input" id="tutTitle" type="text" placeholder="How to redeem your account"></div>
+                    <div class="ch-field"><label for="tutNote">Short note (optional)</label>
+                        <input class="ch-input" id="tutNote" type="text" placeholder="Shown under the title"></div>
+                </div>
+                <div class="ch-inline-form" style="margin-top:12px">
+                    <label class="ch-pick" style="flex:1 1 240px">
+                        <input type="file" id="tutImages" accept="image/*" multiple>
+                        <span id="tutImagesText">🖼️ Choose screenshots (multiple)</span>
+                    </label>
+                    <label class="ch-pick" style="flex:1 1 240px">
+                        <input type="file" id="tutVideo" accept="video/*">
+                        <span id="tutVideoText">🎬 Choose a video (optional)</span>
+                    </label>
+                </div>
+                <div class="ch-media-grid" id="tutPreviews" style="margin-top:12px"></div>
+                <div class="ch-row" style="margin-top:16px">
+                    <button class="ch-btn" id="createTutorial" type="button">Publish tutorial</button>
+                    <span class="ch-small ch-muted" id="tutCount"></span>
+                </div>
+            </div>
+            <div id="tutList" class="ch-list"><div class="ch-empty">Loading tutorials…</div></div>
+        </section>
+
+        <!-- ============================================================ INQUIRIES -->
+        <section class="admin-section" id="pane-inquiries">
+            <div class="toolbar">
+                <select class="ch-select" id="inqFilter">
+                    <option value="open">New / replied</option>
+                    <option value="all">All</option>
+                    <option value="new">New</option>
+                    <option value="replied">Replied</option>
+                    <option value="closed">Closed</option>
+                </select>
+                <input class="ch-input" id="inqSearch" type="search" placeholder="Inquiry id, listing, member…">
+                <button class="ch-btn ghost sm" id="inqSearchBtn" type="button">Search</button>
+                <span class="ch-small ch-muted" id="inqCount"></span>
+            </div>
+            <div id="inqList" class="ch-list"><div class="ch-empty">Loading inquiries…</div></div>
+        </section>
+
         <!-- ============================================================ SETTINGS -->
         <section class="admin-section" id="pane-settings">
             <div class="ch-card">
@@ -261,6 +343,7 @@
             active: 'good', disabled: 'bad',
             open: 'warn', in_review: 'info', replaced: 'good', rejected: 'bad', closed: '',
             pending: 'warn', approved: 'good',
+            new: 'warn', replied: 'info',
         };
 
         // ------------------------------------------------------------ modal
@@ -293,6 +376,7 @@
                 $('stTickets').textContent = (s.tickets && s.tickets.open) || 0;
                 $('stCashIns').textContent = (s.cashIns && s.cashIns.pending) || 0;
                 $('stCashIn').textContent = CH.money((s.cashIns && s.cashIns.approvedTotal) || 0);
+                $('stInquiries').textContent = (s.inquiries && s.inquiries.open) || 0;
                 $('adminSub').textContent =
                     `${s.members || 0} members · ${s.generations || 0} logged generations · ` +
                     `${(s.tickets && s.tickets.total) || 0} tickets all-time`;
@@ -314,6 +398,9 @@
             if (name === 'members') loadMembers();
             if (name === 'cashins') loadCashIns();
             if (name === 'pricing') loadPricing();
+            if (name === 'showcase') loadSlides();
+            if (name === 'tutorials') loadTutorials();
+            if (name === 'inquiries') loadInquiries();
         });
 
         $('refreshAll').addEventListener('click', () => {
@@ -321,6 +408,7 @@
             loadMembers();
             loadTickets();
             loadCashIns();
+            loadInquiries();
         });
 
         // ------------------------------------------------------------ members
@@ -1060,6 +1148,559 @@
                 CH.toast(data.message || 'Admin key updated', 'good');
             } catch (err) {
                 CH.toast(err.message, 'bad');
+            }
+        });
+
+        // ------------------------------------------------------------- uploads
+        // Admin uploads travel as data-URLs. Screenshots are re-compressed
+        // first so one tutorial stays comfortably inside the body limit.
+        const TUT_MAX_IMAGES = 10;
+        const VIDEO_MAX = 50 * 1024 * 1024;
+
+        let TUTORIALS = [];
+        let tutImagesData = [];
+        let tutVideoData = '';
+        let tutVideoName = '';
+        let slideImageData = '';
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error(`Could not read ${file.name}`));
+                reader.onload = () => resolve(String(reader.result));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error(`Could not read ${file.name}`));
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onerror = () => resolve(String(reader.result));
+                    img.onload = () => {
+                        const max = 1600;
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > max || h > max) {
+                            const scale = Math.min(max / w, max / h);
+                            w = Math.round(w * scale);
+                            h = Math.round(h * scale);
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        try { resolve(canvas.toDataURL('image/jpeg', 0.82)); }
+                        catch (err) { resolve(String(reader.result)); }
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderTutPreviews() {
+            $('tutPreviews').innerHTML =
+                tutImagesData.map((src, i) => `
+                    <button type="button" data-tut-img="${i}" title="Remove screenshot"><img src="${src}" alt=""></button>`).join('') +
+                (tutVideoName
+                    ? `<button type="button" data-tut-video-clear class="ch-btn ghost sm" style="grid-column:1/-1">🎬 ${CH.esc(tutVideoName)} — remove video</button>`
+                    : '');
+            $('tutImagesText').textContent = tutImagesData.length
+                ? `🖼️ ${tutImagesData.length} screenshot(s) — tap one to remove`
+                : '🖼️ Choose screenshots (multiple)';
+            $('tutVideoText').textContent = tutVideoName ? '🎬 Change the video' : '🎬 Choose a video (optional)';
+        }
+
+        $('tutImages').addEventListener('change', async () => {
+            const files = Array.from($('tutImages').files || []);
+            if (!files.length) return;
+
+            for (const file of files) {
+                if (!/^image\//.test(file.type)) { CH.toast(`${file.name} is not an image.`, 'bad'); continue; }
+                if (tutImagesData.length >= TUT_MAX_IMAGES) { CH.toast(`Max ${TUT_MAX_IMAGES} screenshots per tutorial.`, 'bad'); break; }
+                try { tutImagesData.push(await compressImage(file)); }
+                catch (err) { CH.toast(err.message, 'bad'); }
+            }
+            $('tutImages').value = '';
+            renderTutPreviews();
+        });
+
+        $('tutPreviews').addEventListener('click', e => {
+            const clearVideo = e.target.closest('[data-tut-video-clear]');
+            if (clearVideo) {
+                tutVideoData = '';
+                tutVideoName = '';
+                $('tutVideo').value = '';
+                renderTutPreviews();
+                return;
+            }
+            const img = e.target.closest('[data-tut-img]');
+            if (!img) return;
+            tutImagesData.splice(Number(img.dataset.tutImg), 1);
+            renderTutPreviews();
+        });
+
+        $('tutVideo').addEventListener('change', async () => {
+            const file = $('tutVideo').files && $('tutVideo').files[0];
+            if (!file) return;
+            if (!/^video\//.test(file.type)) { CH.toast('Pick a video file.', 'bad'); return; }
+            if (file.size > VIDEO_MAX) { CH.toast('That video is over 50 MB — export a smaller clip.', 'bad'); return; }
+            try {
+                tutVideoData = await readFileAsDataURL(file);
+                tutVideoName = file.name;
+            } catch (err) { CH.toast(err.message, 'bad'); }
+            renderTutPreviews();
+        });
+
+        // ---------------------------------------------------------- tutorials
+        $('createTutorial').addEventListener('click', async () => {
+            const title = $('tutTitle').value.trim();
+            if (!title) { CH.toast('Give the tutorial a title.', 'bad'); return; }
+            if (!tutImagesData.length && !tutVideoData) {
+                CH.toast('Attach at least one screenshot or a video.', 'bad');
+                return;
+            }
+
+            const btn = $('createTutorial');
+            btn.disabled = true;
+            btn.textContent = 'Uploading…';
+            try {
+                await CH.request('/api/admin/tutorials', {
+                    method: 'POST',
+                    body: {
+                        title,
+                        note: $('tutNote').value.trim(),
+                        images: tutImagesData,
+                        video: tutVideoData || undefined,
+                    },
+                });
+                CH.toast('Tutorial published — it is live in the member Tutorial Area.', 'good');
+                $('tutTitle').value = '';
+                $('tutNote').value = '';
+                $('tutImages').value = '';
+                $('tutVideo').value = '';
+                tutImagesData = [];
+                tutVideoData = '';
+                tutVideoName = '';
+                renderTutPreviews();
+                loadTutorials();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Publish tutorial';
+            }
+        });
+
+        async function loadTutorials() {
+            try {
+                const data = await CH.request('/api/admin/tutorials');
+                TUTORIALS = data.tutorials || [];
+                renderTutorials(TUTORIALS, data.counts || {});
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        function renderTutorials(list, counts) {
+            $('tutCount').textContent =
+                `${counts.total || 0} tutorial(s) · ${counts.screenshots || 0} screenshot(s) · ${counts.videos || 0} video(s)`;
+
+            const box = $('tutList');
+            if (!list.length) {
+                box.innerHTML = '<div class="ch-empty">No tutorials published yet.</div>';
+                return;
+            }
+
+            box.innerHTML = list.map(t => `
+                <div class="ch-card">
+                    <div class="ch-spread" style="align-items:flex-start">
+                        <div class="ch-row" style="align-items:flex-start">
+                            ${t.poster
+                                ? `<img src="${CH.esc(t.poster)}" alt="" style="width:104px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--ch-border)">`
+                                : ''}
+                            <div>
+                                <strong>${CH.esc(t.title)}</strong>
+                                <div class="ch-small ch-muted">
+                                    ${t.count} screenshot(s)${t.video ? ' · video' : ''} · ${CH.when(t.createdAt)}
+                                </div>
+                                ${t.note ? `<p class="ch-small" style="margin:6px 0 0">${CH.esc(t.note)}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="ch-row">
+                            <button class="ch-btn ghost sm" data-view-tut="${CH.esc(t.id)}" type="button">Preview</button>
+                            <button class="ch-btn danger sm" data-del-tut="${CH.esc(t.id)}" type="button">Delete</button>
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
+
+        $('tutList').addEventListener('click', async e => {
+            const view = e.target.closest('[data-view-tut]');
+            if (view) {
+                const tutorial = TUTORIALS.find(t => t.id === view.dataset.viewTut);
+                if (tutorial) openTutorialPreview(tutorial);
+                return;
+            }
+
+            const del = e.target.closest('[data-del-tut]');
+            if (!del) return;
+            const tutorial = TUTORIALS.find(t => t.id === del.dataset.delTut);
+            if (!tutorial || !confirm(`Delete “${tutorial.title}”? The screenshots/video are removed too.`)) return;
+
+            try {
+                const data = await CH.request(`/api/admin/tutorials/${encodeURIComponent(tutorial.id)}`, { method: 'DELETE' });
+                CH.toast(data.message || 'Tutorial deleted.', 'good');
+                loadTutorials();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        });
+
+        function openTutorialPreview(tutorial) {
+            const images = tutorial.images || [];
+            openModal(`
+                <h3>${CH.esc(tutorial.title)}</h3>
+                ${tutorial.note ? `<p class="ch-small ch-muted" style="margin:-8px 0 14px">${CH.esc(tutorial.note)}</p>` : ''}
+                ${tutorial.video ? `<video class="ch-media-video" src="${CH.esc(tutorial.video)}" controls playsinline preload="metadata"></video>` : ''}
+                ${images.length ? `<img class="ch-media-viewer" src="${CH.esc(images[0])}" alt="">` : ''}
+                ${images.length > 1
+                    ? `<div class="ch-media-grid">${images.map(src => `<button type="button"><img src="${CH.esc(src)}" alt=""></button>`).join('')}</div>`
+                    : ''}
+                <div class="ch-row" style="margin-top:16px">
+                    <button class="ch-btn ghost" data-close-modal type="button">Close</button>
+                </div>`);
+        }
+
+        // ------------------------------------------------------ showcase slides
+        let SLIDES = [];
+
+        $('slideImage').addEventListener('change', async () => {
+            const file = $('slideImage').files && $('slideImage').files[0];
+            if (!file) return;
+            if (!/^image\//.test(file.type)) { CH.toast('Pick an image file.', 'bad'); return; }
+            try {
+                slideImageData = await compressImage(file);
+                const preview = $('slideImagePreview');
+                preview.src = slideImageData;
+                preview.style.display = 'block';
+                $('slideImageText').textContent = `🖼️ ${file.name}`;
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        });
+
+        function resetSlideImage() {
+            $('slideImage').value = '';
+            $('slideImageText').textContent = '🖼️ Choose the slide picture';
+            const preview = $('slideImagePreview');
+            preview.removeAttribute('src');
+            preview.style.display = 'none';
+            slideImageData = '';
+        }
+
+        $('createSlide').addEventListener('click', async () => {
+            const title = $('slideTitle').value.trim();
+            if (!title) { CH.toast('Give the slide a title.', 'bad'); return; }
+            if (!slideImageData) { CH.toast('Choose the slide picture first.', 'bad'); return; }
+
+            const btn = $('createSlide');
+            btn.disabled = true;
+            btn.textContent = 'Uploading…';
+            try {
+                await CH.request('/api/admin/slides', {
+                    method: 'POST',
+                    body: {
+                        title,
+                        subtitle: $('slideSubtitle').value.trim(),
+                        price: $('slidePrice').value,
+                        details: $('slideDetails').value.trim(),
+                        order: $('slideOrder').value,
+                        active: $('slideActive').checked,
+                        image: slideImageData,
+                    },
+                });
+                CH.toast('Slide published — it is sliding on the store now.', 'good');
+                ['slideTitle', 'slideSubtitle', 'slidePrice', 'slideDetails', 'slideOrder'].forEach(id => { $(id).value = ''; });
+                resetSlideImage();
+                loadSlides();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Publish slide';
+            }
+        });
+
+        async function loadSlides() {
+            try {
+                const data = await CH.request('/api/admin/slides');
+                SLIDES = data.slides || [];
+                renderSlides(SLIDES, data.counts || {});
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        function renderSlides(list, counts) {
+            $('slideCount').textContent = `${counts.total || 0} slide(s) · ${counts.active || 0} active`;
+            const box = $('slideList');
+
+            if (!list.length) {
+                box.innerHTML = '<div class="ch-empty">No slides yet — publish the first one above.</div>';
+                return;
+            }
+
+            box.innerHTML = list.map(s => `
+                <div class="ch-card">
+                    <div class="ch-spread" style="align-items:flex-start">
+                        <div class="ch-row" style="align-items:flex-start">
+                            ${s.image
+                                ? `<img src="${CH.esc(s.image)}" alt="" style="width:124px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--ch-border)">`
+                                : ''}
+                            <div>
+                                <strong>${CH.esc(s.title)}</strong>
+                                ${s.price === null || s.price === undefined ? '' : ` <span class="ch-badge info">${CH.money(s.price)}</span>`}
+                                <div class="ch-small ch-muted">order ${s.order}${s.subtitle ? ` · ${CH.esc(s.subtitle)}` : ''} · ${CH.when(s.createdAt)}</div>
+                                ${s.details
+                                    ? `<p class="ch-small ch-muted" style="margin:6px 0 0;max-width:520px">${CH.esc(s.details.slice(0, 170))}${s.details.length > 170 ? '…' : ''}</p>`
+                                    : ''}
+                            </div>
+                        </div>
+                        <div class="ch-row">
+                            <span class="ch-badge ${s.active ? 'good' : ''}">${s.active ? 'active' : 'hidden'}</span>
+                            <button class="ch-btn ghost sm" data-toggle-slide="${CH.esc(s.id)}" type="button">${s.active ? 'Hide' : 'Show'}</button>
+                            <button class="ch-btn ghost sm" data-edit-slide="${CH.esc(s.id)}" type="button">Edit</button>
+                            <button class="ch-btn danger sm" data-del-slide="${CH.esc(s.id)}" type="button">Delete</button>
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
+
+        $('slideList').addEventListener('click', async e => {
+            const toggle = e.target.closest('[data-toggle-slide]');
+            if (toggle) {
+                const slide = SLIDES.find(s => s.id === toggle.dataset.toggleSlide);
+                if (!slide) return;
+                try {
+                    await CH.request(`/api/admin/slides/${encodeURIComponent(slide.id)}`, {
+                        method: 'POST',
+                        body: { active: !slide.active },
+                    });
+                    CH.toast(slide.active ? 'Slide hidden from the store.' : 'Slide is live on the store.', 'good');
+                    loadSlides();
+                } catch (err) { CH.toast(err.message, 'bad'); }
+                return;
+            }
+
+            const edit = e.target.closest('[data-edit-slide]');
+            if (edit) {
+                const slide = SLIDES.find(s => s.id === edit.dataset.editSlide);
+                if (slide) openSlideEditor(slide);
+                return;
+            }
+
+            const del = e.target.closest('[data-del-slide]');
+            if (!del) return;
+            const slide = SLIDES.find(s => s.id === del.dataset.delSlide);
+            if (!slide || !confirm(`Delete “${slide.title}”?`)) return;
+
+            try {
+                const data = await CH.request(`/api/admin/slides/${encodeURIComponent(slide.id)}`, { method: 'DELETE' });
+                CH.toast(data.message || 'Slide deleted.', 'good');
+                loadSlides();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        });
+
+        function openSlideEditor(slide) {
+            openModal(`
+                <h3>Edit slide</h3>
+                <div class="ch-inline-form">
+                    <div class="ch-field"><label for="editSlideTitle">Title</label>
+                        <input class="ch-input" id="editSlideTitle" type="text" value="${CH.esc(slide.title)}"></div>
+                    <div class="ch-field"><label for="editSlideSubtitle">Subtitle</label>
+                        <input class="ch-input" id="editSlideSubtitle" type="text" value="${CH.esc(slide.subtitle)}"></div>
+                </div>
+                <div class="ch-inline-form" style="margin-top:10px">
+                    <div class="ch-field" style="flex:0 1 150px"><label for="editSlidePrice">Price (₱)</label>
+                        <input class="ch-input" id="editSlidePrice" type="number" min="0" step="0.01" value="${slide.price === null || slide.price === undefined ? '' : CH.esc(slide.price)}"></div>
+                    <div class="ch-field" style="flex:0 1 120px"><label for="editSlideOrder">Order</label>
+                        <input class="ch-input" id="editSlideOrder" type="number" step="1" value="${CH.esc(slide.order)}"></div>
+                    <div class="ch-field" style="flex:0 1 auto"><label>Visibility</label>
+                        <label class="checkline" style="margin:0"><input type="checkbox" id="editSlideActive" ${slide.active ? 'checked' : ''}> Active</label></div>
+                </div>
+                <div class="ch-field" style="margin-top:10px"><label for="editSlideDetails">Details</label>
+                    <textarea class="ch-textarea" id="editSlideDetails">${CH.esc(slide.details)}</textarea></div>
+                <label class="ch-pick" style="margin-top:10px">
+                    <input type="file" id="editSlideImage" accept="image/*">
+                    <span id="editSlideImageText">🖼️ Replace the picture (optional)</span>
+                </label>
+                <div class="ch-row" style="margin-top:16px">
+                    <button class="ch-btn" data-save-slide="${CH.esc(slide.id)}" type="button">Save changes</button>
+                    <button class="ch-btn ghost" data-close-modal type="button">Cancel</button>
+                </div>`);
+
+            let replacement = '';
+            $('editSlideImage').addEventListener('change', async () => {
+                const file = $('editSlideImage').files && $('editSlideImage').files[0];
+                if (!file) return;
+                if (!/^image\//.test(file.type)) { CH.toast('Pick an image file.', 'bad'); return; }
+                try {
+                    replacement = await compressImage(file);
+                    $('editSlideImageText').textContent = `🖼️ ${file.name} ready`;
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                }
+            });
+
+            $('modalBox').querySelector('[data-save-slide]').addEventListener('click', async ev => {
+                const btn = ev.currentTarget;
+                btn.disabled = true;
+                try {
+                    await CH.request(`/api/admin/slides/${encodeURIComponent(slide.id)}`, {
+                        method: 'POST',
+                        body: {
+                            title: $('editSlideTitle').value.trim(),
+                            subtitle: $('editSlideSubtitle').value.trim(),
+                            price: $('editSlidePrice').value,
+                            order: $('editSlideOrder').value,
+                            active: $('editSlideActive').checked,
+                            details: $('editSlideDetails').value.trim(),
+                            ...(replacement ? { image: replacement } : {}),
+                        },
+                    });
+                    CH.toast('Slide updated.', 'good');
+                    closeModal();
+                    loadSlides();
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                    btn.disabled = false;
+                }
+            });
+        }
+
+        // ------------------------------------------------------------ inquiries
+        async function loadInquiries() {
+            const status = $('inqFilter').value;
+            const query = $('inqSearch').value.trim();
+            try {
+                const data = await CH.request(
+                    `/api/admin/inquiries?status=${encodeURIComponent(status)}&query=${encodeURIComponent(query)}`);
+                renderInquiries(data.inquiries || [], data.counts || {});
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        function renderInquiries(list, counts) {
+            $('inqCount').textContent =
+                `${list.length} shown · ${counts.new || 0} new · ${counts.open || 0} open · ${counts.closed || 0} closed`;
+
+            const box = $('inqList');
+            if (!list.length) {
+                box.innerHTML = '<div class="ch-empty">No inquiries match this filter.</div>';
+                return;
+            }
+
+            box.innerHTML = list.map(i => `
+                <div class="ch-card">
+                    <div class="ch-spread" style="align-items:flex-start">
+                        <div>
+                            <div class="key-cell">${CH.esc(i.id)}</div>
+                            <div style="margin-top:8px">
+                                <strong>${CH.esc(i.slideTitle)}</strong>
+                                ${i.slidePrice === null || i.slidePrice === undefined ? '' : ` <span class="ch-badge info">${CH.money(i.slidePrice)}</span>`}
+                            </div>
+                            <div class="ch-small ch-muted">
+                                ${CH.esc(i.memberName)} (${CH.esc(i.memberKey)}) · received ${CH.when(i.createdAt)}
+                            </div>
+                            <p class="ch-small" style="margin:8px 0 0">📝 ${CH.esc(i.message)}</p>
+                        </div>
+                        <div class="ch-row">
+                            <span class="ch-badge ${STATUS_BADGE[i.status] || ''}">${CH.esc(i.status)}</span>
+                            <button class="ch-btn sm" data-open-inq="${CH.esc(i.id)}" type="button">Open</button>
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
+
+        $('inqFilter').addEventListener('change', loadInquiries);
+        $('inqSearchBtn').addEventListener('click', loadInquiries);
+        $('inqSearch').addEventListener('keydown', e => { if (e.key === 'Enter') loadInquiries(); });
+
+        $('inqList').addEventListener('click', e => {
+            const btn = e.target.closest('[data-open-inq]');
+            if (btn) openInquiryModal(btn.dataset.openInq);
+        });
+
+        async function openInquiryModal(id) {
+            try {
+                const data = await CH.request(`/api/admin/inquiries/${encodeURIComponent(id)}`);
+                const i = data.inquiry;
+
+                openModal(`
+                    <h3>${CH.esc(i.id)} — ${CH.esc(i.slideTitle)}</h3>
+                    <div class="ch-row" style="margin-bottom:12px">
+                        <span class="ch-badge ${STATUS_BADGE[i.status] || ''}">${CH.esc(i.status)}</span>
+                        <span class="ch-badge">${CH.esc(i.memberName)} · ${CH.esc(i.memberKey)}</span>
+                        ${i.slidePrice === null || i.slidePrice === undefined ? '' : `<span class="ch-badge info">${CH.money(i.slidePrice)}</span>`}
+                    </div>
+                    <p class="ch-small ch-muted">Received ${CH.when(i.createdAt)}</p>
+                    <div class="ch-msg member"><span class="meta">Member</span>${CH.esc(i.message)}</div>
+                    ${(i.messages || []).filter(m => m.from === 'admin').map(m => `
+                        <div class="ch-msg admin"><span class="meta">You · ${CH.when(m.at)}</span>${CH.esc(m.text)}</div>`).join('')}
+                    <hr class="ch-hr">
+                    <div class="ch-field"><label for="inqReply">Reply to the member</label>
+                        <textarea class="ch-textarea" id="inqReply" placeholder="Yes, it is still available — send me your GCash reference…"></textarea></div>
+                    <div class="ch-row" style="margin-top:12px">
+                        <button class="ch-btn" data-inq-reply="${CH.esc(i.id)}" type="button">Send reply</button>
+                        <button class="ch-btn ghost" data-inq-status="${CH.esc(i.id)}" data-status="closed" type="button" ${i.status === 'closed' ? 'disabled' : ''}>Close inquiry</button>
+                        <button class="ch-btn ghost" data-close-modal type="button">Done</button>
+                    </div>`);
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+            }
+        }
+
+        $('modalBox').addEventListener('click', async e => {
+            const replyBtn = e.target.closest('[data-inq-reply]');
+            if (replyBtn) {
+                const text = ($('inqReply') && $('inqReply').value.trim()) || '';
+                if (!text) { CH.toast('Write a reply first.', 'bad'); return; }
+
+                replyBtn.disabled = true;
+                try {
+                    const data = await CH.request(
+                        `/api/admin/inquiries/${encodeURIComponent(replyBtn.dataset.inqReply)}/reply`,
+                        { method: 'POST', body: { text } });
+                    CH.toast(data.message || 'Reply sent to the member.', 'good');
+                    await openInquiryModal(replyBtn.dataset.inqReply);
+                    loadInquiries();
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                    replyBtn.disabled = false;
+                }
+                return;
+            }
+
+            const statusBtn = e.target.closest('[data-inq-status]');
+            if (!statusBtn) return;
+            statusBtn.disabled = true;
+            try {
+                const data = await CH.request(
+                    `/api/admin/inquiries/${encodeURIComponent(statusBtn.dataset.inqStatus)}/status`,
+                    { method: 'POST', body: { status: statusBtn.dataset.status } });
+                CH.toast(data.message || 'Inquiry updated.', 'good');
+                await openInquiryModal(statusBtn.dataset.inqStatus);
+                loadInquiries();
+            } catch (err) {
+                CH.toast(err.message, 'bad');
+                statusBtn.disabled = false;
             }
         });
 

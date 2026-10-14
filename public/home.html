@@ -161,6 +161,14 @@
 </head>
 <body class="ch-page">
     <div class="ch-wrap">
+        <!-- ============================================ sliding showcase -->
+        <div class="ch-carousel" id="showcase" hidden>
+            <div class="ch-carousel-track" id="showcaseTrack"></div>
+            <button class="ch-carousel-btn prev" id="showcasePrev" type="button" aria-label="Previous slide">‹</button>
+            <button class="ch-carousel-btn next" id="showcaseNext" type="button" aria-label="Next slide">›</button>
+            <div class="ch-carousel-dots" id="showcaseDots"></div>
+        </div>
+
         <div class="hero-bar">
             <div>
                 <h1 id="welcome">Welcome back</h1>
@@ -206,6 +214,15 @@
             <div class="ch-empty">Loading services…</div>
         </div>
 
+        <!-- ================================================ tutorial area -->
+        <div class="section-title">
+            <h2>📖 Tutorial Area</h2>
+            <span class="ch-small ch-muted">Screenshots &amp; videos posted by the admin</span>
+        </div>
+        <div class="ch-grid cols-3" id="tutorialGrid">
+            <div class="ch-empty">Loading tutorials…</div>
+        </div>
+
         <div class="section-title">
             <h2>🧾 Your activity</h2>
             <a class="ch-btn ghost sm" href="/support">Report a broken account</a>
@@ -224,6 +241,8 @@
     </div>
 
     <div class="ch-modal" id="subModal"><div class="ch-modal-box" id="subModalBox"></div></div>
+    <div class="ch-modal" id="showcaseModal"><div class="ch-modal-box" id="showcaseModalBox"></div></div>
+    <div class="ch-modal" id="tutorialModal"><div class="ch-modal-box" id="tutorialModalBox"></div></div>
 
     <script src="/platform.js"></script>
     <script>
@@ -526,6 +545,260 @@
             if (e.key === 'Escape') $('subModal').classList.remove('open');
         });
 
+        // ---------------------------------------------------- showcase slider
+        // The medium-size picture slider at the top: every slide opens a
+        // details popup with the "Inquire" button that reaches the admin.
+        let SLIDES = [];
+        let slideIndex = 0;
+        let slideTimer = null;
+
+        async function loadShowcase() {
+            try {
+                const data = await CH.request('/api/member/slides');
+                renderShowcase(data.slides || []);
+            } catch (err) { /* no slides published → the slider stays hidden */ }
+        }
+
+        function renderShowcase(list) {
+            SLIDES = Array.isArray(list) ? list : [];
+            const box = $('showcase');
+            if (!SLIDES.length) {
+                box.hidden = true;
+                stopShowcase();
+                return;
+            }
+            box.hidden = false;
+            $('showcaseTrack').innerHTML = SLIDES.map((s, i) => `
+                <div class="ch-carousel-slide" data-slide="${i}">
+                    ${s.image ? `<img src="${CH.esc(s.image)}" alt="${CH.esc(s.title)}" loading="${i ? 'lazy' : 'eager'}">` : ''}
+                    <div class="ch-carousel-caption">
+                        <h3>${CH.esc(s.title)}</h3>
+                        ${s.subtitle ? `<p>${CH.esc(s.subtitle)}</p>` : ''}
+                        ${s.price === null || s.price === undefined ? '' : `<span class="ch-carousel-price">${CH.money(s.price)}</span>`}
+                        <p class="ch-carousel-hint">Tap to see the details</p>
+                    </div>
+                </div>`).join('');
+            $('showcaseDots').innerHTML = SLIDES.map((_, i) =>
+                `<span data-dot="${i}" class="${i === 0 ? 'active' : ''}"></span>`).join('');
+            slideIndex = 0;
+            updateShowcase();
+            startShowcase();
+        }
+
+        function updateShowcase() {
+            if (!SLIDES.length) return;
+            $('showcaseTrack').style.transform = `translateX(-${slideIndex * 100}%)`;
+            $('showcaseDots').querySelectorAll('span').forEach((dot, i) =>
+                dot.classList.toggle('active', i === slideIndex));
+        }
+
+        function goSlide(step) {
+            if (SLIDES.length < 2) return;
+            slideIndex = (slideIndex + step + SLIDES.length) % SLIDES.length;
+            updateShowcase();
+        }
+
+        function startShowcase() {
+            stopShowcase();
+            if (SLIDES.length < 2) return;
+            slideTimer = setInterval(() => goSlide(1), 5000);
+        }
+
+        function stopShowcase() {
+            if (slideTimer) { clearInterval(slideTimer); slideTimer = null; }
+        }
+
+        $('showcasePrev').addEventListener('click', () => { goSlide(-1); startShowcase(); });
+        $('showcaseNext').addEventListener('click', () => { goSlide(1); startShowcase(); });
+        $('showcase').addEventListener('mouseenter', stopShowcase);
+        $('showcase').addEventListener('mouseleave', startShowcase);
+
+        $('showcaseDots').addEventListener('click', e => {
+            const dot = e.target.closest('[data-dot]');
+            if (!dot) return;
+            slideIndex = Number(dot.dataset.dot) || 0;
+            updateShowcase();
+            startShowcase();
+        });
+
+        $('showcaseTrack').addEventListener('click', e => {
+            const slide = e.target.closest('[data-slide]');
+            if (!slide) return;
+            openShowcase(SLIDES[Number(slide.dataset.slide)]);
+        });
+
+        // ------------------------------------------------- slide details popup
+        function openShowcase(slide) {
+            if (!slide) return;
+            const price = (slide.price === null || slide.price === undefined)
+                ? ''
+                : `<span class="ch-carousel-price">${CH.money(slide.price)}</span>`;
+
+            $('showcaseModalBox').innerHTML = `
+                <h3>${CH.esc(slide.title)}</h3>
+                ${slide.image ? `<img src="${CH.esc(slide.image)}" alt="" style="width:100%;max-height:250px;object-fit:cover;border-radius:14px;border:1px solid var(--ch-border);margin-bottom:14px">` : ''}
+                <div class="ch-row" style="margin-bottom:12px">
+                    ${price}
+                    ${slide.subtitle ? `<span class="ch-badge info">${CH.esc(slide.subtitle)}</span>` : ''}
+                </div>
+                <p style="white-space:pre-wrap;font-size:14px;line-height:1.6;margin:0 0 16px">${CH.esc(slide.details || 'No extra details were posted for this listing.')}</p>
+                <div class="ch-row">
+                    <button class="ch-btn" id="inquireBtn" type="button">📨 Inquire</button>
+                    <button class="ch-btn ghost" data-showcase-close type="button">Close</button>
+                </div>
+                <div id="inquireArea"></div>
+                <div id="inquireHistory"></div>`;
+
+            $('showcaseModal').classList.add('open');
+            $('inquireBtn').addEventListener('click', () => openInquireForm(slide));
+            loadInquiryHistory(slide.id);
+        }
+
+        function openInquireForm(slide) {
+            const area = $('inquireArea');
+            area.innerHTML = `
+                <hr class="ch-hr">
+                <div class="ch-field"><label for="inquireMsg">Your message to the admin</label>
+                    <textarea class="ch-textarea" id="inquireMsg" placeholder="Hi, is this account still available? I want to buy it."></textarea></div>
+                <div class="ch-row" style="margin-top:12px">
+                    <button class="ch-btn" id="inquireSend" type="button">Send inquiry</button>
+                </div>`;
+            $('inquireMsg').focus();
+
+            $('inquireSend').addEventListener('click', async () => {
+                const message = $('inquireMsg').value.trim();
+                if (!message) { CH.toast('Write a short message first.', 'bad'); return; }
+
+                const btn = $('inquireSend');
+                btn.disabled = true;
+                btn.textContent = 'Sending…';
+                try {
+                    await CH.request('/api/member/inquiries', {
+                        method: 'POST',
+                        body: { slideId: slide.id, message },
+                    });
+                    CH.toast('Inquiry sent — it went straight to the admin.', 'good');
+                    area.innerHTML = '<hr class="ch-hr"><div class="ch-empty">✅ Your inquiry was sent. Any admin reply appears below.</div>';
+                    loadInquiryHistory(slide.id);
+                } catch (err) {
+                    CH.toast(err.message, 'bad');
+                    btn.disabled = false;
+                    btn.textContent = 'Send inquiry';
+                }
+            });
+        }
+
+        async function loadInquiryHistory(slideId) {
+            const box = $('inquireHistory');
+            if (!box) return;
+            try {
+                const data = await CH.request('/api/member/inquiries');
+                const mine = (data.inquiries || []).filter(i => i.slideId === slideId);
+                if (!mine.length) { box.innerHTML = ''; return; }
+
+                box.innerHTML = `<hr class="ch-hr"><h3 style="font-size:15px">Your inquiries</h3>
+                    <div class="ch-list">${mine.map(i => {
+                        const badge = i.status === 'replied' ? 'good' : (i.status === 'closed' ? '' : 'warn');
+                        return `
+                        <div class="ch-list-item" style="display:block">
+                            <div class="ch-row" style="justify-content:space-between">
+                                <span class="ch-badge info">${CH.esc(i.id)}</span>
+                                <span class="ch-badge ${badge}">${CH.esc(i.status)}</span>
+                            </div>
+                            <p class="ch-small" style="margin:8px 0 0">📝 ${CH.esc(i.message)}</p>
+                            ${(i.messages || []).filter(m => m.from === 'admin').map(m => `
+                                <div class="ch-msg admin" style="margin-top:8px"><span class="meta">Admin · ${CH.when(m.at)}</span>${CH.esc(m.text)}</div>`).join('')}
+                        </div>`;
+                    }).join('')}</div>`;
+            } catch (err) { /* the history is optional */ }
+        }
+
+        // -------------------------------------------------------- tutorial area
+        let TUTORIALS = [];
+
+        async function loadTutorials() {
+            try {
+                const data = await CH.request('/api/member/tutorials');
+                renderTutorials(data.tutorials || []);
+            } catch (err) {
+                $('tutorialGrid').innerHTML = `<div class="ch-empty">${CH.esc(err.message)}</div>`;
+            }
+        }
+
+        function renderTutorials(list) {
+            TUTORIALS = Array.isArray(list) ? list : [];
+            const grid = $('tutorialGrid');
+            if (!TUTORIALS.length) {
+                grid.innerHTML = '<div class="ch-empty">No tutorials yet — the admin has not posted a guide.</div>';
+                return;
+            }
+
+            grid.innerHTML = TUTORIALS.map((t, i) => `
+                <div class="ch-card ch-tutorial" data-tutorial="${i}">
+                    <div class="thumb">
+                        ${t.poster ? `<img src="${CH.esc(t.poster)}" alt="" loading="lazy">` : '<span class="placeholder">🎓</span>'}
+                        ${t.video ? '<span class="play">▶</span>' : ''}
+                        <div class="badges">
+                            ${t.video ? '<span class="ch-badge info">video</span>' : ''}
+                            ${t.count ? `<span class="ch-badge">${t.count} screenshot${t.count > 1 ? 's' : ''}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="body">
+                        <span class="name">${CH.esc(t.title)}</span>
+                        <span class="ch-small ch-muted">Posted ${CH.when(t.createdAt)}</span>
+                    </div>
+                </div>`).join('');
+        }
+
+        $('tutorialGrid').addEventListener('click', e => {
+            const card = e.target.closest('[data-tutorial]');
+            if (!card) return;
+            openTutorial(TUTORIALS[Number(card.dataset.tutorial)]);
+        });
+
+        function openTutorial(tutorial) {
+            if (!tutorial) return;
+            const images = tutorial.images || [];
+
+            $('tutorialModalBox').innerHTML = `
+                <h3>${CH.esc(tutorial.title)}</h3>
+                ${tutorial.note ? `<p class="ch-small ch-muted" style="margin:-8px 0 14px">${CH.esc(tutorial.note)}</p>` : ''}
+                ${tutorial.video ? `<video class="ch-media-video" src="${CH.esc(tutorial.video)}" controls playsinline preload="metadata"></video>` : ''}
+                ${images.length ? `<img class="ch-media-viewer" id="tutViewer" src="${CH.esc(images[0])}" alt="">` : ''}
+                ${images.length > 1 ? `<div class="ch-media-grid" id="tutGrid">${images.map(src =>
+                    `<button type="button" data-src="${CH.esc(src)}"><img src="${CH.esc(src)}" alt=""></button>`).join('')}</div>` : ''}
+                ${!images.length && !tutorial.video ? '<div class="ch-empty">This tutorial has no media attached.</div>' : ''}
+                <div class="ch-row" style="margin-top:16px">
+                    <button class="ch-btn ghost" data-tutorial-close type="button">Close</button>
+                </div>`;
+
+            $('tutorialModal').classList.add('open');
+
+            const grid = $('tutGrid');
+            if (grid) {
+                grid.addEventListener('click', e => {
+                    const btn = e.target.closest('[data-src]');
+                    if (!btn) return;
+                    $('tutViewer').src = btn.dataset.src;
+                });
+            }
+        }
+
+        // ------------------------------------------------------ modal closing
+        ['showcaseModal', 'tutorialModal'].forEach(id => {
+            $(id).addEventListener('click', e => {
+                if (e.target.id === id || e.target.closest('[data-showcase-close], [data-tutorial-close]')) {
+                    $(id).classList.remove('open');
+                }
+            });
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key !== 'Escape') return;
+            $('showcaseModal').classList.remove('open');
+            $('tutorialModal').classList.remove('open');
+        });
+
         CH.start({
             requireRole: 'member',
             onReady: async me => {
@@ -536,6 +809,8 @@
                     loadCashin({ autoOpen: true });
                 }
                 await Promise.all([loadServices(), loadUsage(), loadTx()]);
+                // sliding showcase + tutorial area
+                await Promise.all([loadShowcase(), loadTutorials()]);
             },
         });
 

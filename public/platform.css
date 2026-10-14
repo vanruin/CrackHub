@@ -582,6 +582,257 @@ body.ch-has-nav {
 .ch-service .credential { font-size: 12.5px; color: var(--ch-muted); min-height: 34px; }
 .ch-service .foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 
+/* ---------------------------------------------------- showcase carousel */
+/* Medium-height sliding picture area at the top of the store — every slide
+   opens the details popup with the "Inquire" button. */
+.ch-carousel {
+    position: relative;
+    overflow: hidden;
+    height: 230px;
+    margin-bottom: 24px;
+    border-radius: 20px;
+    border: 1px solid var(--ch-border);
+    background: #0d1224;
+    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.32);
+}
+
+.ch-carousel[hidden] { display: none; }
+
+.ch-carousel-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.ch-carousel-slide {
+    position: relative;
+    flex: 0 0 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.ch-carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.ch-carousel-slide:hover img { transform: scale(1.03); }
+
+.ch-carousel-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 46px 20px 30px;
+    background: linear-gradient(to top, rgba(4, 6, 14, 0.94) 12%, rgba(4, 6, 14, 0.55) 60%, transparent 100%);
+    pointer-events: none;
+}
+
+.ch-carousel-caption h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    letter-spacing: -0.2px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.ch-carousel-caption p {
+    margin: 0;
+    font-size: 13px;
+    color: #cdd5ea;
+}
+
+.ch-carousel-price {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(0, 212, 255, 0.16);
+    border: 1px solid rgba(0, 212, 255, 0.38);
+    color: #67e8f9;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.ch-carousel-hint { margin-top: 6px !important; opacity: 0.72; font-size: 12px !important; }
+
+.ch-carousel-btn {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+    width: 38px;
+    height: 38px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--ch-border);
+    background: rgba(10, 12, 24, 0.72);
+    color: #fff;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+}
+
+.ch-carousel-btn:hover {
+    background: rgba(0, 212, 255, 0.28);
+    border-color: rgba(0, 212, 255, 0.55);
+    transform: translateY(-50%) scale(1.06);
+}
+
+.ch-carousel-btn.prev { left: 12px; }
+.ch-carousel-btn.next { right: 12px; }
+
+.ch-carousel-dots {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+}
+
+.ch-carousel-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.34);
+    cursor: pointer;
+    transition: width 0.2s, background 0.2s;
+}
+
+.ch-carousel-dots span.active {
+    width: 22px;
+    background: var(--ch-accent);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+}
+
+/* --------------------------------------------------------- tutorial area */
+.ch-tutorial {
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.ch-tutorial .thumb {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.14), rgba(123, 79, 255, 0.18));
+}
+
+.ch-tutorial .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.ch-tutorial .thumb .placeholder { font-size: 34px; opacity: 0.75; }
+
+.ch-tutorial .thumb .play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #fff;
+    background: rgba(4, 6, 14, 0.38);
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.ch-tutorial .thumb .badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ch-tutorial .body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ch-tutorial .body .name { font-weight: 700; font-size: 15px; }
+
+/* --------------------------------------------------- tutorial media viewer */
+.ch-media-video {
+    display: block;
+    width: 100%;
+    max-height: 340px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--ch-border);
+    background: #000;
+}
+
+.ch-media-viewer {
+    display: block;
+    width: 100%;
+    max-height: 340px;
+    object-fit: contain;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--ch-border);
+    background: #000;
+}
+
+.ch-media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 10px;
+}
+
+.ch-media-grid button {
+    padding: 0;
+    aspect-ratio: 4 / 3;
+    border-radius: 10px;
+    border: 1px solid var(--ch-border);
+    background: #000;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.18s, transform 0.18s;
+}
+
+.ch-media-grid button:hover { border-color: rgba(0, 212, 255, 0.55); transform: translateY(-2px); }
+.ch-media-grid img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.ch-pick {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1.5px dashed rgba(0, 212, 255, 0.40);
+    background: rgba(0, 212, 255, 0.05);
+    cursor: pointer;
+    font-size: 13.5px;
+    transition: border-color 0.18s, background 0.18s;
+}
+
+.ch-pick:hover { border-color: rgba(0, 212, 255, 0.75); background: rgba(0, 212, 255, 0.09); }
+.ch-pick input { display: none; }
+
+
 /* --------------------------------------------------------------- responsive */
 @media (max-width: 720px) {
     .ch-nav-inner { height: auto; padding: 10px 14px; flex-wrap: wrap; }
@@ -589,6 +840,10 @@ body.ch-has-nav {
     body.ch-has-nav { padding-top: 128px !important; }
     body.ch-page { padding: 140px 14px 50px; }
     .ch-head h1 { font-size: 24px; }
+    .ch-carousel { height: 168px; }
+    .ch-carousel-caption { padding: 34px 14px 26px; }
+    .ch-carousel-caption h3 { font-size: 15px; }
+    .ch-carousel-btn { width: 32px; height: 32px; font-size: 17px; }
     #chToast { left: 14px; right: 14px; max-width: none; }
 }
 

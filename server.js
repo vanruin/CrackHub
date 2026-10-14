@@ -37,6 +37,7 @@ const PORT = process.env.PORT || 8080;
 
 const auth = require('./backend/auth');
 const config = require('./backend/config');
+const mediaStore = require('./backend/media');
 const { mountPlatformApi } = require('./backend/routes');
 
 // Live pool sizes (storefront + admin dashboard)
@@ -94,9 +95,14 @@ app.use('/api', (req, res, next) => {
 const jsonSmall = express.json({ limit: '256kb', strict: true });
 const jsonBig = express.json({ limit: '25mb', strict: true });
 const jsonReceipt = express.json({ limit: '6mb', strict: true });   // GCash cash-in receipts
+// Admin tutorial / showcase uploads travel as data-URLs (screenshots + video).
+const jsonMedia = express.json({ limit: '80mb', strict: true });
 app.use((req, res, next) => {
     if (req.path.startsWith('/api/accounts/')) return jsonBig(req, res, next);
     if (req.path === '/api/member/cashin') return jsonReceipt(req, res, next);
+    if (req.path.startsWith('/api/admin/tutorials') || req.path.startsWith('/api/admin/slides')) {
+        return jsonMedia(req, res, next);
+    }
     return jsonSmall(req, res, next);
 });
 
@@ -117,6 +123,16 @@ app.use('/assets', express.static(path.join(__dirname, 'Assets')));
 
 // Member / ticket / admin APIs
 mountPlatformApi(app, { counters: poolCounters, generators });
+
+// Tutorial + showcase media. The files live in backend/data/media (not in
+// /public) on purpose: the cookie-guarded route below keeps them member-only.
+app.get('/media/:file', auth.requireMember, (req, res) => {
+    const target = mediaStore.filePath(`/media/${req.params.file}`);
+    if (!target) return res.status(404).json({ success: false, error: 'File not found' });
+    res.sendFile(target, err => {
+        if (err && !res.headersSent) res.status(404).json({ success: false, error: 'File not found' });
+    });
+});
 
 // ============ STEAM API ENDPOINTS ============
 
